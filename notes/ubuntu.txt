@@ -1,0 +1,130 @@
+﻿一、安装搜狗输入法
+
+sudo apt-get update && sudo apt-get install fcitx
+
+二、安装CHROME
+
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+
+sudo dpkg -i google-chrome-stable_current_amd64.deb
+
+三、右键打开终端
+nautilus-open-terminal
+四、视频广告
+很早以前，江湖上就有利用在hosts文件屏蔽优酷广告服务器IP地址的方式来达到屏蔽其广告的秘笈。可惜秘笈没有使用多久，就被优酷用黑屏广告给攻击了。有图有真相: image
+
+于是，江湖人事继续苦练内功后，又推出了目前能完整屏蔽优酷广告的秘笈。此秘笈如下：
+步骤一：修改Hosts，屏蔽广告服务器IP地址。
+
+Unix/Linux/Mac用户，编辑/etc/hosts文件，Windows用户编辑C:\Windows\System32\drivers\etc\hosts文件，在文件的最后，添加下面几行：
+127.0.0.1 atm.youku.com
+127.0.0.1 fvid.atm.youku.com
+127.0.0.1 html.atm.youku.com
+127.0.0.1 valb.atm.youku.com
+127.0.0.1 valc.atm.youku.com
+127.0.0.1 valf.atm.youku.com
+127.0.0.1 valo.atm.youku.com
+127.0.0.1 valp.atm.youku.com
+127.0.0.1 vid.atm.youku.com
+127.0.0.1 walp.atm.youku.com
+127.0.0.1 lstat.youku.com
+127.0.0.1 speed.lstat.youku.com
+127.0.0.1 static.lstat.youku.com
+127.0.0.1 urchin.lstat.youku.com
+127.0.0.1 stat.youku.com
+
+步骤二，欺骗Flash
+
+这里假定你用的浏览器是chrome,其他浏览器则可以使用类似的办法：
+
+Linux用户，找到类似下面的目录
+
+$HOME/.config/google-chrome/Default/Pepper Data/Shockwave Flash/WritableRoot/#SharedObjects/CAGM6W4E
+
+Mac用户，找到类似下面的目录
+
+$HOME/Library/Application Support/Google/Chrome/Default/Pepper Data/Shockwave Flash/WritableRoot/#SharedObjects/CAGM6W4E
+
+Windows XP用户找到类似下面的目录
+
+C:\Documents and Settings\Administrator\Application Data\Macromedia\Flash Player\#SharedObjects\CAGM6W4E
+
+Windows 7 用户找到类似下面的目录
+
+C:\Users\Administrator\AppData\Roaming\Macromedia\Flash Player\#SharedObjects\CAGM6W4E
+
+其中最后一次目录CAGM6W4E是一个随机字符串，所以很有可能每个每个人的这个目录名都不同。
+
+在这个目录下，可以看到有一个名为static.youku.com的文件夹。删除此文件夹，然后创建一个空文件，文件名取名为static.youku.com，Windows用户要特别注意文件后缀问题。
+
+重点在这：Linux/Mac用户建议用下面的指令一次你给搞定。
+
+rm -rf static.youku.com && touch static.youku.com
+
+到此，秘笈完成。再打开优酷视频，看看还有没有广告。
+
+我已亲自试过，绝对可用，献给大家。还有很多朋友没成功，下面我就简单一下：
+
+第一步必须按照我的方法做。
+第二步，直接执行命令：rm -rf static.youku.com && touch static.youku.com ，其他的都可以省掉不做。
+就这么简单。
+
+
+
+Ubuntu 12.04彻底禁用触摸板的方法
+ 
+摘要： Ubuntu 12.04默认没有关闭触摸板，每次打字的时候，难免会碰到。而且每次禁用之后，重启又会失效。在借用谷歌大神的力量后，终于找到了彻底禁用的方法。
+ 
+此方法需要修改/etc/modprobe.d/blacklist.conf文件：
+ 
+    1
+sudogedit/etc/modprobe.d/blacklist.conf
+在文件最后加入以下语句，保存，重启即可：
+ 
+1
+blacklist psmouse
+Update:2012-07-03
+通过以上方法禁用触摸板之后，无法再重新启用触摸板，除非删除添加的语句，重启电脑。
+今天发现一个应用指示器(Indicator)可以很方便的禁用和启用触摸板，方法如下：
+安装Touchpad Indicator (触摸板开关）
+1
+2
+3
+sudoadd-apt-repository ppa:atareao/atareao
+sudoapt-get update
+sudoapt-getinstalltouchpad-indicator
+ 
+安装完之后需要重启电脑。可以根据需要随时关闭、启用触摸板或者设置为插入鼠标后禁用触摸板。
+
+
+
+/etc/default/acpi-support
+
+找到
+# Add services to this list to stop them before suspend and restart them in # the resume process.
+STOP_SERVICES=""
+改为
+STOP_SERVICES="networking"
+
+Pycharm:
+27152-12042010
+00000tGmuNvZkjOjYWtGYfsu6DxH20
+iLdLSu3HatbDTd0cbuRnhN2Fz4OnkE
+"1NPw7KxO2tPbgiVWpNRYsFHLPZMec
+
+
+然后将这个目录拷贝到/usr/lib/java目录下。
+
+接下来需要使用vim或gedit来修改/etc/environment配置文件，在这个文件中增加如下的环境变量：
+
+JAVA_HOME="/usr/lib/java/jre1.7.0_25"
+CLASSPATH="$JAVA_HOME/lib"
+PATH＝"$JAVA_HOME/bin" 
+保存后，使用如下命令来进一步安装这个jre
+
+sudo update-alternatives --install /usr/bin/java java /usr/lib/java/jre1.7.0_25/bin/java 300
+
+这样就安装好这个jre了，然而可能系统中有多个jre，那么系统究竟判断用那一个来作为默认的jre呢，就需要使用如下的命令来配置：
+
+sudo update-alternatives --config java
+ 

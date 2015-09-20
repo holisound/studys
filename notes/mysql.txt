@@ -1,0 +1,21 @@
+mysql数据库编码设置
+第一步
+/etc/mysql/my.conf
+[client]
+default-character-set=utf8
+[mysqld]
+character-set-server=utf8
+第二步
+sudo service mysql restart
+
+安装mysql-python依赖库
+sudo apt-get install python-dev
+sudo apt-get install libmysqlclient-dev
+sudo updatedb
+更改root密码
+SET PASSWORD FOR 'root'@'localhost' = PASSWORD('password');
+
+创建非root用户
+CREATE USER 'username'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON db_name.* TO 'username'@'localhost';
+FLUSH PRIVILEGES;
