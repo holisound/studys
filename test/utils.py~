@@ -29,7 +29,5 @@ def post(rel_path, **kwargs):
     r.close()
     return res
 
-def transfer_key_value(dicta, dictb, key):
-    return (dicta.get(key) and dictb.setdefault(key, dicta.pop(key))) or \
-           (dictb.get(key) and dicta.setdefault(key, dictb.pop(key)))  
+
 
