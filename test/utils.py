@@ -33,3 +33,6 @@ def transfer_key_value(dicta, dictb, key):
     return (dicta.get(key) and dictb.setdefault(key, dicta.pop(key))) or \
            (dictb.get(key) and dicta.setdefault(key, dictb.pop(key)))  
 
+def get_condition_string(dictObj):
+    return lambda k: dictObj.get(k) and ' AND WHERE {key} = "{value}" '.format(key=k, value=dictObj[k])
+
