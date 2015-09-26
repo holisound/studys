@@ -37,20 +37,21 @@ def get_clean_key(key):
         key = key.split('__')[0]
     return key 
 def get_token(key):
+    token = '='
     if '__' in key:
         tail = key.split('__')[-1]
         if tail == 'lt':
-            return '<'
+            token = '<'
         elif tail == 'gt':
-            return '>'
+            token = '>'
         elif tail == 'gte':
-            return '>='
+            token = '>='
         elif tail == 'lte':
-            return '<='
+            token = '<='
         else:
-            return '='
-    else:
-        return '='
+            token = '='
+    
+    return token
 def get_condition_string(dictObj):
     return lambda k: dictObj.get(k) and ' AND WHERE {key} {token} "{value}" '.format(
                             key=get_clean_key(k), token=get_token(k), value=dictObj[k])
