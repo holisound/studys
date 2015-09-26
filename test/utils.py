@@ -48,18 +48,16 @@ def get_token(key):
             token = '>='
         elif tail == 'lte':
             token = '<='
-        else:
-            token = '='
-    
     return token
+
 def get_condition_string(dictObj):
-    return lambda k: dictObj.get(k) and ' AND WHERE {key} {token} "{value}" '.format(
+    return lambda k: dictObj.get(k) and ' AND {key} {token} "{value}" '.format(
                             key=get_clean_key(k), token=get_token(k), value=dictObj[k])
 def get_condition_sql(dictObj):
     get_condition = get_condition_string(dictObj)
     return ''.join(get_condition(key) for key in dictObj )
 def main():
-    a={'a':1}
+    a={'a':1, 'b__gt':2, 'c__lt':10, 'd__lte':22, 'e__gte':32}
     print get_condition_sql(a)
 if __name__ == '__main__':
     main()
