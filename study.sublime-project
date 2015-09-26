@@ -7,11 +7,5 @@
 			"selector": "source.python",
 			"shell_cmd": "/usr/bin/python2.7 -u \"$file\""
 		}
-	],
-	"folders":
-	[
-		{
-			"path": "."
-		}
 	]
 }

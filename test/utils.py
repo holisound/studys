@@ -31,8 +31,34 @@ def post(rel_path, **kwargs):
 
 def transfer_key_value(dicta, dictb, key):
     return (dicta.get(key) and dictb.setdefault(key, dicta.pop(key))) or \
-           (dictb.get(key) and dicta.setdefault(key, dictb.pop(key)))  
-
+           (dictb.get(key) and dicta.setdefault(key, dictb.pop(key)))
+def get_clean_key(key):
+    if '__' in key:
+        key = key.split('__')[0]
+    return key 
+def get_token(key):
+    if '__' in key:
+        tail = key.split('__')[-1]
+        if tail == 'lt':
+            return '<'
+        elif tail == 'gt':
+            return '>'
+        elif tail == 'gte':
+            return '>='
+        elif tail == 'lte':
+            return '<='
+        else:
+            return '='
+    else:
+        return '='
 def get_condition_string(dictObj):
-    return lambda k: dictObj.get(k) and ' AND WHERE {key} = "{value}" '.format(key=k, value=dictObj[k])
-
+    return lambda k: dictObj.get(k) and ' AND WHERE {key} {token} "{value}" '.format(
+                            key=get_clean_key(k), token=get_token(k), value=dictObj[k])
+def get_condition_sql(dictObj):
+    get_condition = get_condition_string(dictObj)
+    return ''.join(get_condition(key) for key in dictObj )
+def main():
+    a={'a':1}
+    print get_condition_sql(a)
+if __name__ == '__main__':
+    main()
