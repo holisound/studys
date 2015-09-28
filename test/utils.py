@@ -55,9 +55,10 @@ def get_condition_string(dictObj):
                             key=get_clean_key(k), token=get_token(k), value=dictObj[k])
 def get_condition_sql(dictObj):
     get_condition = get_condition_string(dictObj)
-    return ''.join(get_condition(key) for key in dictObj )
+    condition_list = filter(lambda x:bool(x), map(get_condition, dictObj))
+    return ''.join(condition_list)
 def main():
-    a={'a':1, 'b__gt':2, 'c__lt':10, 'd__lte':22, 'e__gte':32}
+    a={'a':1, 'b__gt':2, 'c__lt':10, 'd__lte':22, 'e__gte':32, 'empty':None}
     print get_condition_sql(a)
 if __name__ == '__main__':
     main()
