@@ -32,25 +32,25 @@ def post(rel_path, **kwargs):
 def transfer_key_value(dicta, dictb, key):
     return (dicta.get(key) and dictb.setdefault(key, dicta.pop(key))) or \
            (dictb.get(key) and dicta.setdefault(key, dictb.pop(key)))
-def get_clean_key(key):
-    if '__' in key:
-        key = key.split('__')[0]
-    return key 
-def get_token(key):
-    token = '='
-    if '__' in key:
-        tail = key.split('__')[-1]
-        if tail == 'lt':
-            token = '<'
-        elif tail == 'gt':
-            token = '>'
-        elif tail == 'gte':
-            token = '>='
-        elif tail == 'lte':
-            token = '<='
-    return token
 
 def get_condition_string(dictObj):
+    def get_clean_key(key):
+        if '__' in key:
+            key = key.split('__')[0]
+        return key 
+    def get_token(key):
+        token = '='
+        if '__' in key:
+            tail = key.split('__')[-1]
+            if tail == 'lt':
+                token = '<'
+            elif tail == 'gt':
+                token = '>'
+            elif tail == 'gte':
+                token = '>='
+            elif tail == 'lte':
+                token = '<='
+        return token
     return lambda k: dictObj.get(k) and ' AND {key} {token} "{value}" '.format(
                             key=get_clean_key(k), token=get_token(k), value=dictObj[k])
 def get_condition_sql(dictObj):
