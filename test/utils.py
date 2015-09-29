@@ -32,30 +32,39 @@ def post(rel_path, **kwargs):
 def transfer_key_value(dicta, dictb, key):
     return (dicta.get(key) and dictb.setdefault(key, dicta.pop(key))) or \
            (dictb.get(key) and dicta.setdefault(key, dictb.pop(key)))
-def get_clean_key(key):
-    if '__' in key:
-        key = key.split('__')[0]
-    return key 
-def get_token(key):
-    token = '='
-    if '__' in key:
-        tail = key.split('__')[-1]
-        if tail == 'lt':
-            token = '<'
-        elif tail == 'gt':
-            token = '>'
-        elif tail == 'gte':
-            token = '>='
-        elif tail == 'lte':
-            token = '<='
-    return token
-
 def get_condition_string(dictObj):
+    def get_clean_key(key):
+        if '__' in key:
+            key = key.split('__')[0]
+        return key 
+    def get_token(key):
+        token = '='
+        if '__' in key:
+            tail = key.split('__')[-1]
+            if tail == 'lt':
+                token = '<'
+            elif tail == 'gt':
+                token = '>'
+            elif tail == 'gte':
+                token = '>='
+            elif tail == 'lte':
+                token = '<='
+        return token
     return lambda k: dictObj.get(k) and ' AND {key} {token} "{value}" '.format(
                             key=get_clean_key(k), token=get_token(k), value=dictObj[k])
 def get_condition_sql(dictObj):
     get_condition = get_condition_string(dictObj)
-    return ''.join(get_condition(key) for key in dictObj )
+    # filter out valid element
+    condition_list = filter(
+        lambda x:bool(x),
+        map(get_condition, dictObj)
+        )
+    return ''.join(condition_list)
+
+def valuesOfDictInList(listOfDict):
+    return reduce(lambda x,y:x+y,map(lambda listOfDict: listOfDict.values(),listOfDict))
+def keysOfDictInList(listOfDict):
+    return reduce(lambda x,y:x+y,map(lambda listOfDict: listOfDict.keys(),listOfDict))
 def main():
     a={'a':1, 'b__gt':2, 'c__lt':10, 'd__lte':22, 'e__gte':32}
     print get_condition_sql(a)
