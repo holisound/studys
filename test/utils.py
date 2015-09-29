@@ -32,10 +32,7 @@ def post(rel_path, **kwargs):
 def transfer_key_value(dicta, dictb, key):
     return (dicta.get(key) and dictb.setdefault(key, dicta.pop(key))) or \
            (dictb.get(key) and dicta.setdefault(key, dictb.pop(key)))
-<<<<<<< HEAD
-=======
 
->>>>>>> 99099c74d8de52c177321797d06fa2bc74bba1fc
 def get_condition_string(dictObj):
     def get_clean_key(key):
         if '__' in key:
