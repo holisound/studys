@@ -32,6 +32,10 @@ def post(rel_path, **kwargs):
 def transfer_key_value(dicta, dictb, key):
     return (dicta.get(key) and dictb.setdefault(key, dicta.pop(key))) or \
            (dictb.get(key) and dicta.setdefault(key, dictb.pop(key)))
+<<<<<<< HEAD
+=======
+
+>>>>>>> 99099c74d8de52c177321797d06fa2bc74bba1fc
 def get_condition_string(dictObj):
     def get_clean_key(key):
         if '__' in key:
@@ -65,8 +69,9 @@ def valuesOfDictInList(listOfDict):
     return reduce(lambda x,y:x+y,map(lambda listOfDict: listOfDict.values(),listOfDict))
 def keysOfDictInList(listOfDict):
     return reduce(lambda x,y:x+y,map(lambda listOfDict: listOfDict.keys(),listOfDict))
+
 def main():
-    a={'a':1, 'b__gt':2, 'c__lt':10, 'd__lte':22, 'e__gte':32}
+    a={'a':1, 'b__gt':2, 'c__lt':10, 'd__lte':22, 'e__gte':32, 'empty':None}
     print get_condition_sql(a)
 if __name__ == '__main__':
     main()
