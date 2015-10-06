@@ -1,7 +1,6 @@
 # !/usr/bin/env python
 # coding=utf-8
 import sys
-import subprocess
 sys.path.append('/home/edward/lib/')
 class Base:
     def __init__(self, a, b):
