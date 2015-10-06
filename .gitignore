@@ -1,2 +1,4 @@
 *.pyc
 *sublime*
+build/
+*.jpg
