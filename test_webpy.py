@@ -4,7 +4,10 @@ import web
 import json
 from jinja2 import Environment, FileSystemLoader
 
-urls = ("/.*", "hello")
+urls = ("/?", "hello",
+        '/register', 'Register',
+        '/upload', 'Upload',
+        )
 app = web.application(urls, globals(), autoreload=True)
 
 
@@ -32,9 +35,24 @@ class hello:
         # 'ldap/hello.html'.
         return render_template('index.html', name='Edward',)
 
-    def POST(self):
-        return render_template('index.html', name='request with "post" method')
 
+class Register:
+
+    def POST(self):
+        data = web.input(username=None,
+                         password=None,
+                         verifycode=None)
+        return data.verifycode
+
+
+class Upload:
+
+    def POST(self):
+        data = web.input(myfile={})
+        with open(data.myfile.filename, 'wb') as f:
+            f.write(data.myfile.value)
+        callback = open(data.myfile.filename).read()
+        return callback
 if __name__ == '__main__':
     app.run()
     # application = app.wsgifunc()
