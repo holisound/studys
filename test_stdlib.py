@@ -17,7 +17,6 @@ class Child(Base):
 def untie(a,b):
     return a + b
 
-import glob
 if __name__ == '__main__':
 # apply()用来传递参数，从子类传递到基类
     c = Child(123,b=1456)

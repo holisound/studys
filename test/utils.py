@@ -6,26 +6,30 @@ requests.adapters.DEFAULT_RETRIES = 5
 from urlparse import urljoin
 base_url = 'http://localhost:8080'
 
-def get(rel_path, **kwargs):
+def request(method, rel_path, **kwargs):
+    abs_path = base_url + rel_path
+    if isinstance(kwargs.get('json'), (dict,)):
+        jsonstr = json.dumps(kwargs['json'])
+    else:
+        jsonstr = kwargs.get('json')
     r = requests.request(
-        'get',
-        urljoin(base_url, rel_path),
-        params=kwargs
+        method,
+        abs_path,
+        headers = {'json': jsonstr},
+        params = kwargs.get('query'),
         )
-    res = {'path':rel_path,
+    jsondict = json.loads(r.text)
+    result = jsondict.pop('result')
+    res = {'path':abs_path,
             'params': kwargs,
-            'response': r.content
-            }
-    r.close()
-    return res
-
-def post(rel_path, **kwargs):
-    return requests.request(
-        'post',
-        urljoin(base_url, rel_path),
-        data=kwargs
-        )
-    res = (rel_path, kwargs, r.status_code, r.content)
+            'response':{
+                'result': result,
+             }
+        }
+    if len(jsondict) > 0:
+        key,value = jsondict.popitem()
+        res['response']['length'] = len(value)
+        res['response'][key] = value
     r.close()
     return res
 
