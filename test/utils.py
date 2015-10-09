@@ -3,7 +3,7 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-09 18:21:24
+# @Last Modified time: 2015-10-09 19:04:31
 
 import requests
 requests.adapters.DEFAULT_RETRIES = 5
@@ -94,8 +94,6 @@ class ConditionSQL:
 
     def get_value(self, key):
         val = self.dict[key]
-        if type(val) is str:
-            val = repr(val)
         if str(key).endswith('in') and len(val) == 1:
             return '(%s)' % val[0]
         return val
@@ -107,10 +105,15 @@ class ConditionSQL:
         clean_key = self.get_clean_key(key)
         token = self.get_token(key)
         value = self.get_value(key)
+
+        if type(value) is unicode:
+            token = token.replace('%s', '"%s"')
         return '{key} {condition}'.format(key=clean_key, condition=(token % value))
 
     def get_and_sql(self):
-        return ' AND '.join(map(self.get_single, self.dict))
+        fraction_list = map(self.get_single, self.dict)
+        fraction_list.insert(0, '')
+        return ' AND '.join(fraction_list)
 
 def get_condition_string(dictObj):
 
