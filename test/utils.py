@@ -3,7 +3,7 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-10 00:11:42
+# @Last Modified time: 2015-10-10 00:21:49
 
 import requests
 requests.adapters.DEFAULT_RETRIES = 5
@@ -95,7 +95,7 @@ class ConditionSQL:
     def get_value(self, key):
         return self.dict[key]
 
-    def get_sql_fraction(self, key):
+    def get_fraction(self, key):
         """
             1. Get single sql-fraction such as 
                'id = 1','id IN (1,2,3)' or 'id >= 5'
@@ -132,7 +132,7 @@ class ConditionSQL:
             GET Condition-SQL connected with keyword 'AND'
             e.g. ' AND a=1 AND b>2 AND c<10 ...'
         """
-        fraction_list = map(self.get_sql_fraction, self.dict)
+        fraction_list = map(self.get_fraction, self.dict)
         fraction_list.insert(0, '')
         return ' AND '.join(fraction_list)
 
