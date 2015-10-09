@@ -42,21 +42,35 @@ def get_condition_string(dictObj):
         if '__' in key:
             key = key.split('__')[0]
         return key 
+
     def get_token(key):
         token = '='
+        tail = ''
+        token_mapping = {
+            'lt' : '<',
+            'lte': '<=',
+            'gt' : '>',
+            'gte': '>=',
+            'in' : 'IN',
+        }
         if '__' in key:
             tail = key.split('__')[-1]
-            if tail == 'lt':
-                token = '<'
-            elif tail == 'gt':
-                token = '>'
-            elif tail == 'gte':
-                token = '>='
-            elif tail == 'lte':
-                token = '<='
-        return token
-    return lambda k: dictObj.get(k) and ' AND {key} {token} "{value}" '.format(
-                            key=get_clean_key(k), token=get_token(k), value=dictObj[k])
+            if tail in token_mapping:
+                token = token_mapping[tail]
+        return token, tail
+
+
+    def get_value(key):
+        raw_value = dictObj[key]
+        if str(key).endswith('in'):
+            if len(raw_value) == 1:
+                return '(%s)' % raw_value[0]
+        return raw_value        
+        
+
+    return lambda k: dictObj.get(k) and (' AND {key} {token} {value} ' if get_token(k)[-1] in ('in',) else ' AND {key} {token} "{value}" ').format(
+                            key=get_clean_key(k), token=get_token(k)[0], value=get_value(k))  
+
 def get_condition_sql(dictObj):
     get_condition = get_condition_string(dictObj)
     # filter out valid element
