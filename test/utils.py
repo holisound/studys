@@ -3,7 +3,7 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-09 19:04:31
+# @Last Modified time: 2015-10-09 19:06:04
 
 import requests
 requests.adapters.DEFAULT_RETRIES = 5
@@ -116,7 +116,6 @@ class ConditionSQL:
         return ' AND '.join(fraction_list)
 
 def get_condition_string(dictObj):
-
     return lambda k: dictObj.get(k) and (' AND {key} {token} {value} ' if get_token(k)[-1] in ('in',) else ' AND {key} {token} "{value}" ').format(
                             key=get_clean_key(k), token=get_token(k)[0], value=get_value(k))  
 
