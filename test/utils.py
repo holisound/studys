@@ -3,9 +3,18 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-10 21:52:00
+# @Last Modified time: 2015-10-12 13:41:49
 
 import requests
+import json
+
+def json_safe_loads(jsonstr, **kwargs):
+    try:
+        pyObj = json.loads(jsonstr, **kwargs)
+    except ValueError:
+        pyObj = json.loads(json.dumps(jsonstr), **kwargs)
+    finally:
+        return pyObj
 
 def request(method, rel_path, **kwargs):
     abs_path = base_url + rel_path
@@ -19,25 +28,43 @@ def request(method, rel_path, **kwargs):
         headers = {'json': jsonstr},
         params = kwargs.get('query'),
         )
-    jsondict = json.loads(r.text)
-    result = jsondict.pop('result', None)
+    # print kwargs
+    # print r.text
+    jsondict = json_safe_loads(r.text)
+    result = jsondict.pop('result', None) if isinstance(jsondict, dict) else jsondict
     res = {'path':abs_path,
             'params': kwargs,
             'response':{
                 'result': result,
              }
         }
-    if len(jsondict) > 0:
+    if hasattr(jsondict, '__len__') and len(jsondict) > 0:
         key,value = jsondict.popitem()
-        res['response']['length'] = len(value)
+        res['response']['length'] = len(value) 
         res['response'][key] = value
     r.close()
     return res
+
 
 def transfer_key_value(dicta, dictb, key):
     return (dicta.get(key) and dictb.setdefault(key, dicta.pop(key))) or \
            (dictb.get(key) and dicta.setdefault(key, dictb.pop(key)))
 
+def copy_dict(dictObj, deep=False, **kwargs):
+    """
+        'kwargs' collects keyword-arguments to update the copy-content
+        if 'deep' is True, recursively-copying will be done.
+    """
+    if deep:
+        from copy import deepcopy
+        copyObj = deepcopy(dictObj)
+        copyObj.update(kwargs)
+    else:
+        copyObj = dictObj.copy()
+        copyObj.update(kwargs)
+
+    return copyObj
+    
 class ConditionSQL:
 
     def __init__(self, dictObj):
@@ -129,20 +156,35 @@ class ConditionSQL:
             e.g. ' AND a=1 AND b>2 AND c<10 ...'
         """
         fraction_list = map(self.get_fraction, self.dict)
-        fraction_list.insert(0, '')
-        return ' AND '.join(fraction_list)
-
+        # fraction_list.insert(0, '')
+        # return ' AND '.join(fraction_list)
+        return fraction_list
 def valuesOfDictInList(listOfDict):
     """
         [{'a':[1,2]},{'b':[3,4]},{'c':[5,6]}] --> [1,2,3,4,5,6]
     """
     from functools import reduce
     return reduce(lambda x,y:x+y,map(lambda d: d.values(),listOfDict))
+
 def keysOfDictInList(listOfDict):
     """
         [{'a':[1,2]},{'b':[3,4]},{'c':[5,6]}] --> ['a', 'b', 'c']
     """
     return reduce(lambda x,y:x+y,map(lambda d: d.keys(),listOfDict))
+
+class Dictic(dict):
+
+    def get_join(self, key, connector='', reverse=False):
+        key, val = str(key), str(self[key])
+        frc = (val, key) if reverse else (key, val)
+        return connector.join(frc)
+
+    def get_join_gen(self, connector='', reverse=False):
+        """
+            generator of s which deriving from items 
+        """
+        return (self.get_join(k, connector, reverse) for k in self.iterkeys())
+    # def __getattribute__(self,)
 
 def main():
     a={'a':1, 'b__gt':2, 'c__lt':"2012", 'd__lte':22,
@@ -150,5 +192,8 @@ def main():
     'city':'上海',}
     csql = ConditionSQL(a)
     print csql.get_condition_sql()
+    d = Dictic(a=1,b=123,c=333)
+    # print d.get_join('b','=')
+    print list(d.get_join_gen('xxx',True))
 if __name__ == '__main__':
     main()
