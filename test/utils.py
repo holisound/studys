@@ -3,13 +3,9 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-10 00:21:49
+# @Last Modified time: 2015-10-10 21:52:00
 
 import requests
-requests.adapters.DEFAULT_RETRIES = 5
-
-from urlparse import urljoin
-base_url = 'http://localhost:8080'
 
 def request(method, rel_path, **kwargs):
     abs_path = base_url + rel_path
