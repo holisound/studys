@@ -3,13 +3,22 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-09 19:06:04
+# @Last Modified time: 2015-10-12 13:41:49
 
 import requests
+import json
 requests.adapters.DEFAULT_RETRIES = 5
 
 from urlparse import urljoin
 base_url = 'http://localhost:8080'
+
+def json_safe_loads(jsonstr, **kwargs):
+    try:
+        pyObj = json.loads(jsonstr, **kwargs)
+    except ValueError:
+        pyObj = json.loads(json.dumps(jsonstr), **kwargs)
+    finally:
+        return pyObj
 
 def request(method, rel_path, **kwargs):
     abs_path = base_url + rel_path
@@ -23,25 +32,43 @@ def request(method, rel_path, **kwargs):
         headers = {'json': jsonstr},
         params = kwargs.get('query'),
         )
-    jsondict = json.loads(r.text)
-    result = jsondict.pop('result', None)
+    # print kwargs
+    # print r.text
+    jsondict = json_safe_loads(r.text)
+    result = jsondict.pop('result', None) if isinstance(jsondict, dict) else jsondict
     res = {'path':abs_path,
             'params': kwargs,
             'response':{
                 'result': result,
              }
         }
-    if len(jsondict) > 0:
+    if hasattr(jsondict, '__len__') and len(jsondict) > 0:
         key,value = jsondict.popitem()
-        res['response']['length'] = len(value)
+        res['response']['length'] = len(value) 
         res['response'][key] = value
     r.close()
     return res
+
 
 def transfer_key_value(dicta, dictb, key):
     return (dicta.get(key) and dictb.setdefault(key, dicta.pop(key))) or \
            (dictb.get(key) and dicta.setdefault(key, dictb.pop(key)))
 
+def copy_dict(dictObj, deep=False, **kwargs):
+    """
+        'kwargs' collects keyword-arguments to update the copy-content
+        if 'deep' is True, recursively-copying will be done.
+    """
+    if deep:
+        from copy import deepcopy
+        copyObj = deepcopy(dictObj)
+        copyObj.update(kwargs)
+    else:
+        copyObj = dictObj.copy()
+        copyObj.update(kwargs)
+
+    return copyObj
+    
 class ConditionSQL:
 
     def __init__(self, dictObj):
@@ -93,49 +120,84 @@ class ConditionSQL:
         return token
 
     def get_value(self, key):
-        val = self.dict[key]
-        if str(key).endswith('in') and len(val) == 1:
-            return '(%s)' % val[0]
-        return val
+        return self.dict[key]
 
-    def get_sql(self):
-        pass
-
-    def get_single(self, key):
+    def get_fraction(self, key):
+        """
+            1. Get single sql-fraction such as 
+               'id = 1','id IN (1,2,3)' or 'id >= 5'
+            2. While value is of type of str or unicode, the new token will be used instead,
+               e.g. city="上海", token '= %s' --> '= "%s"' 
+            3. e.g. id__in=(1,) <==> WHERE id IN (1); val = (1,) --> '(1)'
+               e.g. id__in=(1,2,3) <==> WHERE id IN (1,2,3); val = (1,2,3) --> '(1,2,3)'
+        """
         clean_key = self.get_clean_key(key)
         token = self.get_token(key)
         value = self.get_value(key)
-
-        if type(value) is unicode:
-            token = token.replace('%s', '"%s"')
+        tail  = self.get_key_tail(key)
+        # ==========
+        import sys
+        major = sys.version_info[0]
+        if major == 2:
+            typestr = basestring
+        elif major == 3:
+            typestr = str
+        # ==========
+        if isinstance(value, typestr):
+            token = token % '"%s"'
+        elif isinstance(value, (tuple, list)):
+            if len(value) == 1:
+                value = '(%s)' % value[0]                    
+            elif len(value) > 1:
+                value = tuple(value)
+                if tail in ('in',):
+                    value = repr(value)
         return '{key} {condition}'.format(key=clean_key, condition=(token % value))
 
-    def get_and_sql(self):
-        fraction_list = map(self.get_single, self.dict)
-        fraction_list.insert(0, '')
-        return ' AND '.join(fraction_list)
-
-def get_condition_string(dictObj):
-    return lambda k: dictObj.get(k) and (' AND {key} {token} {value} ' if get_token(k)[-1] in ('in',) else ' AND {key} {token} "{value}" ').format(
-                            key=get_clean_key(k), token=get_token(k)[0], value=get_value(k))  
-
-def get_condition_sql(dictObj):
-    get_condition = get_condition_string(dictObj)
-    # filter out valid element
-    condition_list = filter(
-        lambda x:bool(x),
-        map(get_condition, dictObj)
-        )
-    return ''.join(condition_list)
-
+    def get_condition_sql(self):
+        """
+            GET Condition-SQL connected with keyword 'AND'
+            e.g. ' AND a=1 AND b>2 AND c<10 ...'
+        """
+        fraction_list = map(self.get_fraction, self.dict)
+        # fraction_list.insert(0, '')
+        # return ' AND '.join(fraction_list)
+        return fraction_list
 def valuesOfDictInList(listOfDict):
-    return reduce(lambda x,y:x+y,map(lambda listOfDict: listOfDict.values(),listOfDict))
+    """
+        [{'a':[1,2]},{'b':[3,4]},{'c':[5,6]}] --> [1,2,3,4,5,6]
+    """
+    from functools import reduce
+    return reduce(lambda x,y:x+y,map(lambda d: d.values(),listOfDict))
+
 def keysOfDictInList(listOfDict):
-    return reduce(lambda x,y:x+y,map(lambda listOfDict: listOfDict.keys(),listOfDict))
+    """
+        [{'a':[1,2]},{'b':[3,4]},{'c':[5,6]}] --> ['a', 'b', 'c']
+    """
+    return reduce(lambda x,y:x+y,map(lambda d: d.keys(),listOfDict))
+
+class Dictic(dict):
+
+    def get_join(self, key, connector='', reverse=False):
+        key, val = str(key), str(self[key])
+        frc = (val, key) if reverse else (key, val)
+        return connector.join(frc)
+
+    def get_join_gen(self, connector='', reverse=False):
+        """
+            generator of s which deriving from items 
+        """
+        return (self.get_join(k, connector, reverse) for k in self.iterkeys())
+    # def __getattribute__(self,)
 
 def main():
-    a={'a':1, 'b__gt':2, 'c__lt':"edward", 'd__lte':22, 'e__gte':32, 'empty':None}
+    a={'a':1, 'b__gt':2, 'c__lt':"2012", 'd__lte':22,
+    'e__gte':32, 'empty':None, 'id__in':(1, 2, 3), 'ok__range':(1,111),
+    'city':'上海',}
     csql = ConditionSQL(a)
-    print csql.get_and_sql()
+    print csql.get_condition_sql()
+    d = Dictic(a=1,b=123,c=333)
+    # print d.get_join('b','=')
+    print list(d.get_join_gen('xxx',True))
 if __name__ == '__main__':
     main()

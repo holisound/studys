@@ -14,5 +14,9 @@
         &copy; Copyright 2008 by <a href="http://domain.invalid/">you</a>.
         {% endblock %}
         {{ self.footer()}}
+        {% filter upper %}
+            This text becomes uppercase
+        {% endfilter %}
+        {{'abc'|upper}}
     </div>
 </body>
