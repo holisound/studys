@@ -3,7 +3,7 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-12 13:41:49
+# @Last Modified time: 2015-10-13 09:15:06
 
 import requests
 import json
@@ -75,7 +75,7 @@ class ConditionSQL:
             'lte'  : '<= %s',
             'gt'   : '> %s',
             'gte'  : '>= %s',
-            'in'   : 'IN %s',
+            'in'   : 'IN (%s)',
             'range': 'BETWEEN %s AND %s'
         }
     def _valid_dict(self, dictObj):
@@ -142,12 +142,8 @@ class ConditionSQL:
         if isinstance(value, typestr):
             token = token % '"%s"'
         elif isinstance(value, (tuple, list)):
-            if len(value) == 1:
-                value = '(%s)' % value[0]                    
-            elif len(value) > 1:
-                value = tuple(value)
-                if tail in ('in',):
-                    value = repr(value)
+            if tail in ('in',):
+                value = ','.join(str(i) for i in value)
         return '{key} {condition}'.format(key=clean_key, condition=(token % value))
 
     def get_condition_sql(self):
@@ -187,7 +183,7 @@ class Dictic(dict):
     # def __getattribute__(self,)
 
 def main():
-    a={'a':1, 'b__gt':2, 'c__lt':"2012", 'd__lte':22,
+    a={'a':1, 'b__in':2, 'c__lt':"2012", 'd__lte':22,
     'e__gte':32, 'empty':None, 'id__in':(1, 2, 3), 'ok__range':(1,111),
     'city':'上海',}
     csql = ConditionSQL(a)
