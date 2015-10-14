@@ -3,7 +3,7 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-13 09:15:06
+# @Last Modified time: 2015-10-13 21:53:07
 
 import requests
 import json
@@ -180,7 +180,6 @@ class Dictic(dict):
             generator of s which deriving from items 
         """
         return (self.get_join(k, connector, reverse) for k in self.iterkeys())
-    # def __getattribute__(self,)
 
 def main():
     a={'a':1, 'b__in':2, 'c__lt':"2012", 'd__lte':22,
@@ -191,5 +190,6 @@ def main():
     d = Dictic(a=1,b=123,c=333)
     # print d.get_join('b','=')
     print list(d.get_join_gen('xxx',True))
+    print uniquify_list([1,2,3,4,5,4,3,2,1])
 if __name__ == '__main__':
     main()
