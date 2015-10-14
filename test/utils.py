@@ -3,7 +3,7 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-13 21:53:07
+# @Last Modified time: 2015-10-14 21:54:03
 
 import requests
 import json
@@ -190,6 +190,5 @@ def main():
     d = Dictic(a=1,b=123,c=333)
     # print d.get_join('b','=')
     print list(d.get_join_gen('xxx',True))
-    print uniquify_list([1,2,3,4,5,4,3,2,1])
 if __name__ == '__main__':
     main()
