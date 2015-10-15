@@ -3,7 +3,7 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-15 15:13:25
+# @Last Modified time: 2015-10-15 15:30:30
 
 import requests
 import json
@@ -132,14 +132,14 @@ class ConditionSQL:
         value = self.get_value(key)
         tail  = self.get_key_tail(key)
         # ==========
-        import sys
-        major = sys.version_info[0]
-        if major == 2:
-            typestr = basestring
-        elif major == 3:
-            typestr = str
+        # import sys
+        # major = sys.version_info[0]
+        # if major == 2:
+        #     typestr = basestring
+        # elif major == 3:
+        #     typestr = str
         # ==========
-        if isinstance(value, typestr):
+        if isinstance(value, basestring):
             token = token % '"%s"'
             if isinstance(value, unicode):
                 value = value.encode("utf-8")
@@ -186,7 +186,7 @@ class Dictic(dict):
 def main():
     a={'a':1, 'b__in':2, 'c__lt':"2012", 'd__lte':22,
     'e__gte':32, 'empty':None, 'id__in':(1, 2, 3), 'ok__range':(1,111),
-    'city':'上海',}
+    'city':u'上海',}
     csql = ConditionSQL(a)
     print csql.get_condition_sql()
     d = Dictic(a=1,b=123,c=333)
