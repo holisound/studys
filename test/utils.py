@@ -3,7 +3,7 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-14 21:54:03
+# @Last Modified time: 2015-10-15 15:13:25
 
 import requests
 import json
@@ -141,6 +141,8 @@ class ConditionSQL:
         # ==========
         if isinstance(value, typestr):
             token = token % '"%s"'
+            if isinstance(value, unicode):
+                value = value.encode("utf-8")
         elif isinstance(value, (tuple, list)):
             if tail in ('in',):
                 value = ','.join(str(i) for i in value)
@@ -152,8 +154,8 @@ class ConditionSQL:
             e.g. ' AND a=1 AND b>2 AND c<10 ...'
         """
         fraction_list = map(self.get_fraction, self.dict)
-        # fraction_list.insert(0, '')
-        # return ' AND '.join(fraction_list)
+        fraction_list.insert(0, '')
+        return ' AND '.join(fraction_list)
         return fraction_list
 def valuesOfDictInList(listOfDict):
     """
