@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # @Author: python
 # @Date:   2015-10-09 13:41:39
-# @Last Modified by:   edward
-# @Last Modified time: 2015-10-13 09:15:06
+# @Last Modified by:   python
+# @Last Modified time: 2015-10-14 11:30:57
 
 import requests
 import json
@@ -28,8 +28,8 @@ def request(method, rel_path, **kwargs):
         headers = {'json': jsonstr},
         params = kwargs.get('query'),
         )
-    # print kwargs
-    # print r.text
+    print kwargs
+    print r.text
     jsondict = json_safe_loads(r.text)
     result = jsondict.pop('result', None) if isinstance(jsondict, dict) else jsondict
     res = {'path':abs_path,
