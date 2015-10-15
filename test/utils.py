@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # @Author: python
 # @Date:   2015-10-09 13:41:39
-# @Last Modified by:   python
-# @Last Modified time: 2015-10-14 11:30:57
+# @Last Modified by:   edward
+# @Last Modified time: 2015-10-14 21:54:03
 
 import requests
 import json
@@ -180,7 +180,6 @@ class Dictic(dict):
             generator of s which deriving from items 
         """
         return (self.get_join(k, connector, reverse) for k in self.iterkeys())
-    # def __getattribute__(self,)
 
 def main():
     a={'a':1, 'b__in':2, 'c__lt':"2012", 'd__lte':22,
