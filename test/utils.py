@@ -3,7 +3,7 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-15 15:30:30
+# @Last Modified time: 2015-10-15 16:10:54
 
 import requests
 import json
@@ -157,6 +157,7 @@ class ConditionSQL:
         fraction_list.insert(0, '')
         return ' AND '.join(fraction_list)
         return fraction_list
+
 def valuesOfDictInList(listOfDict):
     """
         [{'a':[1,2]},{'b':[3,4]},{'c':[5,6]}] --> [1,2,3,4,5,6]
