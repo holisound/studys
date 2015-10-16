@@ -3,7 +3,7 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-15 16:10:54
+# @Last Modified time: 2015-10-16 18:13:24
 
 import requests
 import json
@@ -88,21 +88,32 @@ class ConditionSQL:
 
     def get_clean_key(self, key):
         """
-            'key__tail' --> 'key'
+            'key__tail | and__key__tail | or__key__tail' --> 'key'
         """
-        return str(key).split('_'*2)[0]
+        k_ls = [ i for i in key.split( '_' * 2 ) if i ]
+        if len(k_ls) == 3:
+            return k_ls[1]
+        return k_ls[0]
 
     def get_key_tail(self, key):
         """
-            'key__tail' --> 'tail', others ''
+            'key__tail | and__key__tail | or__key__tail' --> 'tail', others ''
         """
-        return str(key).split('_'*2)[-1] if self.is_double_slash_key(key) else ''
+        return key.split('_'*2)[-1] if self.has_tail(key) else ''
 
-    def is_double_slash_key(self, key):
+    def has_tail(self, key):
         """
-            'key__tail' --> True, others False
+            'key__tail | xxx__key__tail' --> True
+            'key | xxx__key' --> False
         """
-        return True if '_'*2 in str(key) else False
+        k_ls = [ i for i in key.split( self.get_clean_key(key) ) if i ]
+        length = len(k_ls)
+        if length == 1:
+            if k_ls[0].startswith( '_'*2 ):
+                return True
+        elif length == 2:
+            return True
+        return False
 
     def get_token(self, key):
         """
@@ -187,7 +198,7 @@ class Dictic(dict):
 def main():
     a={'a':1, 'b__in':2, 'c__lt':"2012", 'd__lte':22,
     'e__gte':32, 'empty':None, 'id__in':(1, 2, 3), 'ok__range':(1,111),
-    'city':u'上海',}
+    'city':u'上海','or__age__gte':33}
     csql = ConditionSQL(a)
     print csql.get_condition_sql()
     d = Dictic(a=1,b=123,c=333)

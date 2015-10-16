@@ -1,5 +1,5 @@
-# !/usr/bin/env python
-# coding=utf-8
+#!/usr/bin/env python
+#coding=utf-8
 import cherrypy as cp
 from cherrypy import expose
 import json
