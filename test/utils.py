@@ -3,7 +3,7 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-17 14:43:49
+# @Last Modified time: 2015-10-17 14:47:11
 
 import requests
 import json
@@ -133,7 +133,7 @@ class ConditionSQL:
     def get_condition_sql(self):
         """
             GET Condition-SQL connected with keyword 'AND'
-            e.g. ' AND a=1 AND b>2 OR c<10 ...'
+            e.g. ' AND a=1 AND b>2 AND c<10 ...'
         """
         return 'AND ' + ' AND '.join( self.get_fraction(key) for key in self.dict.iterkeys())
 
