@@ -3,7 +3,7 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-17 14:28:20
+# @Last Modified time: 2015-10-17 14:43:49
 
 import requests
 import json
@@ -91,23 +91,15 @@ class ConditionSQL:
 
     def resolve(self, key):
         """
-            'key__tail'      --> ('', 'key', 'tail')
-            'and__key__tail' --> ('and', 'key', 'tail')
-            'or__key'        --> ('or', 'key', '')
-            'key'            --> ('', 'key', '')
+            'key__tail' --> ('key', 'tail')
+            'key'       --> ('key', '')
         """
         ls = key.split( '_' * 2 )
         length = len(ls)
         if length == 1:
-            res = ('', ls[0], '')
-        elif length == 2:
-            res = ls
-            if res[0] in ('or', 'and'):
-                res.append('')
-            else:
-                res.insert(0, '')
-        elif length == 3:
-            res = ls
+            res = (ls[0], '')
+        else:
+            res = ls[-2:]
         return tuple(res)
 
     def get_token(self, tail):
@@ -126,21 +118,9 @@ class ConditionSQL:
             3. e.g. id__in=(1,) <==> WHERE id IN (1); val = (1,) --> '(1)'
                e.g. id__in=(1,2,3) <==> WHERE id IN (1,2,3); val = (1,2,3) --> '(1,2,3)'
         """
-        cap, ckey, tail = self.resolve(key)
+        ckey, tail = self.resolve(key)
         token = self.get_token(tail)
         value = self.dict[key]
-        # ==========
-        # import sys
-        # major = sys.version_info[0]
-        # if major == 2:
-        #     typestr = basestring
-        # elif major == 3:
-        #     typestr = str
-        # ==========
-        if cap in ('and', ''):
-            conn = ' AND %s '
-        elif cap == 'or':
-            conn = ' OR %s '
         if isinstance(value, basestring):
             token = token % '"%s"'
             if isinstance(value, unicode):
@@ -148,14 +128,14 @@ class ConditionSQL:
         elif isinstance(value, (tuple, list)):
             if tail in ('in',):
                 value = ','.join(str(i) for i in value)
-        return conn % ('{key} {condition}'.format(key=ckey, condition=(token % value)))
+        return '{key} {condition}'.format(key=ckey, condition=(token % value))
 
     def get_condition_sql(self):
         """
             GET Condition-SQL connected with keyword 'AND'
             e.g. ' AND a=1 AND b>2 OR c<10 ...'
         """
-        return ''.join( self.get_fraction(key) for key in self.dict.iterkeys())
+        return 'AND ' + ' AND '.join( self.get_fraction(key) for key in self.dict.iterkeys())
 
 def valuesOfDictInList(listOfDict):
     """
@@ -186,7 +166,7 @@ class Dictic(dict):
 def main():
     a={'a':1, 'b__in':2, 'c__lt':"2012", 'd__lte':22,
     'e__gte':32, 'empty':None, 'id__in':(1, 2, 3), 'ok__range':(1,111),
-    'city':u'上海','or__age__gg':33}
+    'city':u'上海','age__gg':33}
     csql = ConditionSQL(a)
     print csql.get_condition_sql()
     d = Dictic(a=1,b=123,c=333)
