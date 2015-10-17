@@ -3,7 +3,7 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-17 13:52:37
+# @Last Modified time: 2015-10-17 13:53:48
 
 import requests
 import json
@@ -88,10 +88,10 @@ class ConditionSQL:
 
     def resolve(self, key):
         """
-            'key__tail' --> ('', key', 'tail')
-            'and__key__tail' --> ('and', key', 'tail')
-            'or__key' --> ('or', 'key', '')
-            'key' --> ('', 'key', '')
+            'key__tail'      --> ('', 'key', 'tail')
+            'and__key__tail' --> ('and', 'key', 'tail')
+            'or__key'        --> ('or', 'key', '')
+            'key'            --> ('', 'key', '')
         """
         ls = key.split( '_' *2 )
         length = len(ls)
