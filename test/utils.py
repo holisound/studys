@@ -3,18 +3,21 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-17 14:02:41
+# @Last Modified time: 2015-10-17 14:28:20
 
 import requests
 import json
 
 def json_safe_loads(jsonstr, **kwargs):
-    try:
-        pyObj = json.loads(jsonstr, **kwargs)
-    except ValueError:
-        pyObj = json.loads(json.dumps(jsonstr), **kwargs)
-    finally:
-        return pyObj
+    if isinstance(jsonstr, basestring):
+        try:
+            pyObj = json.loads(jsonstr, **kwargs)
+        except ValueError:
+            return None
+        else:
+            return pyObj
+    else:
+        return jsonstr
 
 def request(method, rel_path, **kwargs):
     abs_path = base_url + rel_path
