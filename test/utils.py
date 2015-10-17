@@ -3,7 +3,7 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-16 18:13:24
+# @Last Modified time: 2015-10-17 13:50:12
 
 import requests
 import json
@@ -86,48 +86,33 @@ class ConditionSQL:
         _filter_func = lambda p: False if p[-1] is None else True
         return dict(filter(_filter_func, dictObj.iteritems()))
 
-    def get_clean_key(self, key):
+    def resolve(self, key):
         """
-            'key__tail | and__key__tail | or__key__tail' --> 'key'
+            'key__tail' --> ('key','tail')
+            'and__key__tail' --> ('key','tail')
+            'or__key' --> ('key','')
+            'key' --> ('key','')
         """
-        k_ls = [ i for i in key.split( '_' * 2 ) if i ]
-        if len(k_ls) == 3:
-            return k_ls[1]
-        return k_ls[0]
-
-    def get_key_tail(self, key):
-        """
-            'key__tail | and__key__tail | or__key__tail' --> 'tail', others ''
-        """
-        return key.split('_'*2)[-1] if self.has_tail(key) else ''
-
-    def has_tail(self, key):
-        """
-            'key__tail | xxx__key__tail' --> True
-            'key | xxx__key' --> False
-        """
-        k_ls = [ i for i in key.split( self.get_clean_key(key) ) if i ]
-        length = len(k_ls)
+        ls = key.split( '_' *2 )
+        length = len(ls)
         if length == 1:
-            if k_ls[0].startswith( '_'*2 ):
-                return True
+            res = ('', ls[0], '')
         elif length == 2:
-            return True
-        return False
+            res = ls[:]
+            if res[0] in ('or', 'and'):
+                res.append('')
+            else:
+                res.insert(0, '')
+        elif length == 3:
+            res = ls
+        return tuple(res)
 
-    def get_token(self, key):
+    def get_token(self, tail):
         """
-            mapping token by tail, e.g. lt, eq, gt...
+            mapping token by tail, e.g. 'lt', 'eq', 'gt'...
         """
-        tail  = self.get_key_tail(key)
-        if tail:
-            token = self.token_mapping[tail]
-        else:
-            token = self.token_mapping['eq']
+        token = self.token_mapping.get(tail) or self.token_mapping['eq']
         return token
-
-    def get_value(self, key):
-        return self.dict[key]
 
     def get_fraction(self, key):
         """
@@ -138,10 +123,9 @@ class ConditionSQL:
             3. e.g. id__in=(1,) <==> WHERE id IN (1); val = (1,) --> '(1)'
                e.g. id__in=(1,2,3) <==> WHERE id IN (1,2,3); val = (1,2,3) --> '(1,2,3)'
         """
-        clean_key = self.get_clean_key(key)
-        token = self.get_token(key)
-        value = self.get_value(key)
-        tail  = self.get_key_tail(key)
+        cap, ckey, tail = self.resolve(key)
+        token = self.get_token(tail)
+        value = self.dict[key]
         # ==========
         # import sys
         # major = sys.version_info[0]
@@ -150,6 +134,10 @@ class ConditionSQL:
         # elif major == 3:
         #     typestr = str
         # ==========
+        if cap in ('and', ''):
+            conn = ' AND %s '
+        elif cap == 'or':
+            conn = ' OR %s '
         if isinstance(value, basestring):
             token = token % '"%s"'
             if isinstance(value, unicode):
@@ -157,17 +145,14 @@ class ConditionSQL:
         elif isinstance(value, (tuple, list)):
             if tail in ('in',):
                 value = ','.join(str(i) for i in value)
-        return '{key} {condition}'.format(key=clean_key, condition=(token % value))
+        return conn % ('{key} {condition}'.format(key=ckey, condition=(token % value)))
 
     def get_condition_sql(self):
         """
             GET Condition-SQL connected with keyword 'AND'
-            e.g. ' AND a=1 AND b>2 AND c<10 ...'
+            e.g. ' AND a=1 AND b>2 OR c<10 ...'
         """
-        fraction_list = map(self.get_fraction, self.dict)
-        fraction_list.insert(0, '')
-        return ' AND '.join(fraction_list)
-        return fraction_list
+        return ''.join( self.get_fraction(key) for key in self.dict.iterkeys())
 
 def valuesOfDictInList(listOfDict):
     """
@@ -198,7 +183,7 @@ class Dictic(dict):
 def main():
     a={'a':1, 'b__in':2, 'c__lt':"2012", 'd__lte':22,
     'e__gte':32, 'empty':None, 'id__in':(1, 2, 3), 'ok__range':(1,111),
-    'city':u'上海','or__age__gte':33}
+    'city':u'上海','or__age__gg':33}
     csql = ConditionSQL(a)
     print csql.get_condition_sql()
     d = Dictic(a=1,b=123,c=333)
