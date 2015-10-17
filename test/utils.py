@@ -3,7 +3,7 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-17 13:53:48
+# @Last Modified time: 2015-10-17 14:02:41
 
 import requests
 import json
@@ -93,12 +93,12 @@ class ConditionSQL:
             'or__key'        --> ('or', 'key', '')
             'key'            --> ('', 'key', '')
         """
-        ls = key.split( '_' *2 )
+        ls = key.split( '_' * 2 )
         length = len(ls)
         if length == 1:
             res = ('', ls[0], '')
         elif length == 2:
-            res = ls[:]
+            res = ls
             if res[0] in ('or', 'and'):
                 res.append('')
             else:
