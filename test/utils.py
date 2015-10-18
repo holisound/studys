@@ -3,10 +3,31 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-17 14:47:11
+# @Last Modified time: 2015-10-19 00:26:07
 
 import requests
 import json
+import torndb
+from collections import OrderedDict, deque
+
+
+class Storage(dict):
+
+    def __getattr__(self, key):
+        try:
+            return self[key]
+        except KeyError, k:
+            raise AttributeError, k
+
+    def __setattr__(self, key, value):
+        self[key] = value
+
+    def __delattr__(self, key):
+        try:
+            del self[key]
+        except KeyError, k:
+            raise AttributeError, k
+
 
 def json_safe_loads(jsonstr, **kwargs):
     if isinstance(jsonstr, basestring):
@@ -19,6 +40,7 @@ def json_safe_loads(jsonstr, **kwargs):
     else:
         return jsonstr
 
+
 def request(method, rel_path, **kwargs):
     abs_path = base_url + rel_path
     if isinstance(kwargs.get('json'), (dict,)):
@@ -28,22 +50,23 @@ def request(method, rel_path, **kwargs):
     r = requests.request(
         method,
         abs_path,
-        headers = {'json': jsonstr},
-        params = kwargs.get('query'),
-        )
+        headers={'json': jsonstr},
+        params=kwargs.get('query'),
+    )
     print kwargs
     print r.text
     jsondict = json_safe_loads(r.text)
-    result = jsondict.pop('result', None) if isinstance(jsondict, dict) else jsondict
-    res = {'path':abs_path,
-            'params': kwargs,
-            'response':{
-                'result': result,
-             }
-        }
+    result = jsondict.pop('result', None) if isinstance(
+        jsondict, dict) else jsondict
+    res = {'path': abs_path,
+           'params': kwargs,
+           'response': {
+               'result': result,
+           }
+           }
     if hasattr(jsondict, '__len__') and len(jsondict) > 0:
-        key,value = jsondict.popitem()
-        res['response']['length'] = len(value) 
+        key, value = jsondict.popitem()
+        res['response']['length'] = len(value)
         res['response'][key] = value
     r.close()
     return res
@@ -52,6 +75,7 @@ def request(method, rel_path, **kwargs):
 def transfer_key_value(dicta, dictb, key):
     return (dicta.get(key) and dictb.setdefault(key, dicta.pop(key))) or \
            (dictb.get(key) and dicta.setdefault(key, dictb.pop(key)))
+
 
 def copy_dict(dictObj, deep=False, **kwargs):
     """
@@ -67,20 +91,92 @@ def copy_dict(dictObj, deep=False, **kwargs):
         copyObj.update(kwargs)
 
     return copyObj
-    
+
+
+class Connection(torndb.Connection):
+
+    def __init__(self, *args, **kwargs):
+        super(Connection, self).__init__(*args, **kwargs)
+        self.deque = deque(maxlen=1)
+        self.maintable = None
+        self.dql = None
+
+    def get_fileds(self):
+        g = (row['Field'] for row in self.query('desc %s' % tbl_name))
+        return tuple(g)
+
+    def exclude_fields(self, tbl_name, excludes=()):
+        fields = self.get_fileds(tbl_name)
+        fields_remains = tuple(set(fields) - set(excludes))
+        return fields_remains
+
+    def query(self, *args, **kwargs):
+        keyword = 'SELECT %s FROM'
+        fields = ','.join(i.strip() for i in kwargs.pop('fields', '*'))
+        excludes = kwargs.pop('excludes', None)
+        if excludes:
+
+        r = super(Connection, self).query(*args, **kwargs)
+        return r
+
+    def set_table(self, name, alias=''):
+        self.deque.append(Storage(name=name, alias=alias))
+        self.maintable = self.deque[0]
+        return self.maintable
+
+    def inner_join(self, name, on, alias=''):
+        self.sql = ' '.join(
+            i.strip() for i in (
+                '%s %s' % (self.maintable.name, 'AS %s' %
+                           self.maintable.alias if self.maintable.alias else ''),
+                'INNER JOIN',
+                '%s %s' % (name, 'AS %s' % alias if alias else ''),
+                'ON',
+                on,
+            )
+        )
+        return self.sql
+
+
+class Connection2(torndb.Connection):
+
+    def __init__(self, *args, **kwargs):
+        super(Connection, self).__init__(*args, **kwargs)
+
+    def get_fileds(self, tbl_name):
+        g = (row['Field'] for row in self.query('desc %s' % tbl_name))
+        return tuple(g)
+
+    def exclude_fields(self, tbl_name, excludes=()):
+        fields = self.get_fileds(tbl_name)
+        fields_remains = tuple(set(fields) - set(excludes))
+        return fields_remains
+
+    def query_a(self, tbl_name, fields=(), excludes=(), where=()):
+        _fields = "*"
+        if fields:
+            _fields = fields
+        if excludes:
+            _fields = self.exclude_fields(tbl_name, excludes=excludes)
+        if where:
+            pass
+        return _fields
+
+
 class ConditionSQL:
 
     def __init__(self, dictObj):
         self.dict = self._valid_dict(dictObj)
         self.token_mapping = {
-            'eq'   : '= %s',
-            'lt'   : '< %s',
-            'lte'  : '<= %s',
-            'gt'   : '> %s',
-            'gte'  : '>= %s',
-            'in'   : 'IN (%s)',
+            'eq': '= %s',
+            'lt': '< %s',
+            'lte': '<= %s',
+            'gt': '> %s',
+            'gte': '>= %s',
+            'in': 'IN (%s)',
             'range': 'BETWEEN %s AND %s'
         }
+
     def _valid_dict(self, dictObj):
         """
             validate the value of items of dictObj
@@ -94,7 +190,7 @@ class ConditionSQL:
             'key__tail' --> ('key', 'tail')
             'key'       --> ('key', '')
         """
-        ls = key.split( '_' * 2 )
+        ls = key.split('_' * 2)
         length = len(ls)
         if length == 1:
             res = (ls[0], '')
@@ -135,20 +231,23 @@ class ConditionSQL:
             GET Condition-SQL connected with keyword 'AND'
             e.g. ' AND a=1 AND b>2 AND c<10 ...'
         """
-        return 'AND ' + ' AND '.join( self.get_fraction(key) for key in self.dict.iterkeys())
+        return 'AND ' + ' AND '.join(self.get_fraction(key) for key in self.dict.iterkeys())
+
 
 def valuesOfDictInList(listOfDict):
     """
         [{'a':[1,2]},{'b':[3,4]},{'c':[5,6]}] --> [1,2,3,4,5,6]
     """
     from functools import reduce
-    return reduce(lambda x,y:x+y,map(lambda d: d.values(),listOfDict))
+    return reduce(lambda x, y: x + y, map(lambda d: d.values(), listOfDict))
+
 
 def keysOfDictInList(listOfDict):
     """
         [{'a':[1,2]},{'b':[3,4]},{'c':[5,6]}] --> ['a', 'b', 'c']
     """
-    return reduce(lambda x,y:x+y,map(lambda d: d.keys(),listOfDict))
+    return reduce(lambda x, y: x + y, map(lambda d: d.keys(), listOfDict))
+
 
 class Dictic(dict):
 
@@ -163,14 +262,20 @@ class Dictic(dict):
         """
         return (self.get_join(k, connector, reverse) for k in self.iterkeys())
 
+
 def main():
-    a={'a':1, 'b__in':2, 'c__lt':"2012", 'd__lte':22,
-    'e__gte':32, 'empty':None, 'id__in':(1, 2, 3), 'ok__range':(1,111),
-    'city':u'上海','age__gg':33}
-    csql = ConditionSQL(a)
-    print csql.get_condition_sql()
-    d = Dictic(a=1,b=123,c=333)
+    # a={'a':1, 'b__in':2, 'c__lt':"2012", 'd__lte':22,
+    # 'e__gte':32, 'empty':None, 'id__in':(1, 2, 3), 'ok__range':(1,111),
+    # 'city':u'上海','age__gg':33}
+    # csql = ConditionSQL(a)
+    # print csql.get_condition_sql()
+    # d = Dictic(a=1,b=123,c=333)
     # print d.get_join('b','=')
-    print list(d.get_join_gen('xxx',True))
+    # print list(d.get_join_gen('xxx',True))
+    conn = Connection('localhost', 'db', 'root', '123123')
+    print conn.set_table('A', 'aaa')
+    print conn.inner_join('B', 'id=di', 'bbb')
+    # print db.get_fileds('student')
+    # print db.query_a('student',fields="*", excludes=['sno'])
 if __name__ == '__main__':
     main()
