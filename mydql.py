@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-19 23:10:27
+# @Last Modified time: 2015-10-19 23:44:47
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
@@ -57,7 +57,7 @@ class DQL:
         self.cursor = cursor
         self.maintable = None
         self.mapping = None
-        self._dql = None
+        self._dql = ''
         self._init_mapping()
         self._init_tables()
         # self.fields = ()
@@ -68,23 +68,13 @@ class DQL:
             name = r.values()[0]
             setattr(self.tables, name, Table(name, self.cursor))
 
-    def query_one(self, sql):
-        self.cursor.execute(sql)
-        r = self.cursor.fetchone()
-        return r
-
-    def query_all(self, sql):
-        self.cursor.execute(sql)
-        r = self.cursor.fetchall()
-        return r
-
     def get_fields(self):
-        self._update_fields()
+        self._init_mapping()
         return tuple(self.mapping.values())
     fields = property(get_fields)
 
     def get_original_fields(self):
-        self._update_fields()
+        self._init_mapping()
         return tuple(self.mapping.keys())
 
     def _init_mapping(self):
@@ -92,25 +82,13 @@ class DQL:
             self.mapping = Storage()
             return
         else:
-            if self._dql is None:
+            if bool(self._dql) is False:
                 self.cursor.execute('SELECT * FROM %s' % self.maintable.name)
             else:
                 self.cursor.execute('SELECT * FROM %s' % self._dql)
         r = self.cursor.fetchone()
         # if self.mapping is None:
         #     self.mapping = Storage()
-        for key in r.keys():
-            self.mapping.setdefault(key, key)
-
-    def _update_fields(self):
-        if self.maintable is None:
-            return {}
-        else:
-            if self._dql is None:
-                self.cursor.execute('SELECT * FROM %s' % self.maintable.name)
-            else:
-                self.cursor.execute('SELECT * FROM %s' % self._dql)
-        r = self.cursor.fetchone()
         for key in r.keys():
             self.mapping.setdefault(key, key)
 
@@ -138,17 +116,28 @@ class DQL:
         self.cursor.close()
 
     def inner_join(self, name, on, alias=''):
-        self._dql = ' '.join(
-            i.strip() for i in (
-                '%s %s' % (self.maintable.name, 'AS %s' %
-                           self.maintable.alias if self.maintable.alias else ''),
-                'INNER JOIN',
-                '%s %s' % (name, 'AS %s' % alias if alias else ''),
-                'ON',
-                on,
+        if bool(self._dql) is False:
+            self._dql += ' '.join(
+                i.strip() for i in (
+                    '%s %s' % (self.maintable.name, 'AS %s' %
+                               self.maintable.alias if self.maintable.alias else ''),
+                    'INNER JOIN',
+                    '%s %s' % (name, 'AS %s' % alias if alias else ''),
+                    'ON',
+                    on,
+                )
             )
-        )
-        return self._update_fields()
+        else:
+            self._dql += ' '.join(
+                  i.strip() for i in (
+                    '',
+                    'INNER JOIN',
+                    '%s %s' % (name, 'AS %s' % alias if alias else ''),
+                    'ON',
+                    on,
+                )
+            )
+        return self._init_mapping()
 
     def get_date_format(self, fmt):
         return lambda field: 'DATE_FORMAT(%s, %r)' % (field, fmt)
@@ -158,9 +147,13 @@ def main():
     # ==========
     dql = connect(host='localhost', db='db', user='root', passwd='123123')
     dql.set_main('student', 'st')
-    print dql.tables.score.fields()
-    print dql.tables.student.fields()
-    print dql.mapping
+    print dql.fields
+    print dql._dql
+    dql.inner_join('score','sc.sno=st.sno','sc')
+    print dql._dql
+    dql.inner_join('course','sc.cno=cs.cno','cs')
+    print dql._dql
+    print dql.fields
 
 
 if __name__ == '__main__':
