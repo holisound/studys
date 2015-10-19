@@ -3,7 +3,7 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-19 18:43:11
+# @Last Modified time: 2015-10-19 21:46:11
 
 import requests
 import json
@@ -93,7 +93,7 @@ def copy_dict(dictObj, deep=False, **kwargs):
 
     return copyObj
 
-def get_cursor(**kwargs):
+def connect(**kwargs):
     kwargs['cursorclass'] = DictCursor
     kwargs['charset'] = 'utf8'
     conn = MySQLdb.connect(**kwargs)
@@ -114,6 +114,7 @@ class DQL:
         self.fields_mapping = Storage()
         # self.fields = ()
 
+    # def 
     def query_one(self, sql):
         self.cursor.execute(sql)
         r = self.cursor.fetchone()
@@ -295,15 +296,15 @@ def main():
     # print db.get_fileds('student')
     # print db.query_a('student',fields="*", excludes=['sno'])
     # ==========
-    cursor = get_cursor(host='localhost', db='QGYM', user='root', passwd='123123')
+    cursor = connect(host='localhost', db='db', user='root', passwd='123123')
     dql = DQL(cursor)
     print dql.fields
-    dql.set_main('gym_table', alias='gym')
+    dql.set_main('student', alias='st')
     print dql.fields
-    dql.inner_join('gym_branch_table', on='gym_id=gym_branch_gymid', alias='gb')
+    dql.inner_join('score', on='st.sno=sc.sno', alias='sc')
     print dql.fields
     f = dql.get_date_format('%M%y')
-    dql.format_field('gym_id', key=f)
+    dql.format_field('sbirthday', key=f)
     print dql.fields    
     f = dql.get_date_format('%M%y')
     print dql.get_original_fields()
