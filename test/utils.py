@@ -3,13 +3,14 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-19 00:26:07
+# @Last Modified time: 2015-10-19 18:38:07
 
 import requests
 import json
-import torndb
+import MySQLdb
+from MySQLdb.cursors import DictCursor
 from collections import OrderedDict, deque
-
+from operator import itemgetter
 
 class Storage(dict):
 
@@ -92,40 +93,80 @@ def copy_dict(dictObj, deep=False, **kwargs):
 
     return copyObj
 
+def get_cursor(**kwargs):
+    kwargs['cursorclass'] = DictCursor
+    kwargs['charset'] = 'utf8'
+    conn = MySQLdb.connect(**kwargs)
+    return conn.cursor()
 
-class Connection(torndb.Connection):
-
-    def __init__(self, *args, **kwargs):
-        super(Connection, self).__init__(*args, **kwargs)
-        self.deque = deque(maxlen=1)
+class DQL:
+    """
+        'DQL' is a simple extension-class based on MySQLdb, 
+        which is intended to make convenient-api for satisfying regular DQL-demand.
+        it's gotten some features here:
+        1. All query-action is starting from 'set_main' which is setted as the maintable.
+        
+    """
+    def __init__(self, cursor):
+        self.cursor = cursor
         self.maintable = None
-        self.dql = None
+        self._dql = None
+        self.fields_mapping = Storage()
+        # self.fields = ()
 
-    def get_fileds(self):
-        g = (row['Field'] for row in self.query('desc %s' % tbl_name))
-        return tuple(g)
+    def query_one(self, sql):
+        self.cursor.execute(sql)
+        r = self.cursor.fetchone()
+        self.cursor.close()
+        return r
 
-    def exclude_fields(self, tbl_name, excludes=()):
-        fields = self.get_fileds(tbl_name)
-        fields_remains = tuple(set(fields) - set(excludes))
-        return fields_remains
+    def query_all(self, sql):
+        self.cursor.execute(sql)
+        r = self.cursor.fetchall()
+        self.cursor.close()
+        return r
+
+    def get_fields(self):
+        self._update_fields()
+        return tuple(self.fields_mapping.values())
+    fields = property(get_fields)
+
+    def get_original_fields(self):
+        self._update_fields()
+        return tuple(self.fields_mapping.keys())
+
+    def _update_fields(self):
+        if self.maintable is None:
+            return {}
+        else:
+            if self._dql is None:
+                self.cursor.execute('SELECT * FROM %s' % self.maintable.name)
+            else:
+                self.cursor.execute('SELECT * FROM %s' % self._dql)
+        r = self.cursor.fetchone()
+        for key in r.keys():
+            self.fields_mapping.setdefault(key, key)
+
+    def set_main(self, name, alias=''):
+        self.maintable = Storage(name=name, alias=alias)
+        return self.maintable
+
+    def format_field(self, field, key=None):
+        if hasattr(self.fields_mapping, field) and key is not None:
+            self.fields_mapping[field] = key(field)
+        return self.fields_mapping
 
     def query(self, *args, **kwargs):
         keyword = 'SELECT %s FROM'
         fields = ','.join(i.strip() for i in kwargs.pop('fields', '*'))
         excludes = kwargs.pop('excludes', None)
-        if excludes:
+        if excludes:pass
 
         r = super(Connection, self).query(*args, **kwargs)
         return r
 
-    def set_table(self, name, alias=''):
-        self.deque.append(Storage(name=name, alias=alias))
-        self.maintable = self.deque[0]
-        return self.maintable
-
-    def inner_join(self, name, on, alias=''):
-        self.sql = ' '.join(
+    def inner_join(self, name, on, alias=''):   
+        self._dql = ' '.join(
             i.strip() for i in (
                 '%s %s' % (self.maintable.name, 'AS %s' %
                            self.maintable.alias if self.maintable.alias else ''),
@@ -135,32 +176,10 @@ class Connection(torndb.Connection):
                 on,
             )
         )
-        return self.sql
+        return self._update_fields()
 
-
-class Connection2(torndb.Connection):
-
-    def __init__(self, *args, **kwargs):
-        super(Connection, self).__init__(*args, **kwargs)
-
-    def get_fileds(self, tbl_name):
-        g = (row['Field'] for row in self.query('desc %s' % tbl_name))
-        return tuple(g)
-
-    def exclude_fields(self, tbl_name, excludes=()):
-        fields = self.get_fileds(tbl_name)
-        fields_remains = tuple(set(fields) - set(excludes))
-        return fields_remains
-
-    def query_a(self, tbl_name, fields=(), excludes=(), where=()):
-        _fields = "*"
-        if fields:
-            _fields = fields
-        if excludes:
-            _fields = self.exclude_fields(tbl_name, excludes=excludes)
-        if where:
-            pass
-        return _fields
+    def get_date_format(self, fmt):
+        return lambda field: 'DATE_FORMAT(%s, %r)' % (field, fmt)
 
 
 class ConditionSQL:
@@ -272,10 +291,21 @@ def main():
     # d = Dictic(a=1,b=123,c=333)
     # print d.get_join('b','=')
     # print list(d.get_join_gen('xxx',True))
-    conn = Connection('localhost', 'db', 'root', '123123')
-    print conn.set_table('A', 'aaa')
-    print conn.inner_join('B', 'id=di', 'bbb')
     # print db.get_fileds('student')
     # print db.query_a('student',fields="*", excludes=['sno'])
+    # ==========
+    cursor = get_cursor(host='localhost', db='QGYM', user='root', passwd='123123')
+    dql = DQL(cursor)
+    print dql.fields
+    dql.set_main('gym_table', alias='gym')
+    print dql.fields
+    dql.inner_join('gym_branch_table', on='gym_id=gym_branch_gymid', alias='gb')
+    print dql.fields
+    f = dql.get_date_format('%M%y')
+    dql.format_field('gym_id', key=f)
+    print dql.fields    
+    f = dql.get_date_format('%M%y')
+    print dql.get_original_fields()
+
 if __name__ == '__main__':
     main()
