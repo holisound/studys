@@ -3,7 +3,7 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-19 18:38:07
+# @Last Modified time: 2015-10-19 18:43:11
 
 import requests
 import json
@@ -105,7 +105,7 @@ class DQL:
         which is intended to make convenient-api for satisfying regular DQL-demand.
         it's gotten some features here:
         1. All query-action is starting from 'set_main' which is setted as the maintable.
-        
+
     """
     def __init__(self, cursor):
         self.cursor = cursor
@@ -117,13 +117,11 @@ class DQL:
     def query_one(self, sql):
         self.cursor.execute(sql)
         r = self.cursor.fetchone()
-        self.cursor.close()
         return r
 
     def query_all(self, sql):
         self.cursor.execute(sql)
         r = self.cursor.fetchall()
-        self.cursor.close()
         return r
 
     def get_fields(self):
@@ -164,6 +162,9 @@ class DQL:
 
         r = super(Connection, self).query(*args, **kwargs)
         return r
+
+    def close_cursor(self):
+        self.cursor.close()
 
     def inner_join(self, name, on, alias=''):   
         self._dql = ' '.join(
@@ -306,6 +307,8 @@ def main():
     print dql.fields    
     f = dql.get_date_format('%M%y')
     print dql.get_original_fields()
+    dql.close_cursor()
+
 
 if __name__ == '__main__':
     main()
