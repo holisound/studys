@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-19 23:04:32
+# @Last Modified time: 2015-10-19 23:10:27
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
@@ -65,8 +65,8 @@ class DQL:
         self.tables = Storage()
         self.cursor.execute('SHOW TABLES')
         for r in self.cursor.fetchall():
-            val = r.values()[0]
-            setattr(self.tables, val, Table(val, self.cursor))
+            name = r.values()[0]
+            setattr(self.tables, name, Table(name, self.cursor))
 
     def query_one(self, sql):
         self.cursor.execute(sql)
