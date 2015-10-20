@@ -3,7 +3,7 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-19 19:01:27
+# @Last Modified time: 2015-10-20 09:25:12
 
 import requests
 import json
@@ -92,95 +92,6 @@ def copy_dict(dictObj, deep=False, **kwargs):
         copyObj.update(kwargs)
 
     return copyObj
-
-def get_cursor(**kwargs):
-    kwargs['cursorclass'] = DictCursor
-    kwargs['charset'] = 'utf8'
-    conn = MySQLdb.connect(**kwargs)
-    return conn.cursor()
-
-class DQL:
-    """
-        'DQL' is a simple extension-class based on MySQLdb, 
-        which is intended to make convenient-api for satisfying regular DQL-demand.
-        it's gotten some features here:
-        1. All query-action is starting from 'set_main' which is setted as the maintable.
-
-    """
-    def __init__(self, cursor):
-        self.cursor = cursor
-        self.maintable = None
-        self._dql = None
-        self.fields_mapping = Storage()
-        # self.fields = ()
-
-    def query_one(self, sql):
-        self.cursor.execute(sql)
-        r = self.cursor.fetchone()
-        return r
-
-    def query_all(self, sql):
-        self.cursor.execute(sql)
-        r = self.cursor.fetchall()
-        return r
-
-    def get_fields(self):
-        self._update_fields()
-        return tuple(self.fields_mapping.values())
-    fields = property(get_fields)
-
-    def get_original_fields(self):
-        self._update_fields()
-        return tuple(self.fields_mapping.keys())
-
-    def _update_fields(self):
-        if self.maintable is None:
-            return {}
-        else:
-            if self._dql is None:
-                self.cursor.execute('SELECT * FROM %s' % self.maintable.name)
-            else:
-                self.cursor.execute('SELECT * FROM %s' % self._dql)
-        r = self.cursor.fetchone()
-        for key in r.keys():
-            self.fields_mapping.setdefault(key, key)
-
-    def set_main(self, name, alias=''):
-        self.maintable = Storage(name=name, alias=alias)
-        return self.maintable
-
-    def format_field(self, field, key=None):
-        if hasattr(self.fields_mapping, field) and key is not None:
-            self.fields_mapping[field] = key(field)
-        return self.fields_mapping
-
-    def query(self, *args, **kwargs):
-        keyword = 'SELECT %s FROM %s'
-        fields = ','.join(i.strip() for i in kwargs.pop('fields', '*'))
-        excludes = kwargs.pop('excludes', None)
-        if excludes:pass
-
-        r = self.query_all( keyword % (fields, 'order_table'))
-        return r
-
-    def close_cursor(self):
-        self.cursor.close()
-
-    def inner_join(self, name, on, alias=''):   
-        self._dql = ' '.join(
-            i.strip() for i in (
-                '%s %s' % (self.maintable.name, 'AS %s' %
-                           self.maintable.alias if self.maintable.alias else ''),
-                'INNER JOIN',
-                '%s %s' % (name, 'AS %s' % alias if alias else ''),
-                'ON',
-                on,
-            )
-        )
-        return self._update_fields()
-
-    def get_date_format(self, fmt):
-        return lambda field: 'DATE_FORMAT(%s, %r)' % (field, fmt)
 
 
 class ConditionSQL:
@@ -284,6 +195,7 @@ class Dictic(dict):
 
 
 def main():
+    pass
     # a={'a':1, 'b__in':2, 'c__lt':"2012", 'd__lte':22,
     # 'e__gte':32, 'empty':None, 'id__in':(1, 2, 3), 'ok__range':(1,111),
     # 'city':u'上海','age__gg':33}
@@ -294,23 +206,6 @@ def main():
     # print list(d.get_join_gen('xxx',True))
     # print db.get_fileds('student')
     # print db.query_a('student',fields="*", excludes=['sno'])
-    # ==========
-    cursor = get_cursor(host='localhost', db='QGYM', user='root', passwd='123123')
-    dql = DQL(cursor)
-    print dql.fields
-    dql.set_main('order_table', alias='o')
-    # print dql.fields
-    # dql.inner_join('gym_branch_table', on='gym_id=gym_branch_gymid', alias='gb')
-    print dql.fields
-    f = dql.get_date_format('%M%y')
-    dql.format_field('order_date', key=f)
-    print dql.fields    
-    f = dql.get_date_format('%M%y')
-    print dql.get_original_fields()
-    print dql._dql
-    # print dql.query()
-    dql.close_cursor()
-
 
 if __name__ == '__main__':
     main()
