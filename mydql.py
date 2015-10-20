@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-20 12:22:35
+# @Last Modified time: 2015-10-20 15:17:12
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
@@ -73,11 +73,9 @@ class DQL:
     def __init__(self, cursor):
         self.cursor = cursor
         self.maintable = None
-        self.mapping = None
+        self.mapping = Storage()
         self._dql = ''
-        self._init_mapping()
         self._init_tables()
-        # self.fields = ()
 
     def _init_tables(self):
         self.tables = Storage()
@@ -88,27 +86,27 @@ class DQL:
 
     def _init_mapping(self):
         if self.maintable is None:
-            self.mapping = Storage()
             return
-        else:
-            if bool(self._dql) is False:
-                self._dql = self.maintable.name
-        self.cursor.execute('SELECT * FROM %s' % self._dql)
+        self.cursor.execute('SELECT * FROM %s' %
+                            (self._dql or self.maintable.name))
         r = self.cursor.fetchone()
         for key in r.keys():
             self.mapping.setdefault(key, key)
 
     def get_fields(self):
-        self._init_mapping()
         return sortit(self.mapping.values())
     fields = property(get_fields)
 
     def get_original_fields(self):
-        self._init_mapping()
         return sortit(self.mapping.keys())
 
     def get_table_names(self):
         return sortit(self.tables.keys())
+
+    def reset(self):
+        self.mapping = Storage()
+        self._dql = ''
+        self._init_mapping()
 
     def set_main(self, table, alias=''):
         if isinstance(table, Table):
@@ -116,26 +114,21 @@ class DQL:
             self.maintable = table
         elif isinstance(table, str):
             self.maintable = Table(self.cursor, table, alias)
-        self._init_mapping()
+        self.reset()
         return self.maintable
 
     def format_field(self, field, key=None, alias=''):
         if hasattr(self.mapping, field) and key is not None:
-            field = key(field)
+            kf = key(field)
             if bool(alias) is True:
-                field = '%s AS %s' % (field, alias)
-            self.mapping[field] = field
-
+                kf = '%s AS %s' % (kf, alias)
+            self.mapping[field] = kf
 
     def query(self, *args, **kwargs):
         keyword = 'SELECT %s FROM %s'
         fields = ', '.join(i.strip() for i in self.fields)
-        # fields = ','.join(i.strip() for i in kwargs.pop('fields', '*'))
-        excludes = kwargs.pop('excludes', None)
-        if excludes:
-            pass
-        sql = keyword % (fields, self._dql)
-        print sql 
+      
+        sql = keyword % (fields, self._dql or self.maintable.name)
         self.cursor.execute(sql)
         r = self.cursor.fetchall()
         return r
@@ -157,29 +150,24 @@ class DQL:
             raise ValueError(
                 "invalid: maintable is not an instance of 'Table'")
         # ===================
-        if bool(self._dql) is False:
+
+        if self._dql is '':
             self._dql += ' '.join(
                 i.strip() for i in (
                     '%s %s' % (self.maintable.name, 'AS %s' %
                                self.maintable.alias if self.maintable.alias else ''),
-                    'INNER JOIN',
-                    '%s %s' % (table.name, 'AS %s' %
-                               table.alias if table.alias else ''),
-                    'ON',
-                    on,
-                )
+                    ))
+
+        self._dql += ' '.join(
+            i.strip() for i in (
+                '',
+                'INNER JOIN',
+                '%s %s' % (table.name, 'AS %s' %
+                           table.alias if table.alias else ''),
+                'ON',
+                on,
             )
-        else:
-            self._dql += ' '.join(
-                i.strip() for i in (
-                    '',
-                    'INNER JOIN',
-                    '%s %s' % (table.name, 'AS %s' %
-                               table.alias if table.alias else ''),
-                    'ON',
-                    on,
-                )
-            )
+        )
         self._init_mapping()
 
     def date_format(self, fmt):
@@ -189,14 +177,17 @@ class DQL:
 def main():
     # ==========
     dql = connect(host='localhost', db='QGYM', user='root', passwd='123123')
-    # print isinstance(dql.tables.course_table, Table)
-    print dql.set_main(dql.tables.order_table, 'o')
+    dql.set_main(dql.tables.order_table, 'o')
     print dql.fields
-    # dql.inner_join(dql.tables.course_schedule_table, on='course_schedule_courseid=course_id', alias='css')
-    # dql.inner_join(dql.tables.category_table, on='course_categoryid=category_id', alias='ct')
-    dql.format_field('order_date', key=dql.date_format('%Y%m'), alias='order_date')
+    dql.format_field(
+        'order_date', key=dql.date_format('%Y%m'), alias='order_date')
+    print dql.set_main(dql.tables.course_table, 'c')
     print dql.fields
-    print dql._dql
+    # dql.format_field('course_avatar', key=dql.date_format("%m%d"), alias='ca')
+    dql.inner_join(dql.tables.course_schedule_table,
+                   on='course_schedule_courseid=course_id', alias='css')
+    # dql.set_main(dql.tables.order_table, 'o')
+    # print dql.fields
     dql.query()
 
 if __name__ == '__main__':
