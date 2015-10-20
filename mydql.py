@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-20 15:17:12
+# @Last Modified time: 2015-10-20 15:27:04
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
@@ -58,6 +58,75 @@ class Table:
     def set_alias(self, alias):
         self.alias = alias
 
+class Clause:
+
+    def __init__(self, dictObj):
+        self.dict = self._valid_dict(dictObj)
+        self.token_mapping = {
+            'eq': '= %s',
+            'lt': '< %s',
+            'lte': '<= %s',
+            'gt': '> %s',
+            'gte': '>= %s',
+            'in': 'IN (%s)',
+            'range': 'BETWEEN %s AND %s'
+        }
+
+    def _valid_dict(self, dictObj):
+        """
+            validate the value of items of dictObj
+            if value is 'None' then filter item away
+        """
+        _filter_func = lambda p: False if p[-1] is None else True
+        return dict(filter(_filter_func, dictObj.iteritems()))
+
+    def resolve(self, key):
+        """
+            'key__tail' --> ('key', 'tail')
+            'key'       --> ('key', '')
+        """
+        ls = key.split('_' * 2)
+        length = len(ls)
+        if length == 1:
+            res = (ls[0], '')
+        else:
+            res = ls[-2:]
+        return tuple(res)
+
+    def get_token(self, tail):
+        """
+            mapping token by tail, e.g. 'lt', 'eq', 'gt'...
+        """
+        token = self.token_mapping.get(tail) or self.token_mapping['eq']
+        return token
+
+    def get_fraction(self, key):
+        """
+            1. Get single sql-fraction such as 
+               'id = 1','id IN (1,2,3)' or 'id >= 5'
+            2. While value is of type of str or unicode, the new token will be used instead,
+               e.g. city="上海", token '= %s' --> '= "%s"' 
+            3. e.g. id__in=(1,) <==> WHERE id IN (1); val = (1,) --> '(1)'
+               e.g. id__in=(1,2,3) <==> WHERE id IN (1,2,3); val = (1,2,3) --> '(1,2,3)'
+        """
+        ckey, tail = self.resolve(key)
+        token = self.get_token(tail)
+        value = self.dict[key]
+        if isinstance(value, basestring):
+            token = token % '"%s"'
+            if isinstance(value, unicode):
+                value = value.encode("utf-8")
+        elif isinstance(value, (tuple, list)):
+            if tail in ('in',):
+                value = ','.join(str(i) for i in value)
+        return '{key} {condition}'.format(key=ckey, condition=(token % value))
+
+    def get_condition_sql(self):
+        """
+            GET Condition-SQL connected with keyword 'AND'
+            e.g. ' AND a=1 AND b>2 AND c<10 ...'
+        """
+        return ' AND '.join(self.get_fraction(key) for key in self.dict.iterkeys())
 
 class DQL:
 
@@ -125,10 +194,12 @@ class DQL:
             self.mapping[field] = kf
 
     def query(self, *args, **kwargs):
-        keyword = 'SELECT %s FROM %s'
+        keyword = 'SELECT %s FROM %s WHERE %s'
         fields = ', '.join(i.strip() for i in self.fields)
-      
-        sql = keyword % (fields, self._dql or self.maintable.name)
+        where = kwargs.get('where')
+        where_clause = Clause(where).get_condition_sql() if where else '1=1'
+        sql = keyword % (fields, self._dql or self.maintable.name, where_clause)
+        print sql
         self.cursor.execute(sql)
         r = self.cursor.fetchall()
         return r
@@ -188,7 +259,8 @@ def main():
                    on='course_schedule_courseid=course_id', alias='css')
     # dql.set_main(dql.tables.order_table, 'o')
     # print dql.fields
-    dql.query()
+    condition = dict(course_id=1)
+    dql.query(where=condition)
 
 if __name__ == '__main__':
     main()
