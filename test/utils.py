@@ -3,7 +3,7 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-19 18:43:11
+# @Last Modified time: 2015-10-19 19:01:27
 
 import requests
 import json
@@ -155,12 +155,12 @@ class DQL:
         return self.fields_mapping
 
     def query(self, *args, **kwargs):
-        keyword = 'SELECT %s FROM'
+        keyword = 'SELECT %s FROM %s'
         fields = ','.join(i.strip() for i in kwargs.pop('fields', '*'))
         excludes = kwargs.pop('excludes', None)
         if excludes:pass
 
-        r = super(Connection, self).query(*args, **kwargs)
+        r = self.query_all( keyword % (fields, 'order_table'))
         return r
 
     def close_cursor(self):
@@ -298,15 +298,17 @@ def main():
     cursor = get_cursor(host='localhost', db='QGYM', user='root', passwd='123123')
     dql = DQL(cursor)
     print dql.fields
-    dql.set_main('gym_table', alias='gym')
-    print dql.fields
-    dql.inner_join('gym_branch_table', on='gym_id=gym_branch_gymid', alias='gb')
+    dql.set_main('order_table', alias='o')
+    # print dql.fields
+    # dql.inner_join('gym_branch_table', on='gym_id=gym_branch_gymid', alias='gb')
     print dql.fields
     f = dql.get_date_format('%M%y')
-    dql.format_field('gym_id', key=f)
+    dql.format_field('order_date', key=f)
     print dql.fields    
     f = dql.get_date_format('%M%y')
     print dql.get_original_fields()
+    print dql._dql
+    # print dql.query()
     dql.close_cursor()
 
 
