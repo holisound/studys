@@ -3,7 +3,7 @@
 # @Author: python
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-20 09:25:12
+# @Last Modified time: 2015-10-21 13:24:01
 
 import requests
 import json
@@ -11,6 +11,7 @@ import MySQLdb
 from MySQLdb.cursors import DictCursor
 from collections import OrderedDict, deque
 from operator import itemgetter
+
 
 class Storage(dict):
 
@@ -28,6 +29,20 @@ class Storage(dict):
             del self[key]
         except KeyError, k:
             raise AttributeError, k
+
+
+def get_minute_duration(start, end):
+    """
+    start = '12:00(:00)', end = '13:01(:00)'
+    get_duration( start, end ) --> 61 min
+    """
+    from datetime import datetime
+    start = start if start.count(':') == 1 else start[:-3]
+    end = end if end.count(':') == 1 else end[:-3]
+    end, start = (end, start) if end > start else (start, end)
+    duration_in_second = (
+        datetime.strptime(end, '%H:%M') - datetime.strptime(start, '%H:%M')).seconds
+    return duration_in_second / 60
 
 
 def json_safe_loads(jsonstr, **kwargs):
