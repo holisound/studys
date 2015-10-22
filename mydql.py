@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-22 22:34:56
+# @Last Modified time: 2015-10-22 22:59:55
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
@@ -164,13 +164,16 @@ class DQL:
         self._init_tables()
 
     def _init_tables(self):
+        def _access_fields(name):
+            self.cursor.execute('DESC %s' % name)
+            return sortit(r['Field'] for r in self.cursor.fetchall())
         self.cursor.execute('SHOW TABLES')
         _tables = []
         for name in (r.values()[0] for r in self.cursor.fetchall()):
             _tables.append(
                 Table(
                     name=name,
-                    fields=self._access_fields(name),
+                    fields=_access_fields(name),
                 )
             )
         self.tables = TableStorage(_tables)
@@ -184,9 +187,6 @@ class DQL:
         for key in r.keys():
             self.mapping.setdefault(key, key)
 
-    def _access_fields(self, name):
-        self.cursor.execute('DESC %s' % name)
-        return sortit(r['Field'] for r in self.cursor.fetchall())
 
     def get_fields(self):
         return sortit(self.mapping.values())
