@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-20 15:27:04
+# @Last Modified time: 2015-10-22 17:22:59
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
@@ -12,6 +12,14 @@ from operator import itemgetter
 
 def sortit(iteral, key=None):
     return tuple(sorted(iteral, key=key))
+
+
+def connect(**kwargs):
+    kwargs['cursorclass'] = kwargs.pop('cursorclass', None) or DictCursor
+    kwargs['charset'] = kwargs.pop('charset', None) or 'utf8'
+    conn = MySQLdb.connect(**kwargs)
+    return DQL(conn.cursor())
+# ====================
 
 
 class Storage(dict):
@@ -32,11 +40,11 @@ class Storage(dict):
             raise AttributeError, k
 
 
-def connect(**kwargs):
-    kwargs['cursorclass'] = DictCursor
-    kwargs['charset'] = 'utf8'
-    conn = MySQLdb.connect(**kwargs)
-    return DQL(conn.cursor())
+class TableStorage:
+
+    def __init__(self, tb_iterable):
+        for tb in tb_iterable:
+            setattr(self, tb.name, tb)
 
 
 class Table:
@@ -45,18 +53,30 @@ class Table:
         self.cursor = cursor
         self.name = name
         self.alias = alias
+        self.fields = self._get_fields()
 
     def __repr__(self):
-        return '< ' + 'name: ' + repr(self.name) + ', alias:' + repr(self.alias) + ' >'
+        return '<' + 'name: ' + repr(self.name) + ', alias:' + repr(self.alias) + '>'
 
-    def get_fields(self):
-        self.cursor.execute('SELECT * FROM %s' % self.name)
-        r = self.cursor.fetchone()
-        return sortit(r.keys())
-    fields = property(get_fields)
+    def _get_fields(self):
+        self.cursor.execute('DESC %s' % self.name)
+        return sortit(r['Field'] for r in self.cursor.fetchall())
 
     def set_alias(self, alias):
         self.alias = alias
+
+
+class Joint:
+
+    """
+        'Joint' abstracts a class to represent the relations to each other between two joined-table.
+    """
+
+    def __init__(self, a, b, method):
+        setattr(self, a.name, a)
+        setattr(self, a.name, b)
+        self.method = method
+
 
 class Clause:
 
@@ -69,7 +89,8 @@ class Clause:
             'gt': '> %s',
             'gte': '>= %s',
             'in': 'IN (%s)',
-            'range': 'BETWEEN %s AND %s'
+            'range': 'BETWEEN %s AND %s',
+            'like': 'LIKE %s',
         }
 
     def _valid_dict(self, dictObj):
@@ -128,6 +149,7 @@ class Clause:
         """
         return ' AND '.join(self.get_fraction(key) for key in self.dict.iterkeys())
 
+
 class DQL:
 
     """
@@ -147,11 +169,10 @@ class DQL:
         self._init_tables()
 
     def _init_tables(self):
-        self.tables = Storage()
         self.cursor.execute('SHOW TABLES')
-        for r in self.cursor.fetchall():
-            name = r.values()[0]
-            setattr(self.tables, name, Table(name=name, cursor=self.cursor))
+        _tables = (
+            Table(name=r.values()[0], cursor=self.cursor) for r in self.cursor.fetchall())
+        self.tables = TableStorage(_tables)
 
     def _init_mapping(self):
         if self.maintable is None:
@@ -169,9 +190,6 @@ class DQL:
     def get_original_fields(self):
         return sortit(self.mapping.keys())
 
-    def get_table_names(self):
-        return sortit(self.tables.keys())
-
     def reset(self):
         self.mapping = Storage()
         self._dql = ''
@@ -182,7 +200,8 @@ class DQL:
             table.set_alias(alias)
             self.maintable = table
         elif isinstance(table, str):
-            self.maintable = Table(self.cursor, table, alias)
+            self.maintable = Table(
+                cursor=self.cursor, table=table, alias=alias)
         self.reset()
         return self.maintable
 
@@ -194,11 +213,47 @@ class DQL:
             self.mapping[field] = kf
 
     def query(self, *args, **kwargs):
-        keyword = 'SELECT %s FROM %s WHERE %s'
-        fields = ', '.join(i.strip() for i in self.fields)
+
+        """
+        fields:
+            expect a iterable-object contains names of fields to select
+            if not given, defaults to 'self.fields' 
+        excludes:
+            expect a iterable-object contains names of fields to exclude among 'self.fields'
+            if 'fields' argument is given, it would be ignored
+        where:
+            expect dict-object contains keyword-argument as fitering-condtions
+
+        """
+        # distinct
+        # or
+        # order by desc/asc
+        # count
+        # subquery
+        # avg
+        # Aggregation
+        # group by
+        # having
+        # union
+        # not
+        _dql_format = 'SELECT %s%s FROM %s WHERE %s'
+        distinct = kwargs.get('distinct')
         where = kwargs.get('where')
-        where_clause = Clause(where).get_condition_sql() if where else '1=1'
-        sql = keyword % (fields, self._dql or self.maintable.name, where_clause)
+        fields = kwargs.get('fields')
+        excludes = kwargs.get('excludes')
+        # ==============================
+        if fields is None:
+            _fields = ', '.join(set(self.fields) - set(excludes or []))
+        else:
+            _fields = ', '.join(fields or self.fields)
+        #
+        _where_clause = Clause(where).get_condition_sql() if where else '1=1'
+        sql = _dql_format % (
+            'DISTINCT ' if distinct else '',
+            _fields,
+            self._dql or self.maintable.name,
+            _where_clause,
+        )
         print sql
         self.cursor.execute(sql)
         r = self.cursor.fetchall()
@@ -221,13 +276,15 @@ class DQL:
             raise ValueError(
                 "invalid: maintable is not an instance of 'Table'")
         # ===================
+        # Joint(a, b, 'inner')
 
+        # ===================
         if self._dql is '':
             self._dql += ' '.join(
                 i.strip() for i in (
                     '%s %s' % (self.maintable.name, 'AS %s' %
                                self.maintable.alias if self.maintable.alias else ''),
-                    ))
+                ))
 
         self._dql += ' '.join(
             i.strip() for i in (
@@ -250,17 +307,17 @@ def main():
     dql = connect(host='localhost', db='QGYM', user='root', passwd='123123')
     dql.set_main(dql.tables.order_table, 'o')
     print dql.fields
-    dql.format_field(
-        'order_date', key=dql.date_format('%Y%m'), alias='order_date')
-    print dql.set_main(dql.tables.course_table, 'c')
-    print dql.fields
+    # dql.format_field(
+    #     'order_date', key=dql.date_format('%Y%m'), alias='order_date')
+    # print dql.set_main(dql.tables.course_table, 'c')
+    # print dql.fields
     # dql.format_field('course_avatar', key=dql.date_format("%m%d"), alias='ca')
-    dql.inner_join(dql.tables.course_schedule_table,
-                   on='course_schedule_courseid=course_id', alias='css')
+    # dql.inner_join(dql.tables.course_schedule_table,
+    #                on='course_schedule_courseid=course_id', alias='css')
     # dql.set_main(dql.tables.order_table, 'o')
     # print dql.fields
-    condition = dict(course_id=1)
-    dql.query(where=condition)
-
+    # condition = dict(course_id=1)
+    # dql.query(where=condition, fields=['course_avatar', 'course_schedule_day'])
+    print Clause({'a__like':'%as%'}).get_condition_sql()
 if __name__ == '__main__':
     main()
