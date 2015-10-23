@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-22 17:22:59
+# @Last Modified time: 2015-10-22 17:45:28
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
@@ -175,10 +175,8 @@ class DQL:
         self.tables = TableStorage(_tables)
 
     def _init_mapping(self):
-        if self.maintable is None:
-            return
-        self.cursor.execute('SELECT * FROM %s' %
-                            (self._dql or self.maintable.name))
+        self.cursor.execute(
+            'SELECT * FROM %s' % (self._dql or self.maintable.name))
         r = self.cursor.fetchone()
         for key in r.keys():
             self.mapping.setdefault(key, key)
@@ -201,7 +199,9 @@ class DQL:
             self.maintable = table
         elif isinstance(table, str):
             self.maintable = Table(
-                cursor=self.cursor, table=table, alias=alias)
+                cursor=self.cursor,
+                table=table,
+                alias=alias)
         self.reset()
         return self.maintable
 
