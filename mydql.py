@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-22 17:45:28
+# @Last Modified time: 2015-10-23 09:57:18
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
@@ -49,18 +49,13 @@ class TableStorage:
 
 class Table:
 
-    def __init__(self, cursor, name, alias=''):
-        self.cursor = cursor
+    def __init__(self, fields, name, alias=''):
         self.name = name
         self.alias = alias
-        self.fields = self._get_fields()
+        self.fields = fields
 
     def __repr__(self):
         return '<' + 'name: ' + repr(self.name) + ', alias:' + repr(self.alias) + '>'
-
-    def _get_fields(self):
-        self.cursor.execute('DESC %s' % self.name)
-        return sortit(r['Field'] for r in self.cursor.fetchall())
 
     def set_alias(self, alias):
         self.alias = alias
@@ -169,9 +164,18 @@ class DQL:
         self._init_tables()
 
     def _init_tables(self):
+        def _access_fields(name):
+            self.cursor.execute('DESC %s' % name)
+            return sortit(r['Field'] for r in self.cursor.fetchall())
         self.cursor.execute('SHOW TABLES')
-        _tables = (
-            Table(name=r.values()[0], cursor=self.cursor) for r in self.cursor.fetchall())
+        _tables = []
+        for name in (r.values()[0] for r in self.cursor.fetchall()):
+            _tables.append(
+                Table(
+                    name=name,
+                    fields=_access_fields(name),
+                )
+            )
         self.tables = TableStorage(_tables)
 
     def _init_mapping(self):
@@ -213,7 +217,6 @@ class DQL:
             self.mapping[field] = kf
 
     def query(self, *args, **kwargs):
-
         """
         fields:
             expect a iterable-object contains names of fields to select
@@ -306,6 +309,8 @@ def main():
     # ==========
     dql = connect(host='localhost', db='QGYM', user='root', passwd='123123')
     dql.set_main(dql.tables.order_table, 'o')
+    # dql = connect(host='localhost', db='db', user='root', passwd='123123')
+    # dql.set_main(dql.tables.student, 'o')
     print dql.fields
     # dql.format_field(
     #     'order_date', key=dql.date_format('%Y%m'), alias='order_date')
@@ -318,6 +323,6 @@ def main():
     # print dql.fields
     # condition = dict(course_id=1)
     # dql.query(where=condition, fields=['course_avatar', 'course_schedule_day'])
-    print Clause({'a__like':'%as%'}).get_condition_sql()
+    # print Clause({'a__like': '%as%'}).get_condition_sql()
 if __name__ == '__main__':
     main()
