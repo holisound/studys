@@ -3,18 +3,23 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-23 09:57:18
+# @Last Modified time: 2015-10-23 15:57:22
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
 from operator import itemgetter
 
-
-def sortit(iteral, key=None):
-    return tuple(sorted(iteral, key=key))
+def sortit(iterable, key=None, reverse=False, conv=iter):
+    """
+    An alternative to 'sorted' which returns a sorted-iteror instead of a list.
+    """
+    return conv(sorted(iterable, key=key, reverse=reverse))
 
 
 def connect(**kwargs):
+    """
+    A wrapped function based on 'MySQLdb.connect' returns a 'DQL' instance.
+    """
     kwargs['cursorclass'] = kwargs.pop('cursorclass', None) or DictCursor
     kwargs['charset'] = kwargs.pop('charset', None) or 'utf8'
     conn = MySQLdb.connect(**kwargs)
@@ -23,6 +28,10 @@ def connect(**kwargs):
 
 
 class Storage(dict):
+
+    """
+    Originally from 'web.utils' of the 'web.py'
+    """
 
     def __getattr__(self, key):
         try:
@@ -42,13 +51,19 @@ class Storage(dict):
 
 class TableStorage:
 
+    """
+    A class as the container of tables' storage.
+    """
+
     def __init__(self, tb_iterable):
         for tb in tb_iterable:
             setattr(self, tb.name, tb)
 
 
 class Table:
-
+    """
+        represents a table in database
+    """
     def __init__(self, fields, name, alias=''):
         self.name = name
         self.alias = alias
@@ -64,13 +79,12 @@ class Table:
 class Joint:
 
     """
-        'Joint' abstracts a class to represent the relations to each other between two joined-table.
+        'Joint' abstracts a class to represent the relation to each other between two joined-table.
     """
 
-    def __init__(self, a, b, method):
-        setattr(self, a.name, a)
-        setattr(self, a.name, b)
-        self.method = method
+    def __init__(self, tb, rel):
+        self.tb = tb
+        self.rel = rel 
 
 
 class Clause:
@@ -147,6 +161,7 @@ class Clause:
 
 class DQL:
 
+    INNER_JOIN = ' INNER JOIN '
     """
         'DQL' is a simple extension-class based on MySQLdb, 
         which is intended to make convenient-api for satisfying regular DQL-demand.
@@ -162,11 +177,13 @@ class DQL:
         self.mapping = Storage()
         self._dql = ''
         self._init_tables()
+        self.joints = []
 
     def _init_tables(self):
         def _access_fields(name):
             self.cursor.execute('DESC %s' % name)
-            return sortit(r['Field'] for r in self.cursor.fetchall())
+            _rg = (r['Field'] for r in self.cursor.fetchall())
+            return sortit(_rg, conv=tuple)
         self.cursor.execute('SHOW TABLES')
         _tables = []
         for name in (r.values()[0] for r in self.cursor.fetchall()):
@@ -178,19 +195,20 @@ class DQL:
             )
         self.tables = TableStorage(_tables)
 
-    def _init_mapping(self):
-        self.cursor.execute(
-            'SELECT * FROM %s' % (self._dql or self.maintable.name))
+    def _init_mapping(self, dql=None):
+        if dql is None:
+            dql = 'SELECT * FROM %s' % self.maintable.name
+        self.cursor.execute(dql)
         r = self.cursor.fetchone()
         for key in r.keys():
             self.mapping.setdefault(key, key)
 
     def get_fields(self):
-        return sortit(self.mapping.values())
+        return sortit(self.mapping.values(), conv=tuple)
     fields = property(get_fields)
 
     def get_original_fields(self):
-        return sortit(self.mapping.keys())
+        return sortit(self.mapping.keys(), conv=tuple)
 
     def reset(self):
         self.mapping = Storage()
@@ -239,7 +257,7 @@ class DQL:
         # having
         # union
         # not
-        _dql_format = 'SELECT %s%s FROM %s WHERE %s'
+        _dql_format = 'SELECT {distinct}{fields} FROM {tables} WHERE {conditions}'
         distinct = kwargs.get('distinct')
         where = kwargs.get('where')
         fields = kwargs.get('fields')
@@ -251,19 +269,16 @@ class DQL:
             _fields = ', '.join(fields or self.fields)
         #
         _where_clause = Clause(where).get_condition_sql() if where else '1=1'
-        sql = _dql_format % (
-            'DISTINCT ' if distinct else '',
-            _fields,
-            self._dql or self.maintable.name,
-            _where_clause,
+        sql = _dql_format.format(
+            distinct='DISTINCT ' if distinct else '',
+            fields=_fields,
+            tables=self._dql or self.maintable.name,
+            conditions=_where_clause,
         )
         print sql
         self.cursor.execute(sql)
         r = self.cursor.fetchall()
         return r
-
-    def close_cursor(self):
-        self.cursor.close()
 
     def inner_join(self, table, on, alias=''):
         if isinstance(table, Table):
@@ -279,27 +294,21 @@ class DQL:
             raise ValueError(
                 "invalid: maintable is not an instance of 'Table'")
         # ===================
-        # Joint(a, b, 'inner')
-
+        self.joints.append( Joint(table, on) )
+        self._init_mapping(self._relate(INNER_JOIN))
         # ===================
-        if self._dql is '':
-            self._dql += ' '.join(
-                i.strip() for i in (
-                    '%s %s' % (self.maintable.name, 'AS %s' %
-                               self.maintable.alias if self.maintable.alias else ''),
-                ))
 
-        self._dql += ' '.join(
-            i.strip() for i in (
-                '',
-                'INNER JOIN',
-                '%s %s' % (table.name, 'AS %s' %
-                           table.alias if table.alias else ''),
-                'ON',
-                on,
-            )
-        )
-        self._init_mapping()
+    def _relate(self, method):
+        if hasattr(self, method) is False:
+            raise ValueError('No such method of %r' % r)
+        tbl = []
+        for j in self.joints:
+            f = '{name} AS {alias} ON {rel}' if bool(j.tb.alias) is True else '{name} ON {rel}' 
+            tbl.append( f.format( name=j.tb.name, alias=j.tb.alias, rel=j.tb.rel ))
+        main_f = '{name} AS {alias}' if self.maintable.alias else '{name}'
+        main = main_f.format(name=self.maintable.name, alias=self.maintable.alias)
+        tbl.insert(0, main)
+        return 'SELECT * FROM %s' % method.join(_tbl)
 
     def date_format(self, fmt):
         return lambda field: 'DATE_FORMAT(%s, %r)' % (field, fmt)
