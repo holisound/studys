@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-25 21:16:22
+# @Last Modified time: 2015-10-25 21:23:36
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
@@ -294,13 +294,13 @@ class DQL:
             _fields = ', '.join(fields or self.fields)
         #
         _where_clause = Clause(where).get_condition_sql() if where else '1=1'
-        sql = _dql_format.format(
+        _dql = _dql_format.format(
             distinct='DISTINCT ' if distinct else '',
             fields=_fields,
             tables=self._relate(INNER_JOIN),
             conditions=_where_clause,
         )
-        return sql
+        return _dql
 
     def create_view(self, name):
         self.cursor.execute('CREATE OR REPLACE VIEW {name} AS {dql} '.format( name=name, dql=self.get_dql() ))
