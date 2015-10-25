@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-25 14:30:33
+# @Last Modified time: 2015-10-25 18:49:47
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
@@ -297,7 +297,7 @@ class DQL:
         sql = _dql_format.format(
             distinct='DISTINCT ' if distinct else '',
             fields=_fields,
-            tables=self._relate(INNER_JOIN) or self.maintable.name,
+            tables=self._relate(INNER_JOIN),
             conditions=_where_clause,
         )
         print sql
@@ -343,6 +343,7 @@ def main():
     dql = connect(host='localhost', db='db', user='root', passwd='123123')
     print dql.fields
     print dql.set_main('student', 'st')
+    dql.query()
     # print dql.tables.score.sno.date_format()
     print dql.tables.student.sbirthday.date_format('%Y-%m', 'birthday')
     print dql.tables.student.fields
