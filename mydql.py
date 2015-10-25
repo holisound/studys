@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-25 13:46:13
+# @Last Modified time: 2015-10-25 14:30:33
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
@@ -87,7 +87,8 @@ class Table:
         _fields = []
         for name in self._field_names:
             fieldObj = getattr(self, name)
-            _fields.append(fieldObj.mutation or name)
+            _field_name = fieldObj.mutation or ( '%s.%s' % (self.alias, name) if self.alias else name )
+            _fields.append(_field_name)
         return sortit(_fields, conv=tuple)
 
     fields = property(get_fields)
@@ -125,9 +126,16 @@ class Joint:
     """
 
     def __init__(self, tb, rel):
+        """
+        tb: Table
+        rel: str, 'a=b', 'a.id=b.id'
+        """
         self.tb = tb
-        self.rel = rel
+        self._init_rel(rel)
 
+    def _init_rel(self, rel):
+        self.rel = rel.strip()
+        self.duplication = self.rel.split('=')[0].strip()
 
 class Clause:
 
@@ -236,6 +244,7 @@ class DQL:
             _fields.extend(self.maintable.fields)
             for j in self.joints:
                 _fields.extend(j.tb.fields)
+                # _fields.remove(j.duplication)
             return sortit(_fields, conv=tuple)
     fields = property(get_fields)
 
@@ -288,7 +297,7 @@ class DQL:
         sql = _dql_format.format(
             distinct='DISTINCT ' if distinct else '',
             fields=_fields,
-            tables=self._dql or self.maintable.name,
+            tables=self._relate(INNER_JOIN) or self.maintable.name,
             conditions=_where_clause,
         )
         print sql
@@ -309,13 +318,10 @@ class DQL:
         except AssertionError:
             raise ValueError(
                 "invalid: maintable is not an instance of 'Table'")
-        # ===================
-        self.joints.append(Joint(table, on))
-        # ===================
+        else:
+            self.joints.append( Joint(table, on) )
 
     def _relate(self, method):
-        # if hasattr(self, method) is False:
-        #     raise ValueError('No such method of %r' % r)
         tbl = []
         for j in self.joints:
             f = '{name} AS {alias} ON {rel}' if bool(
@@ -325,8 +331,9 @@ class DQL:
         main_f = '{name} AS {alias}' if self.maintable.alias else '{name}'
         main = main_f.format(
             name=self.maintable.name, alias=self.maintable.alias)
+
         tbl.insert(0, main)
-        return 'SELECT * FROM %s' % method(tbl)
+        return method(tbl)
 
 
 def main():
@@ -345,10 +352,9 @@ def main():
     dql.inner_join(dql.tables.score,
                    on='st.sno=cs.sno', alias='cs')
     print dql.fields
-    dql.set_main(dql.tables.score, 'o')
+    # dql.set_main(dql.tables.score, 'o')
     print dql.fields
-    # condition = dict(course_id=1)
-    # dql.query(where=condition, fields=['course_avatar', 'course_schedule_day'])
+    dql.query()
     # print Clause({'a__like': '%as%'}).get_condition_sql()
 if __name__ == '__main__':
     main()
