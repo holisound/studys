@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-25 10:11:58
+# @Last Modified time: 2015-10-25 13:46:13
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
@@ -25,6 +25,7 @@ def connect(**kwargs):
     kwargs['charset'] = kwargs.pop('charset', None) or 'utf8'
     conn = MySQLdb.connect(**kwargs)
     return DQL(conn.cursor())
+
 # ====================
 
 
@@ -67,12 +68,15 @@ class Table:
         represents a table in database
     """
 
-    def __init__(self, fields, name, alias=''):
+    def __init__(self, dql, name, alias=''):
         self.name = name
         self.alias = alias
-        self._init_fields(fields)
+        self.dql = dql
+        self._init_fields()
 
-    def _init_fields(self, fields):
+    def _init_fields(self):
+        self.dql.cursor.execute('DESC %s' % self.name)
+        fields = ( Field(tb=self, name=r['Field']) for r in self.dql.cursor.fetchall() )
         _field_names = []
         for f in fields:
             setattr(self, f.name, f)
@@ -97,16 +101,22 @@ class Table:
 
 class Field:
 
-    def __init__(self, name):
+    def __init__(self, tb, name):
+        self.tb = tb
         self.name = name
         self.mutation = None
 
     def date_format(self, fmt, alias=''):
-        if bool(alias) is False:
-            self.mutation = 'DATE_FORMAT(%s, %r)' % (self.name, fmt)
+        if self.tb.alias and alias:
+            mut = 'DATE_FORMAT(%s.%s, %r) AS %s' % (self.tb.alias, self.name, fmt, alias)
+        elif self.tb.alias:
+            mut = 'DATE_FORMAT(%s.%s, %r)' % (self.tb.alias, self.name, fmt)
+        elif alias:
+            mut = 'DATE_FORMAT(%s, %r) AS %s' % (self.name, fmt, alias)
         else:
-            self.mutation = 'DATE_FORMAT(%s, %r) AS %s' % (self.name, fmt, alias)
-        return self.mutation
+            mut = 'DATE_FORMAT(%s, %r)' % (self.name, fmt)  
+        self.mutation = mut
+        return mut
 
 class Joint:
 
@@ -208,63 +218,37 @@ class DQL:
     def __init__(self, cursor):
         self.cursor = cursor
         self.maintable = None
-        self.mapping = {}
-        self._init_tables()
         self.joints = []
-
-    def _access_fields(self, name):
-        self.cursor.execute('DESC %s' % name)
-        field_gen = (Field(r['Field']) for r in self.cursor.fetchall())
-        return field_gen
+        self._init_tables()
 
     def _init_tables(self):
         self.cursor.execute('SHOW TABLES')
         tbl = []
         for name in (r.values()[0] for r in self.cursor.fetchall()):
-            tbl.append(
-                Table(
-                    name=name,
-                    fields=self._access_fields(name),
-                )
-            )
+            tbl.append( Table(dql=self, name=name) )
         self.tables = TableStorage(tbl)
 
-    def _init_mapping(self, dql=None):
-        self.mapping = Storage()
-        if dql is None:
-            for f in self._access_fields(self.maintable.name):
-                self.mapping[f.name] = f.mutation or f.name
-        else:
-            self.cursor.execute(dql)
-            r = self.cursor.fetchone()
-            for key in r.keys():
-                self.mapping[key] = key
-
     def get_fields(self):
-        return sortit(self.mapping.values(), conv=tuple)
+        if self.maintable is None:
+            return ()
+        else:
+            _fields = []
+            _fields.extend(self.maintable.fields)
+            for j in self.joints:
+                _fields.extend(j.tb.fields)
+            return sortit(_fields, conv=tuple)
     fields = property(get_fields)
-
-    def get_original_fields(self):
-        return sortit(self.mapping.keys(), conv=tuple)
 
     def set_main(self, table, alias=''):
         if isinstance(table, Table) and hasattr(self.tables, table.name):
             self.maintable = table
-        elif isinstance(table, str) and hasattr(self.tables, table):
+        elif isinstance(table, basestring) and hasattr(self.tables, table):
             self.maintable = getattr(self.tables, table)
         else:
             raise TypeError(
                 "Invalid argument % r, Expect Table or Table.name" % table)
         self.maintable.set_alias(alias)
-        self._init_mapping()
         return self.maintable
-
-    def format_field(self, field, key=None, alias=''):
-        if hasattr(self.mapping, field) and key is not None:
-            kf = key(field)
-            if bool(alias) is True:
-                kf = '%s AS %s' % (kf, alias)
-            self.mapping[field] = kf
 
     def query(self, *args, **kwargs):
         """
@@ -315,7 +299,7 @@ class DQL:
     def inner_join(self, table, on, alias=''):
         if isinstance(table, Table):
             pass
-        elif isinstance(table, str):
+        elif isinstance(table, basestring):
             table = getattr(self.tables, table)
         else:
             raise ValueError("invalid: Support 'str' or 'Table'")
@@ -327,7 +311,6 @@ class DQL:
                 "invalid: maintable is not an instance of 'Table'")
         # ===================
         self.joints.append(Joint(table, on))
-        self._init_mapping(self._relate(INNER_JOIN))
         # ===================
 
     def _relate(self, method):
@@ -356,14 +339,14 @@ def main():
     # print dql.tables.score.sno.date_format()
     print dql.tables.student.sbirthday.date_format('%Y-%m', 'birthday')
     print dql.tables.student.fields
-    # print dql.fields
+    print dql.fields
     # print dql.set_main(dql.tables.student, 'c')
     # dql.format_field('course_avatar', key=dql.date_format("%m%d"), alias='ca')
-    # dql.inner_join(dql.tables.score,
-    #                on='st.sno=cs.sno', alias='cs')
-    # print dql.fields
-    # dql.set_main(dql.tables.order_table, 'o')
-    # print dql.fields
+    dql.inner_join(dql.tables.score,
+                   on='st.sno=cs.sno', alias='cs')
+    print dql.fields
+    dql.set_main(dql.tables.score, 'o')
+    print dql.fields
     # condition = dict(course_id=1)
     # dql.query(where=condition, fields=['course_avatar', 'course_schedule_day'])
     # print Clause({'a__like': '%as%'}).get_condition_sql()
