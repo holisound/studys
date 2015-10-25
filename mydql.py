@@ -3,18 +3,24 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-22 22:59:55
+# @Last Modified time: 2015-10-25 10:11:58
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
 from operator import itemgetter
 
 
-def sortit(iteral, key=None):
-    return tuple(sorted(iteral, key=key))
+def sortit(iterable, key=None, reverse=False, conv=iter):
+    """
+    An alternative to 'sorted' which returns a sorted-iteror instead of a list.
+    """
+    return conv(sorted(iterable, key=key, reverse=reverse))
 
 
 def connect(**kwargs):
+    """
+    A wrapped function based on 'MySQLdb.connect' returns a 'DQL' instance.
+    """
     kwargs['cursorclass'] = kwargs.pop('cursorclass', None) or DictCursor
     kwargs['charset'] = kwargs.pop('charset', None) or 'utf8'
     conn = MySQLdb.connect(**kwargs)
@@ -23,6 +29,10 @@ def connect(**kwargs):
 
 
 class Storage(dict):
+
+    """
+    Originally from 'web.utils' of the 'web.py'
+    """
 
     def __getattr__(self, key):
         try:
@@ -42,6 +52,10 @@ class Storage(dict):
 
 class TableStorage:
 
+    """
+    A class as the container of tables' storage.
+    """
+
     def __init__(self, tb_iterable):
         for tb in tb_iterable:
             setattr(self, tb.name, tb)
@@ -49,10 +63,30 @@ class TableStorage:
 
 class Table:
 
+    """
+        represents a table in database
+    """
+
     def __init__(self, fields, name, alias=''):
         self.name = name
         self.alias = alias
-        self.fields = fields
+        self._init_fields(fields)
+
+    def _init_fields(self, fields):
+        _field_names = []
+        for f in fields:
+            setattr(self, f.name, f)
+            _field_names.append(f.name)
+        self._field_names = sortit(_field_names, conv=tuple)
+
+    def get_fields(self):
+        _fields = []
+        for name in self._field_names:
+            fieldObj = getattr(self, name)
+            _fields.append(fieldObj.mutation or name)
+        return sortit(_fields, conv=tuple)
+
+    fields = property(get_fields)
 
     def __repr__(self):
         return '<' + 'name: ' + repr(self.name) + ', alias:' + repr(self.alias) + '>'
@@ -61,16 +95,28 @@ class Table:
         self.alias = alias
 
 
+class Field:
+
+    def __init__(self, name):
+        self.name = name
+        self.mutation = None
+
+    def date_format(self, fmt, alias=''):
+        if bool(alias) is False:
+            self.mutation = 'DATE_FORMAT(%s, %r)' % (self.name, fmt)
+        else:
+            self.mutation = 'DATE_FORMAT(%s, %r) AS %s' % (self.name, fmt, alias)
+        return self.mutation
+
 class Joint:
 
     """
-        'Joint' abstracts a class to represent the relations to each other between two joined-table.
+        'Joint' abstracts a class to represent the relation to each other between two joined-table.
     """
 
-    def __init__(self, a, b, method):
-        setattr(self, a.name, a)
-        setattr(self, a.name, b)
-        self.method = method
+    def __init__(self, tb, rel):
+        self.tb = tb
+        self.rel = rel
 
 
 class Clause:
@@ -145,6 +191,9 @@ class Clause:
         return ' AND '.join(self.get_fraction(key) for key in self.dict.iterkeys())
 
 
+INNER_JOIN = lambda tbl: ' INNER JOIN '.join(tbl)
+
+
 class DQL:
 
     """
@@ -159,55 +208,55 @@ class DQL:
     def __init__(self, cursor):
         self.cursor = cursor
         self.maintable = None
-        self.mapping = Storage()
-        self._dql = ''
+        self.mapping = {}
         self._init_tables()
+        self.joints = []
+
+    def _access_fields(self, name):
+        self.cursor.execute('DESC %s' % name)
+        field_gen = (Field(r['Field']) for r in self.cursor.fetchall())
+        return field_gen
 
     def _init_tables(self):
-        def _access_fields(name):
-            self.cursor.execute('DESC %s' % name)
-            return sortit(r['Field'] for r in self.cursor.fetchall())
         self.cursor.execute('SHOW TABLES')
-        _tables = []
+        tbl = []
         for name in (r.values()[0] for r in self.cursor.fetchall()):
-            _tables.append(
+            tbl.append(
                 Table(
                     name=name,
-                    fields=_access_fields(name),
+                    fields=self._access_fields(name),
                 )
             )
-        self.tables = TableStorage(_tables)
+        self.tables = TableStorage(tbl)
 
-    def _init_mapping(self):
-        if self.maintable is None:
-            return
-        self.cursor.execute('SELECT * FROM %s' %
-                            (self._dql or self.maintable.name))
-        r = self.cursor.fetchone()
-        for key in r.keys():
-            self.mapping.setdefault(key, key)
-
+    def _init_mapping(self, dql=None):
+        self.mapping = Storage()
+        if dql is None:
+            for f in self._access_fields(self.maintable.name):
+                self.mapping[f.name] = f.mutation or f.name
+        else:
+            self.cursor.execute(dql)
+            r = self.cursor.fetchone()
+            for key in r.keys():
+                self.mapping[key] = key
 
     def get_fields(self):
-        return sortit(self.mapping.values())
+        return sortit(self.mapping.values(), conv=tuple)
     fields = property(get_fields)
 
     def get_original_fields(self):
-        return sortit(self.mapping.keys())
-
-    def reset(self):
-        self.mapping = Storage()
-        self._dql = ''
-        self._init_mapping()
+        return sortit(self.mapping.keys(), conv=tuple)
 
     def set_main(self, table, alias=''):
-        if isinstance(table, Table):
-            table.set_alias(alias)
+        if isinstance(table, Table) and hasattr(self.tables, table.name):
             self.maintable = table
-        elif isinstance(table, str):
-            self.maintable = Table(
-                cursor=self.cursor, table=table, alias=alias)
-        self.reset()
+        elif isinstance(table, str) and hasattr(self.tables, table):
+            self.maintable = getattr(self.tables, table)
+        else:
+            raise TypeError(
+                "Invalid argument % r, Expect Table or Table.name" % table)
+        self.maintable.set_alias(alias)
+        self._init_mapping()
         return self.maintable
 
     def format_field(self, field, key=None, alias=''):
@@ -240,7 +289,7 @@ class DQL:
         # having
         # union
         # not
-        _dql_format = 'SELECT %s%s FROM %s WHERE %s'
+        _dql_format = 'SELECT {distinct}{fields} FROM {tables} WHERE {conditions}'
         distinct = kwargs.get('distinct')
         where = kwargs.get('where')
         fields = kwargs.get('fields')
@@ -252,19 +301,16 @@ class DQL:
             _fields = ', '.join(fields or self.fields)
         #
         _where_clause = Clause(where).get_condition_sql() if where else '1=1'
-        sql = _dql_format % (
-            'DISTINCT ' if distinct else '',
-            _fields,
-            self._dql or self.maintable.name,
-            _where_clause,
+        sql = _dql_format.format(
+            distinct='DISTINCT ' if distinct else '',
+            fields=_fields,
+            tables=self._dql or self.maintable.name,
+            conditions=_where_clause,
         )
         print sql
         self.cursor.execute(sql)
         r = self.cursor.fetchall()
         return r
-
-    def close_cursor(self):
-        self.cursor.close()
 
     def inner_join(self, table, on, alias=''):
         if isinstance(table, Table):
@@ -280,48 +326,46 @@ class DQL:
             raise ValueError(
                 "invalid: maintable is not an instance of 'Table'")
         # ===================
-        # Joint(a, b, 'inner')
-
+        self.joints.append(Joint(table, on))
+        self._init_mapping(self._relate(INNER_JOIN))
         # ===================
-        if self._dql is '':
-            self._dql += ' '.join(
-                i.strip() for i in (
-                    '%s %s' % (self.maintable.name, 'AS %s' %
-                               self.maintable.alias if self.maintable.alias else ''),
-                ))
 
-        self._dql += ' '.join(
-            i.strip() for i in (
-                '',
-                'INNER JOIN',
-                '%s %s' % (table.name, 'AS %s' %
-                           table.alias if table.alias else ''),
-                'ON',
-                on,
-            )
-        )
-        self._init_mapping()
-
-    def date_format(self, fmt):
-        return lambda field: 'DATE_FORMAT(%s, %r)' % (field, fmt)
+    def _relate(self, method):
+        # if hasattr(self, method) is False:
+        #     raise ValueError('No such method of %r' % r)
+        tbl = []
+        for j in self.joints:
+            f = '{name} AS {alias} ON {rel}' if bool(
+                j.tb.alias) is True else '{name} ON {rel}'
+            tbl.append(
+                f.format(name=j.tb.name, alias=j.tb.alias, rel=j.rel))
+        main_f = '{name} AS {alias}' if self.maintable.alias else '{name}'
+        main = main_f.format(
+            name=self.maintable.name, alias=self.maintable.alias)
+        tbl.insert(0, main)
+        return 'SELECT * FROM %s' % method(tbl)
 
 
 def main():
     # ==========
+    # dql = connect(host='localhost', db='QGYM', user='root', passwd='123123')
+    # dql.set_main(dql.tables.order_table, 'o')
     dql = connect(host='localhost', db='db', user='root', passwd='123123')
-    dql.set_main(dql.tables.student, 'o')
     print dql.fields
-    # dql.format_field(
-    #     'order_date', key=dql.date_format('%Y%m'), alias='order_date')
-    # print dql.set_main(dql.tables.course_table, 'c')
+    print dql.set_main('student', 'st')
+    # print dql.tables.score.sno.date_format()
+    print dql.tables.student.sbirthday.date_format('%Y-%m', 'birthday')
+    print dql.tables.student.fields
     # print dql.fields
+    # print dql.set_main(dql.tables.student, 'c')
     # dql.format_field('course_avatar', key=dql.date_format("%m%d"), alias='ca')
-    # dql.inner_join(dql.tables.course_schedule_table,
-    #                on='course_schedule_courseid=course_id', alias='css')
+    # dql.inner_join(dql.tables.score,
+    #                on='st.sno=cs.sno', alias='cs')
+    # print dql.fields
     # dql.set_main(dql.tables.order_table, 'o')
     # print dql.fields
     # condition = dict(course_id=1)
     # dql.query(where=condition, fields=['course_avatar', 'course_schedule_day'])
-    print Clause({'a__like': '%as%'}).get_condition_sql()
+    # print Clause({'a__like': '%as%'}).get_condition_sql()
 if __name__ == '__main__':
     main()
