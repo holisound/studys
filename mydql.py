@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-25 18:49:47
+# @Last Modified time: 2015-10-25 21:16:22
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
@@ -259,7 +259,7 @@ class DQL:
         self.maintable.set_alias(alias)
         return self.maintable
 
-    def query(self, *args, **kwargs):
+    def get_dql(self, *args, **kwargs):
         """
         fields:
             expect a iterable-object contains names of fields to select
@@ -300,9 +300,20 @@ class DQL:
             tables=self._relate(INNER_JOIN),
             conditions=_where_clause,
         )
-        print sql
-        self.cursor.execute(sql)
+        return sql
+
+    def create_view(self, name):
+        self.cursor.execute('CREATE OR REPLACE VIEW {name} AS {dql} '.format( name=name, dql=self.get_dql() ))
+        self._init_tables()
+
+    def query(self, *args, **kwargs):
+        self.cursor.execute(self.get_dql(*args, **kwargs))
         r = self.cursor.fetchall()
+        return r
+        
+    def queryone(self, *args, **kwargs):
+        self.cursor.execute(self.get_dql(*args, **kwargs))
+        r = self.cursor.fetchone()
         return r
 
     def inner_join(self, table, on, alias=''):
@@ -343,19 +354,24 @@ def main():
     dql = connect(host='localhost', db='db', user='root', passwd='123123')
     print dql.fields
     print dql.set_main('student', 'st')
-    dql.query()
-    # print dql.tables.score.sno.date_format()
+
+    # print dql.get_dql()
+    # dql.query()
     print dql.tables.student.sbirthday.date_format('%Y-%m', 'birthday')
-    print dql.tables.student.fields
-    print dql.fields
-    # print dql.set_main(dql.tables.student, 'c')
-    # dql.format_field('course_avatar', key=dql.date_format("%m%d"), alias='ca')
-    dql.inner_join(dql.tables.score,
-                   on='st.sno=cs.sno', alias='cs')
-    print dql.fields
-    # dql.set_main(dql.tables.score, 'o')
-    print dql.fields
-    dql.query()
+    print dir(dql.tables)
+    dql.create_view('test')
+    print dir(dql.tables)
+    print dql.maintable
+    # print dql.tables.student.fields
+    # print dql.fields
+    # # print dql.set_main(dql.tables.student, 'c')
+    # # dql.format_field('course_avatar', key=dql.date_format("%m%d"), alias='ca')
+    # dql.inner_join(dql.tables.score,
+    #                on='st.sno=cs.sno', alias='cs')
+    # print dql.fields
+    # # dql.set_main(dql.tables.score, 'o')
+    # print dql.fields
+    # dql.query()
     # print Clause({'a__like': '%as%'}).get_condition_sql()
 if __name__ == '__main__':
     main()
