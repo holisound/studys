@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-25 21:23:36
+# @Last Modified time: 2015-10-29 16:03:11
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
@@ -108,14 +108,10 @@ class Field:
         self.mutation = None
 
     def date_format(self, fmt, alias=''):
-        if self.tb.alias and alias:
-            mut = 'DATE_FORMAT(%s.%s, %r) AS %s' % (self.tb.alias, self.name, fmt, alias)
-        elif self.tb.alias:
-            mut = 'DATE_FORMAT(%s.%s, %r)' % (self.tb.alias, self.name, fmt)
-        elif alias:
-            mut = 'DATE_FORMAT(%s, %r) AS %s' % (self.name, fmt, alias)
+        if self.tb.alias:
+            mut = 'DATE_FORMAT(%s.%s, %r) AS %s' % (self.tb.alias, self.name, fmt, alias or self.name)
         else:
-            mut = 'DATE_FORMAT(%s, %r)' % (self.name, fmt)  
+            mut = 'DATE_FORMAT(%s, %r) AS %s' % (self.name, fmt, alias or self.name)
         self.mutation = mut
         return mut
 

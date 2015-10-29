@@ -3,10 +3,11 @@ import os
 import web
 import json
 from jinja2 import Environment, FileSystemLoader
-
-urls = ("/?", "hello",
-        '/register', 'Register',
-        '/upload', 'Upload',
+from mydql import connect
+urls = (r"/?", "hello",
+        r'/register/?', 'Register',
+        r'/upload/?', 'Upload',
+        r'/data/?' , 'Data',
         )
 app = web.application(urls, globals(), autoreload=True)
 
@@ -25,6 +26,8 @@ def render_template(template_name, **context):
     # jinja_env.update_template_context(context)
     return jinja_env.get_template(template_name).render(context)
 
+def mydql():
+    return connect(host="localhost", db="QGYM", user="root", passwd="123123")
 
 class hello:
 
@@ -33,8 +36,18 @@ class hello:
         # return json.dumps({'greet': 'Hello,world!'})
         # You can use a relative path as template name, for example,
         # 'ldap/hello.html'.
-        return render_template('index.html', name='Edward',)
+        return open("templates/ng01.html")
 
+class Data:
+    def GET(self):
+        dql = mydql()
+        dql.set_main('order_table')
+        # dql.fields.order_date.
+        dql.tables.order_table.order_date.date_format("%Y-%m-%d")
+        dql.tables.order_table.order_begintime.date_format("%H:%i")
+        dql.tables.order_table.order_endtime.date_format("%H:%i")
+        results = dql.queryone(where=dict(order_date='2015-10-07'))
+        return json.dumps({'result':1, 'testdata': results})
 
 class Register:
 
