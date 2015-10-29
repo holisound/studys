@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-29 18:50:01
+# @Last Modified time: 2015-10-29 21:24:27
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
@@ -235,19 +235,6 @@ class DQL:
             tbl.append( Table(dql=self, name=name) )
         self.tables = Store(tbl)
 
-    def _field_storage(self):
-        if self.maintable is None:
-            return ()
-        else:
-            _field_objects = []
-            _field_objects.extend(self.maintable.field_objects)
-            for j in self.joints:
-                _field_objects.extend(j.tb.field_objects)
-            return Store(_field_objects)
-    _fieldstorage = property(_field_storage)
-
-    def get_field_storage(self):
-        return self._fieldstorage
         
     def get_fields(self):
         if self.maintable is None:
@@ -337,6 +324,7 @@ class DQL:
         else:
             raise ValueError("invalid: Support 'str' or 'Table'")
         table.set_alias(alias)
+        # 
         try:
             assert isinstance(self.maintable, Table)
         except AssertionError:
@@ -344,6 +332,8 @@ class DQL:
                 "invalid: maintable is not an instance of 'Table'")
         else:
             self.joints.append( Joint(table, on) )
+        finally:
+            return table
 
     def _relate(self, method):
         tbl = []
