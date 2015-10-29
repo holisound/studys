@@ -43,10 +43,10 @@ class Data:
         dql = mydql()
         dql.set_main('order_table')
         # dql.fields.order_date.
-        dql.tables.order_table.order_date.date_format("%Y-%m-%d")
-        dql.tables.order_table.order_begintime.date_format("%H:%i")
-        dql.tables.order_table.order_endtime.date_format("%H:%i")
-        results = dql.queryone(where=dict(order_date='2015-10-07'))
+        dql.fieldstore.order_date.date_format("%Y-%m-%d")
+        dql.fieldstore.order_begintime.date_format("%H:%i")
+        dql.fieldstore.order_endtime.date_format("%H:%i")
+        results = dql.query(where=dict(order_date='2015-10-07'))
         return json.dumps({'result':1, 'testdata': results})
 
 class Register:

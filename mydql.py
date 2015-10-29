@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-29 16:03:11
+# @Last Modified time: 2015-10-29 16:52:52
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
@@ -51,15 +51,11 @@ class Storage(dict):
             raise AttributeError, k
 
 
-class TableStorage:
+class Store:
 
-    """
-    A class as the container of tables' storage.
-    """
-
-    def __init__(self, tb_iterable):
-        for tb in tb_iterable:
-            setattr(self, tb.name, tb)
+    def __init__(self, iterable):
+        for e in iterable:
+            setattr(self, e.name, e)
 
 
 class Table:
@@ -82,6 +78,13 @@ class Table:
             setattr(self, f.name, f)
             _field_names.append(f.name)
         self._field_names = sortit(_field_names, conv=tuple)
+
+    def get_field_objects(self):
+        _field_objects = []
+        for name in self._field_names:
+            _field_objects.append( getattr(self, name) )
+        return sortit(_field_objects, conv=tuple)
+    field_objects = property(get_field_objects)
 
     def get_fields(self):
         _fields = []
@@ -230,7 +233,18 @@ class DQL:
         tbl = []
         for name in (r.values()[0] for r in self.cursor.fetchall()):
             tbl.append( Table(dql=self, name=name) )
-        self.tables = TableStorage(tbl)
+        self.tables = Store(tbl)
+
+    def _field_store(self):
+        if self.maintable is None:
+            return ()
+        else:
+            _field_objects = []
+            _field_objects.extend(self.maintable.field_objects)
+            for j in self.joints:
+                _field_objects.extend(j.tb.field_objects)
+            return Store(_field_objects)
+    fieldstore = property(_field_store)
 
     def get_fields(self):
         if self.maintable is None:
@@ -240,7 +254,6 @@ class DQL:
             _fields.extend(self.maintable.fields)
             for j in self.joints:
                 _fields.extend(j.tb.fields)
-                # _fields.remove(j.duplication)
             return sortit(_fields, conv=tuple)
     fields = property(get_fields)
 
