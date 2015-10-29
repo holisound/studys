@@ -4,6 +4,7 @@ import web
 import json
 from jinja2 import Environment, FileSystemLoader
 from mydql import connect
+from itertools import islice
 urls = (r"/?", "hello",
         r'/register/?', 'Register',
         r'/upload/?', 'Upload',
@@ -42,11 +43,30 @@ class Data:
     def GET(self):
         dql = mydql()
         dql.set_main('order_table')
+        f = dql.get_field_storage()
+        # 
+        courseview = dql.create_view('course_order_view', order_type=1)
+        teacherview = dql.create_view('course_teacher_view', order_type=2)
+        # 
+        dql.set_main(courseview)
+        dql.inner_join('course_schedule_table', on="course_schedule_id=order_objectid")
+        dql.inner_join('gym_branch_table', on="course_schedule_gymbranchid=gym_branch_id")
+        dql.inner_join('course_table', on="course_id=course_schedule_courseid")
+        dql.inner_join('category_table', on="course_categoryid=category_id")
+        f.order_date.date_format("%Y-%m-%d")
+        f.order_begintime.date_format("%H:%i")
+        f.order_endtime.date_format("%H:%i")
+        f.order_endtime.date_format("%H:%i")
+        f.course_schedule_begintime.date_format("%H:%i")
+        f.course_schedule_endtime.date_format("%H:%i")
+        # courseordertpl = dql.query()
+        # 
+
         # dql.fields.order_date.
-        dql.fieldstore.order_date.date_format("%Y-%m-%d")
-        dql.fieldstore.order_begintime.date_format("%H:%i")
-        dql.fieldstore.order_endtime.date_format("%H:%i")
-        results = dql.query(where=dict(order_date='2015-10-07'))
+        results = dql.queryone(where=dict(order_date='2015-10-07'))
+        # for r in results:
+        #     r['course_schedule_stock'] = json.loads(r["course_schedule_stock"])
+        # results = tuple( r for r in islice(results,1,15))
         return json.dumps({'result':1, 'testdata': results})
 
 class Register:

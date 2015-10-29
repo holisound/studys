@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-29 16:52:52
+# @Last Modified time: 2015-10-29 18:50:01
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
@@ -235,7 +235,7 @@ class DQL:
             tbl.append( Table(dql=self, name=name) )
         self.tables = Store(tbl)
 
-    def _field_store(self):
+    def _field_storage(self):
         if self.maintable is None:
             return ()
         else:
@@ -244,8 +244,11 @@ class DQL:
             for j in self.joints:
                 _field_objects.extend(j.tb.field_objects)
             return Store(_field_objects)
-    fieldstore = property(_field_store)
+    _fieldstorage = property(_field_storage)
 
+    def get_field_storage(self):
+        return self._fieldstorage
+        
     def get_fields(self):
         if self.maintable is None:
             return ()
@@ -311,9 +314,10 @@ class DQL:
         )
         return _dql
 
-    def create_view(self, name):
-        self.cursor.execute('CREATE OR REPLACE VIEW {name} AS {dql} '.format( name=name, dql=self.get_dql() ))
+    def create_view(self, name, *args, **kwargs):
+        self.cursor.execute('CREATE OR REPLACE VIEW {name} AS {dql} '.format( name=name, dql=self.get_dql(*args, **kwargs) ))
         self._init_tables()
+        return getattr(self.tables, name)
 
     def query(self, *args, **kwargs):
         self.cursor.execute(self.get_dql(*args, **kwargs))
