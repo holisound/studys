@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-30 10:23:31
+# @Last Modified time: 2015-10-30 14:14:59
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
@@ -23,8 +23,8 @@ def connect(**kwargs):
     """
     kwargs['cursorclass'] = kwargs.pop('cursorclass', None) or DictCursor
     kwargs['charset'] = kwargs.pop('charset', None) or 'utf8'
-    conn = MySQLdb.connect(**kwargs)
-    return DQL(conn.cursor())
+    return MySQLdb.connect(**kwargs)
+
 
 # ====================
 

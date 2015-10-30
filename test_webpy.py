@@ -4,7 +4,7 @@ import os
 import web
 import json
 from jinja2 import Environment, FileSystemLoader
-from mydql import connect
+from mydql import connect, DQL
 from itertools import islice
 urls = (r"/?", "hello",
         r'/register/?', 'Register',
@@ -29,7 +29,7 @@ def render_template(template_name, **context):
     # jinja_env.update_template_context(context)
     return jinja_env.get_template(template_name).render(context)
 
-def mydql():
+def mycursor():
     return connect(host="localhost", db="QGYM", user="root", passwd="123123")
 
 class hello:
@@ -39,7 +39,7 @@ class hello:
         # return json.dumps({'greet': 'Hello,world!'})
         # You can use a relative path as template name, for example,
         # 'ldap/hello.html'.
-        return open("templates/index.html")
+        return open("templates/ng01.html")
 class Home:
     def GET(self):
         dql = mydql()
@@ -48,10 +48,11 @@ class Home:
         return json.dumps(dql.query())
 class Data:
     def GET(self):
-        dql = mydql()
-        dql.set_main('order_table')
-        # 
-        courseview = dql.create_view('course_order_view', order_type=1)
+        with mycursor() as cursor:
+            dql = DQL(cursor)
+            dql.set_main('order_table')
+            # 
+            courseview = dql.create_view('course_order_view', order_type=1)
         # teacherview = dql.create_view('course_teacher_view', order_type=2)
         # 
         # dql.set_main(courseview)
@@ -59,16 +60,16 @@ class Data:
         # dql.inner_join('gym_branch_table', on="course_schedule_gymbranchid=gym_branch_id")
         # dql.inner_join('course_table', on="course_id=course_schedule_courseid")
         # dql.inner_join('category_table', on="course_categoryid=category_id")
-        dql.tables.order_table.order_date.date_format("%Y-%m-%d")
-        dql.tables.order_table.order_begintime.date_format("%H:%i")
-        dql.tables.order_table.order_endtime.date_format("%H:%i")
+            dql.tables.order_table.order_date.date_format("%Y-%m-%d")
+            dql.tables.order_table.order_begintime.date_format("%H:%i")
+            dql.tables.order_table.order_endtime.date_format("%H:%i")
         # dql.tables.course_schedule_table.course_schedule_begintime.date_format("%H:%i")
         # dql.tables.course_schedule_table.course_schedule_endtime.date_format("%H:%i")
         # courseordertpl = dql.query()
         # 
 
         # dql.fields.order_date.
-        results = dql.queryone(where=dict(order_date='2015-10-07'))
+            results = dql.query(where=dict(order_date='2015-10-07'))
         # for r in results:
         #     r['course_schedule_stock'] = json.loads(r["course_schedule_stock"])
         # results = tuple( r for r in islice(results,1,15))
