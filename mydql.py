@@ -3,11 +3,11 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-30 14:14:59
+# @Last Modified time: 2015-10-30 15:39:37
 
-import MySQLdb
 from MySQLdb.cursors import DictCursor
 from operator import itemgetter
+from MySQLdb.connections import Connection
 
 
 def sortit(iterable, key=None, reverse=False, conv=iter):
@@ -19,12 +19,11 @@ def sortit(iterable, key=None, reverse=False, conv=iter):
 
 def connect(**kwargs):
     """
-    A wrapped function based on 'MySQLdb.connect' returns a 'DQL' instance.
+    A wrapped function based on 'MySQLdb.connections.Connection' returns a 'Connection' instance.
     """
     kwargs['cursorclass'] = kwargs.pop('cursorclass', None) or DictCursor
     kwargs['charset'] = kwargs.pop('charset', None) or 'utf8'
-    return MySQLdb.connect(**kwargs)
-
+    return Connection(**kwargs)
 
 # ====================
 
@@ -72,7 +71,8 @@ class Table:
 
     def _init_fields(self):
         self.dql.cursor.execute('DESC %s' % self.name)
-        fields = ( Field(tb=self, name=r['Field']) for r in self.dql.cursor.fetchall() )
+        fields = (Field(tb=self, name=r['Field'])
+                  for r in self.dql.cursor.fetchall())
         _field_names = []
         for f in fields:
             setattr(self, f.name, f)
@@ -82,7 +82,7 @@ class Table:
     def get_field_objects(self):
         _field_objects = []
         for name in self._field_names:
-            _field_objects.append( getattr(self, name) )
+            _field_objects.append(getattr(self, name))
         return sortit(_field_objects, conv=tuple)
     field_objects = property(get_field_objects)
 
@@ -90,7 +90,8 @@ class Table:
         _fields = []
         for name in self._field_names:
             fieldObj = getattr(self, name)
-            _field_name = fieldObj.mutation or ( '%s.%s' % (self.alias, name) if self.alias else name )
+            _field_name = fieldObj.mutation or (
+                '%s.%s' % (self.alias, name) if self.alias else name)
             _fields.append(_field_name)
         return sortit(_fields, conv=tuple)
 
@@ -112,11 +113,14 @@ class Field:
 
     def date_format(self, fmt, alias=''):
         if self.tb.alias:
-            mut = 'DATE_FORMAT(%s.%s, %r) AS %s' % (self.tb.alias, self.name, fmt, alias or self.name)
+            mut = 'DATE_FORMAT(%s.%s, %r) AS %s' % (
+                self.tb.alias, self.name, fmt, alias or self.name)
         else:
-            mut = 'DATE_FORMAT(%s, %r) AS %s' % (self.name, fmt, alias or self.name)
+            mut = 'DATE_FORMAT(%s, %r) AS %s' % (
+                self.name, fmt, alias or self.name)
         self.mutation = mut
         return mut
+
 
 class Joint:
 
@@ -135,6 +139,7 @@ class Joint:
     def _init_rel(self, rel):
         self.rel = rel.strip()
         self.duplication = self.rel.split('=')[0].strip()
+
 
 class Clause:
 
@@ -219,8 +224,13 @@ class DQL:
 
     """
 
-    def __repr__(self):
-        return 'MyDQL@MySQLdb'
+    def __enter__(self): return self
+
+    def __exit__(self, exc, value, tb): self.cursor.close()
+
+    def __del__(self): self.coursor.close()
+
+    def __repr__(self): return 'MyDQL@MySQLdb'
 
     def __init__(self, cursor):
         self.cursor = cursor
@@ -232,10 +242,9 @@ class DQL:
         self.cursor.execute('SHOW TABLES')
         tbl = []
         for name in (r.values()[0] for r in self.cursor.fetchall()):
-            tbl.append( Table(dql=self, name=name) )
+            tbl.append(Table(dql=self, name=name))
         self.tables = Store(tbl)
 
-        
     def get_fields(self):
         if self.maintable is None:
             return ()
@@ -302,7 +311,8 @@ class DQL:
         return _dql
 
     def create_view(self, name, *args, **kwargs):
-        self.cursor.execute('CREATE OR REPLACE VIEW {name} AS {dql} '.format( name=name, dql=self.get_dql(*args, **kwargs) ))
+        self.cursor.execute('CREATE OR REPLACE VIEW {name} AS {dql} '.format(
+            name=name, dql=self.get_dql(*args, **kwargs)))
         _view = Table(dql=self, name=name)
         setattr(self.tables, name, _view)
         return _view
@@ -311,7 +321,7 @@ class DQL:
         self.cursor.execute(self.get_dql(*args, **kwargs))
         r = self.cursor.fetchall()
         return r
-        
+
     def queryone(self, *args, **kwargs):
         self.cursor.execute(self.get_dql(*args, **kwargs))
         r = self.cursor.fetchone()
@@ -325,14 +335,14 @@ class DQL:
         else:
             raise ValueError("invalid: Support 'str' or 'Table'")
         table.set_alias(alias)
-        # 
+        #
         try:
             assert isinstance(self.maintable, Table)
         except AssertionError:
             raise ValueError(
                 "invalid: maintable is not an instance of 'Table'")
         else:
-            self.joints.append( Joint(table, on) )
+            self.joints.append(Joint(table, on))
         finally:
             return table
 
@@ -368,12 +378,12 @@ def main():
     print dql.maintable
     # print dql.tables.student.fields
     # print dql.fields
-    # # print dql.set_main(dql.tables.student, 'c')
-    # # dql.format_field('course_avatar', key=dql.date_format("%m%d"), alias='ca')
+    # print dql.set_main(dql.tables.student, 'c')
+    # dql.format_field('course_avatar', key=dql.date_format("%m%d"), alias='ca')
     # dql.inner_join(dql.tables.score,
     #                on='st.sno=cs.sno', alias='cs')
     # print dql.fields
-    # # dql.set_main(dql.tables.score, 'o')
+    # dql.set_main(dql.tables.score, 'o')
     # print dql.fields
     # dql.query()
     # print Clause({'a__like': '%as%'}).get_condition_sql()

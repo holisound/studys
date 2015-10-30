@@ -29,8 +29,10 @@ def render_template(template_name, **context):
     # jinja_env.update_template_context(context)
     return jinja_env.get_template(template_name).render(context)
 
-def mycursor():
-    return connect(host="localhost", db="QGYM", user="root", passwd="123123")
+def mydql():
+    conn = connect(host="localhost", db="QGYM", user="root", passwd="123123")
+    _mydql = DQL(conn.cursor())
+    return _mydql
 
 class hello:
 
@@ -48,8 +50,7 @@ class Home:
         return json.dumps(dql.query())
 class Data:
     def GET(self):
-        with mycursor() as cursor:
-            dql = DQL(cursor)
+        with mydql() as dql:
             dql.set_main('order_table')
             # 
             courseview = dql.create_view('course_order_view', order_type=1)
