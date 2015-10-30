@@ -3,10 +3,9 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-30 15:39:37
+# @Last Modified time: 2015-10-30 15:41:29
 
 from MySQLdb.cursors import DictCursor
-from operator import itemgetter
 from MySQLdb.connections import Connection
 
 
