@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>angular</title>
+    <style>
+    table, th , td {
+      border: 1px solid #aaa;
+      border-collapse: collapse;
+      padding: 5px;
+    }
+    table tr:nth-child(odd) {
+      background-color: #f1f1f1;
+    }
+    table tr:nth-child(even) {
+      background-color: #ffffff;
+    }
+    </style>
+</head>
+<body>
+    <div ng-app="myapp" ng-controller="myctrl">
+        x:  <input type="text" ng-model="x"><br>
+        y:  <input type="text" ng-model="y">
+        <p ng-bind="result()"></p>
+        <!-- <li ng-repeat="x in json|orderBy:'name'" ng-bind="showname(x)"></li> -->
+        <table>
+            <tr ng-repeat="x in json">
+                <td>{{ $index + 1}}</td>
+                <td>{{ x.order_contact_name }}</td>
+                <td>{{ x.order_userid}}</td>
+                <td>{{ x.order_date }}</td>
+            </tr>
+        </table>
+        <hello:world/>
+    </div>
+    <script src="../static/js/angular.min.js"></script>
+    <script>
+        app = angular.module("myapp", []);
+       app.directive('helloWorld', function() {
+         return {
+             restrict: 'AE',
+             replace: true,
+             template: '<h3>Hello World!!</h3>'
+         };
+       });
+        app.controller('myctrl', function($scope, $http){
+            $http.get("http://localhost:8080/data").success(function(response) { $scope.json = response.testdata;});
+            $scope.showname = function(x){
+                return x.name;
+            };
+            $scope.result = function(){
+                return ($scope.x && $scope.y) ? $scope.x * $scope.y : ($scope.x ? $scope.x : $scope.y);
+            };
+
+            
+        });
+    </script>
+</body>
+</html>
