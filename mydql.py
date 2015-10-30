@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-29 21:24:27
+# @Last Modified time: 2015-10-30 10:23:31
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
@@ -303,8 +303,9 @@ class DQL:
 
     def create_view(self, name, *args, **kwargs):
         self.cursor.execute('CREATE OR REPLACE VIEW {name} AS {dql} '.format( name=name, dql=self.get_dql(*args, **kwargs) ))
-        self._init_tables()
-        return getattr(self.tables, name)
+        _view = Table(dql=self, name=name)
+        setattr(self.tables, name, _view)
+        return _view
 
     def query(self, *args, **kwargs):
         self.cursor.execute(self.get_dql(*args, **kwargs))

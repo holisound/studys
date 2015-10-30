@@ -30,7 +30,7 @@ def render_template(template_name, **context):
     return jinja_env.get_template(template_name).render(context)
 
 def mydql():
-    return connect(host="localhost", db="db", user="root", passwd="123123")
+    return connect(host="localhost", db="QGYM", user="root", passwd="123123")
 
 class hello:
 
@@ -52,19 +52,18 @@ class Data:
         dql.set_main('order_table')
         # 
         courseview = dql.create_view('course_order_view', order_type=1)
-        teacherview = dql.create_view('course_teacher_view', order_type=2)
+        # teacherview = dql.create_view('course_teacher_view', order_type=2)
         # 
-        dql.set_main(courseview)
-        dql.inner_join('course_schedule_table', on="course_schedule_id=order_objectid")
-        dql.inner_join('gym_branch_table', on="course_schedule_gymbranchid=gym_branch_id")
-        dql.inner_join('course_table', on="course_id=course_schedule_courseid")
-        dql.inner_join('category_table', on="course_categoryid=category_id")
-        f.order_date.date_format("%Y-%m-%d")
-        f.order_begintime.date_format("%H:%i")
-        f.order_endtime.date_format("%H:%i")
-        f.order_endtime.date_format("%H:%i")
-        f.course_schedule_begintime.date_format("%H:%i")
-        f.course_schedule_endtime.date_format("%H:%i")
+        # dql.set_main(courseview)
+        # dql.inner_join('course_schedule_table', on="course_schedule_id=order_objectid")
+        # dql.inner_join('gym_branch_table', on="course_schedule_gymbranchid=gym_branch_id")
+        # dql.inner_join('course_table', on="course_id=course_schedule_courseid")
+        # dql.inner_join('category_table', on="course_categoryid=category_id")
+        dql.tables.order_table.order_date.date_format("%Y-%m-%d")
+        dql.tables.order_table.order_begintime.date_format("%H:%i")
+        dql.tables.order_table.order_endtime.date_format("%H:%i")
+        # dql.tables.course_schedule_table.course_schedule_begintime.date_format("%H:%i")
+        # dql.tables.course_schedule_table.course_schedule_endtime.date_format("%H:%i")
         # courseordertpl = dql.query()
         # 
 
