@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding=utf-8
 import os
 import web
 import json
@@ -9,6 +10,7 @@ urls = (r"/?", "hello",
         r'/register/?', 'Register',
         r'/upload/?', 'Upload',
         r'/data/?' , 'Data',
+        r'/home/?', 'Home',
         )
 app = web.application(urls, globals(), autoreload=True)
 
@@ -28,7 +30,7 @@ def render_template(template_name, **context):
     return jinja_env.get_template(template_name).render(context)
 
 def mydql():
-    return connect(host="localhost", db="QGYM", user="root", passwd="123123")
+    return connect(host="localhost", db="db", user="root", passwd="123123")
 
 class hello:
 
@@ -37,13 +39,17 @@ class hello:
         # return json.dumps({'greet': 'Hello,world!'})
         # You can use a relative path as template name, for example,
         # 'ldap/hello.html'.
-        return open("templates/ng01.html")
-
+        return open("templates/index.html")
+class Home:
+    def GET(self):
+        dql = mydql()
+        st = dql.set_main('student')
+        st.sbirthday.date_format("%Y-%m-%d", "birth")
+        return json.dumps(dql.query())
 class Data:
     def GET(self):
         dql = mydql()
         dql.set_main('order_table')
-        f = dql.get_field_storage()
         # 
         courseview = dql.create_view('course_order_view', order_type=1)
         teacherview = dql.create_view('course_teacher_view', order_type=2)
