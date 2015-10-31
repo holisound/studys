@@ -38,18 +38,24 @@
         <!-- <li ng-repeat="x in json|orderBy:'name'" ng-bind="showname(x)"></li> -->
 
         <table style="border-collapse: collapse">
-            <tr ng-repeat="x in json">
+            <tr ng-repeat="x in json|orderBy: 'birth'">
 <!--                 <td>{{ $index + 1}}</td>
                 <td>{{ x.order_contact_name }}</td>
                 <td>{{ x.order_userid}}</td>
                 <td>{{ x.order_date }}</td> -->
                 <td ng-if="$odd" ng-bind="$index+1"></td>
+                <td ng-if="$odd" ng-bind="x.sname"></td>
+                <td ng-if="$odd" ng-bind="x.birth"></td>
+                <td ng-if="$even"  style="background-color:#f40" ng-bind="$index+1"></td>
+                <td ng-if="$even"  style="background-color:#f40" ng-bind="x.sname"></td>
+                <td ng-if="$even"  style="background-color:#f40" ng-bind="x.birth"></td>
+<!--                 <td ng-if="$odd" ng-bind="$index+1"></td>
                 <td ng-if="$odd" ng-bind="x.order_contact_name"></td>
                 <td ng-if="$odd" ng-bind="x.order_date"></td>
                 <td ng-if="$even"  style="background-color:#f40" ng-bind="$index+1"></td>
                 <td ng-if="$even"  style="background-color:#f40" ng-bind="x.order_contact_name"></td>
                 <td ng-if="$even"  style="background-color:#f40" ng-bind="x.order_date"></td>
-
+ -->
             </tr>
         </table>
         <hello:world/>
@@ -65,7 +71,7 @@
          };
        });
         app.controller('myctrl', function($scope, $http){
-            $http.get("http://localhost:8080/data").success(function(response) { $scope.json = response.testdata;});
+            $http.get("http://localhost:8080/home").success(function(response) { $scope.json = response.testdata;});
             $scope.showname = function(x){
                 return x.name;
             };

@@ -4,7 +4,7 @@ import os
 import web
 import json
 from jinja2 import Environment, FileSystemLoader
-from mydql import connect, DQL
+from mydql import connect
 from itertools import islice
 urls = (r"/?", "hello",
         r'/register/?', 'Register',
@@ -13,7 +13,7 @@ urls = (r"/?", "hello",
         r'/home/?', 'Home',
         )
 app = web.application(urls, globals(), autoreload=True)
-
+conn = connect(host='localhost', db='db', user='root', passwd='123123')
 
 def render_template(template_name, **context):
     extensions = context.pop('extensions', [])
@@ -29,11 +29,6 @@ def render_template(template_name, **context):
     # jinja_env.update_template_context(context)
     return jinja_env.get_template(template_name).render(context)
 
-def mydql():
-    conn = connect(host="localhost", db="QGYM", user="root", passwd="123123")
-    _mydql = DQL(conn.cursor())
-    return _mydql
-
 class hello:
 
     def GET(self):
@@ -44,10 +39,10 @@ class hello:
         return open("templates/ng01.html")
 class Home:
     def GET(self):
-        dql = mydql()
+        dql = conn.dql()
         st = dql.set_main('student')
         st.sbirthday.date_format("%Y-%m-%d", "birth")
-        return json.dumps(dql.query())
+        return json.dumps({ "testdata":dql.query()})
 class Data:
     def GET(self):
         with mydql() as dql:

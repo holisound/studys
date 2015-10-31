@@ -3,8 +3,8 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-30 15:41:29
-
+# @Last Modified time: 2015-10-31 10:52:07
+__metaclass__ = type
 from MySQLdb.cursors import DictCursor
 from MySQLdb.connections import Connection
 
@@ -22,7 +22,7 @@ def connect(**kwargs):
     """
     kwargs['cursorclass'] = kwargs.pop('cursorclass', None) or DictCursor
     kwargs['charset'] = kwargs.pop('charset', None) or 'utf8'
-    return Connection(**kwargs)
+    return DataBase(**kwargs)
 
 # ====================
 
@@ -49,11 +49,21 @@ class Storage(dict):
             raise AttributeError, k
 
 
-class Store:
+class DataBase(Connection):
 
-    def __init__(self, iterable):
-        for e in iterable:
-            setattr(self, e.name, e)
+    def __init__(self, **kwargs):
+        super(DataBase, self).__init__(**kwargs)
+        self._init_tables()
+
+    def _init_tables(self):
+        cursor = self.cursor()
+        cursor.execute('SHOW TABLES')
+        for name in (r.values()[0] for r in cursor.fetchall()):
+            setattr(self, name, Table(db=self, name=name))
+        cursor.close()
+
+    def dql(self):
+        return DQL(self)
 
 
 class Table:
@@ -62,16 +72,17 @@ class Table:
         represents a table in database
     """
 
-    def __init__(self, dql, name, alias=''):
+    def __init__(self, db, name, alias=''):
         self.name = name
         self.alias = alias
-        self.dql = dql
+        self.db = db
         self._init_fields()
 
     def _init_fields(self):
-        self.dql.cursor.execute('DESC %s' % self.name)
+        cursor = self.db.cursor()
+        cursor.execute('DESC %s' % self.name)
         fields = (Field(tb=self, name=r['Field'])
-                  for r in self.dql.cursor.fetchall())
+                  for r in cursor.fetchall())
         _field_names = []
         for f in fields:
             setattr(self, f.name, f)
@@ -97,7 +108,7 @@ class Table:
     fields = property(get_fields)
 
     def __repr__(self):
-        return '<' + 'name: ' + repr(self.name) + ', alias:' + repr(self.alias) + '>'
+       return '<type: %r, name: %r, alias: %r>' % (self.__class__.__name__, self.name, self.alias)
 
     def set_alias(self, alias):
         self.alias = alias
@@ -225,24 +236,22 @@ class DQL:
 
     def __enter__(self): return self
 
-    def __exit__(self, exc, value, tb): self.cursor.close()
-
-    def __del__(self): self.coursor.close()
+    def __exit__(self, exc, value, tb): self.db.close()
 
     def __repr__(self): return 'MyDQL@MySQLdb'
 
-    def __init__(self, cursor):
-        self.cursor = cursor
+    def __init__(self, db):
+        self.db = db
         self.maintable = None
         self.joints = []
-        self._init_tables()
+        # self._init_tables()
 
-    def _init_tables(self):
-        self.cursor.execute('SHOW TABLES')
-        tbl = []
-        for name in (r.values()[0] for r in self.cursor.fetchall()):
-            tbl.append(Table(dql=self, name=name))
-        self.tables = Store(tbl)
+    # def _init_tables(self):
+    #     self.db.cursor().execute('SHOW TABLES')
+    #     tbl = []
+    #     for name in (r.values()[0] for r in cursor.fetchall()):
+    #         tbl.append(Table(dql=self, name=name))
+    #     self.tables = Store(tbl)
 
     def get_fields(self):
         if self.maintable is None:
@@ -256,15 +265,18 @@ class DQL:
     fields = property(get_fields)
 
     def set_main(self, table, alias=''):
-        if isinstance(table, Table) and hasattr(self.tables, table.name):
-            self.maintable = table
-        elif isinstance(table, basestring) and hasattr(self.tables, table):
-            self.maintable = getattr(self.tables, table)
+        """
+        'table' expects Table.name
+        """
+        _table = getattr(self.db, table)
+        try:
+            assert isinstance(_table, Table)
+        except AssertionError:
+            raise TypeError("%r is not an instance of 'Table'" % _table)
         else:
-            raise TypeError(
-                "Invalid argument % r, Expect Table or Table.name" % table)
-        self.maintable.set_alias(alias)
-        return self.maintable
+            _table.set_alias(alias)
+            self.maintable = _table
+            return _table
 
     def get_dql(self, *args, **kwargs):
         """
@@ -310,21 +322,21 @@ class DQL:
         return _dql
 
     def create_view(self, name, *args, **kwargs):
-        self.cursor.execute('CREATE OR REPLACE VIEW {name} AS {dql} '.format(
+        self.db.cursor().execute('CREATE OR REPLACE VIEW {name} AS {dql} '.format(
             name=name, dql=self.get_dql(*args, **kwargs)))
-        _view = Table(dql=self, name=name)
-        setattr(self.tables, name, _view)
+        _view = Table(db=self.db, name=name)
+        setattr(self.db, name, _view)
         return _view
 
     def query(self, *args, **kwargs):
-        self.cursor.execute(self.get_dql(*args, **kwargs))
-        r = self.cursor.fetchall()
-        return r
+        cursor = self.db.cursor()
+        cursor.execute(self.get_dql(*args, **kwargs))
+        return cursor.fetchall()
 
     def queryone(self, *args, **kwargs):
-        self.cursor.execute(self.get_dql(*args, **kwargs))
-        r = self.cursor.fetchone()
-        return r
+        cursor = self.db.cursor()
+        cursor.execute(self.get_dql(*args, **kwargs))
+        return cursor.fetchone()
 
     def inner_join(self, table, on, alias=''):
         if isinstance(table, Table):
@@ -364,17 +376,15 @@ def main():
     # ==========
     # dql = connect(host='localhost', db='QGYM', user='root', passwd='123123')
     # dql.set_main(dql.tables.order_table, 'o')
-    dql = connect(host='localhost', db='db', user='root', passwd='123123')
+    conn = connect(host='localhost', db='db', user='root', passwd='123123')
+    dql = conn.dql()
     print dql.fields
     print dql.set_main('student', 'st')
 
     # print dql.get_dql()
     # dql.query()
-    print dql.tables.student.sbirthday.date_format('%Y-%m', 'birthday')
-    print dir(dql.tables)
-    dql.create_view('test')
-    print dir(dql.tables)
-    print dql.maintable
+    print dql.db.student.sbirthday.date_format('%Y-%m', 'birthday')
+
     # print dql.tables.student.fields
     # print dql.fields
     # print dql.set_main(dql.tables.student, 'c')
