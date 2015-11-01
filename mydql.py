@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-10-31 10:52:07
+# @Last Modified time: 2015-11-02 00:10:46
 __metaclass__ = type
 from MySQLdb.cursors import DictCursor
 from MySQLdb.connections import Connection
@@ -30,7 +30,23 @@ def connect(**kwargs):
 class Storage(dict):
 
     """
-    Originally from 'web.utils' of the 'web.py'
+    A Storage object is like a dictionary except `obj.foo` can be used
+    in addition to `obj['foo']`.
+
+        >>> o = storage(a=1)
+        >>> o.a
+        1
+        >>> o['a']
+        1
+        >>> o.a = 2
+        >>> o['a']
+        2
+        >>> del o.a
+        >>> o.a
+        Traceback (most recent call last):
+            ...
+        AttributeError: 'a'
+
     """
 
     def __getattr__(self, key):
@@ -48,6 +64,11 @@ class Storage(dict):
         except KeyError, k:
             raise AttributeError, k
 
+    def __repr__(self):
+        return '<Storage ' + dict.__repr__(self) + '>'
+
+class FieldStorage(set):
+    pass
 
 class DataBase(Connection):
 
@@ -58,12 +79,23 @@ class DataBase(Connection):
     def _init_tables(self):
         cursor = self.cursor()
         cursor.execute('SHOW TABLES')
+        self.tables = Storage()
         for name in (r.values()[0] for r in cursor.fetchall()):
-            setattr(self, name, Table(db=self, name=name))
-        cursor.close()
+            self.tables[name] = Table(db=self, name=name)
 
-    def dql(self):
-        return DQL(self)
+    def GetTable(self, name):
+        return self.tables[name]
+
+    def GetTableByFieldName(self, fieldname):
+        for table in self.tables.itervalues():
+            if fieldname in table.fields:
+                return table
+
+    def GetField(self, tablename, fieldname):
+        return self.tables[tablename].fields[fieldname]
+
+    def DQL(self):
+        return _DQL(self)
 
 
 class Table:
@@ -83,32 +115,17 @@ class Table:
         cursor.execute('DESC %s' % self.name)
         fields = (Field(tb=self, name=r['Field'])
                   for r in cursor.fetchall())
-        _field_names = []
+        self.fields = fs = Storage()
         for f in fields:
-            setattr(self, f.name, f)
-            _field_names.append(f.name)
-        self._field_names = sortit(_field_names, conv=tuple)
-
-    def get_field_objects(self):
-        _field_objects = []
-        for name in self._field_names:
-            _field_objects.append(getattr(self, name))
-        return sortit(_field_objects, conv=tuple)
-    field_objects = property(get_field_objects)
+            fs[f.name] = f
 
     def get_fields(self):
-        _fields = []
-        for name in self._field_names:
-            fieldObj = getattr(self, name)
-            _field_name = fieldObj.mutation or (
-                '%s.%s' % (self.alias, name) if self.alias else name)
-            _fields.append(_field_name)
-        return sortit(_fields, conv=tuple)
+        return sortit(self.fields, conv=set)
 
-    fields = property(get_fields)
+    FieldNames = property(get_fields)
 
     def __repr__(self):
-       return '<type: %r, name: %r, alias: %r>' % (self.__class__.__name__, self.name, self.alias)
+        return '<type: %r, name: %r, alias: %r>' % (self.__class__.__name__, self.name, self.alias)
 
     def set_alias(self, alias):
         self.alias = alias
@@ -153,7 +170,8 @@ class Joint:
 
 class Clause:
 
-    def __init__(self, dictObj):
+    def __init__(self, dql, dictObj):
+        self.dql = dql
         self.dict = self._valid_dict(dictObj)
         self.token_mapping = {
             'eq': '= %s',
@@ -206,6 +224,9 @@ class Clause:
         ckey, tail = self.resolve(key)
         token = self.get_token(tail)
         value = self.dict[key]
+        # ckey is equivalent to fieldname
+        # access corresponding table by fieldname
+
         if isinstance(value, basestring):
             token = token % '"%s"'
             if isinstance(value, unicode):
@@ -226,10 +247,10 @@ class Clause:
 INNER_JOIN = lambda tbl: ' INNER JOIN '.join(tbl)
 
 
-class DQL:
+class _DQL:
 
     """
-        'DQL' is a simple extension-class based on MySQLdb, 
+        '_DQL' is a simple extension-class based on MySQLdb, 
         which is intended to make convenient-api for satisfying regular DQL-demand.
 
     """
@@ -254,21 +275,19 @@ class DQL:
     #     self.tables = Store(tbl)
 
     def get_fields(self):
-        if self.maintable is None:
-            return ()
-        else:
-            _fields = []
-            _fields.extend(self.maintable.fields)
+        fs = FieldStorage()
+        if self.maintable is not None:
+            fs.update(self.maintable.FieldNames)
             for j in self.joints:
-                _fields.extend(j.tb.fields)
-            return sortit(_fields, conv=tuple)
+                fs.update(j.tb.FieldNames)
+        return fs
     fields = property(get_fields)
 
-    def set_main(self, table, alias=''):
+    def set_main(self, tablename, alias=''):
         """
         'table' expects Table.name
         """
-        _table = getattr(self.db, table)
+        _table = getattr(self.db.tables, tablename)
         try:
             assert isinstance(_table, Table)
         except AssertionError:
@@ -312,7 +331,8 @@ class DQL:
         else:
             _fields = ', '.join(fields or self.fields)
         #
-        _where_clause = Clause(where).get_condition_sql() if where else '1=1'
+        _where_clause = Clause(
+            self, where).get_condition_sql() if where else '1=1'
         _dql = _dql_format.format(
             distinct='DISTINCT ' if distinct else '',
             fields=_fields,
@@ -376,14 +396,15 @@ def main():
     # ==========
     # dql = connect(host='localhost', db='QGYM', user='root', passwd='123123')
     # dql.set_main(dql.tables.order_table, 'o')
-    conn = connect(host='localhost', db='db', user='root', passwd='123123')
-    dql = conn.dql()
+    db = connect(host='localhost', db='db', user='root', passwd='123123')
+    dql = db.DQL()
     print dql.fields
     print dql.set_main('student', 'st')
 
     # print dql.get_dql()
     # dql.query()
-    print dql.db.student.sbirthday.date_format('%Y-%m', 'birthday')
+    print db.GetField('student', 'sbirthday').date_format('%Y-%m', 'birthday')
+    # print dql.db.tables.student.fields.sbirthday.date_format('%Y-%m', 'birthday')
 
     # print dql.tables.student.fields
     # print dql.fields
