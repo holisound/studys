@@ -13,7 +13,7 @@ urls = (r"/?", "hello",
         r'/home/?', 'Home',
         )
 app = web.application(urls, globals(), autoreload=True)
-conn = connect(host='localhost', db='db', user='root', passwd='123123')
+db = connect(host='localhost', db='QGYM', user='root', passwd='123123')
 
 def render_template(template_name, **context):
     extensions = context.pop('extensions', [])
@@ -45,27 +45,25 @@ class Home:
         return json.dumps({ "testdata":dql.query()})
 class Data:
     def GET(self):
-        with mydql() as dql:
-            dql.set_main('order_table')
-            # 
-            courseview = dql.create_view('course_order_view', order_type=1)
-        # teacherview = dql.create_view('course_teacher_view', order_type=2)
-        # 
+        # =====*frontend input*=====
+        args = web.input(start=0, count=10)
+        start, count = int(args.start), int(args.count)
+        # =====*database query*=====
+        dql = db.InitDQL()
+        dql.set_main('order_table')
         # dql.set_main(courseview)
         # dql.inner_join('course_schedule_table', on="course_schedule_id=order_objectid")
         # dql.inner_join('gym_branch_table', on="course_schedule_gymbranchid=gym_branch_id")
         # dql.inner_join('course_table', on="course_id=course_schedule_courseid")
         # dql.inner_join('category_table', on="course_categoryid=category_id")
-            dql.tables.order_table.order_date.date_format("%Y-%m-%d")
-            dql.tables.order_table.order_begintime.date_format("%H:%i")
-            dql.tables.order_table.order_endtime.date_format("%H:%i")
-        # dql.tables.course_schedule_table.course_schedule_begintime.date_format("%H:%i")
-        # dql.tables.course_schedule_table.course_schedule_endtime.date_format("%H:%i")
-        # courseordertpl = dql.query()
-        # 
+        db.GetField('order_table', 'order_date').DateFormat("%Y-%m-%d")
+        db.GetField('order_table', 'order_begintime').DateFormat("%H:%i")
+        db.GetField('order_table', 'order_endtime').DateFormat("%H:%i")
 
         # dql.fields.order_date.
-            results = dql.query(where=dict(order_date='2015-10-07'))
+        # results = dql.query(where=dict(order_date='2015-12-22',order_type=2))
+        results = dql.queryset.sliceto(start, (count + start))
+
         # for r in results:
         #     r['course_schedule_stock'] = json.loads(r["course_schedule_stock"])
         # results = tuple( r for r in islice(results,1,15))

@@ -3,10 +3,11 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-11-02 00:10:46
+# @Last Modified time: 2015-11-02 11:55:13
 __metaclass__ = type
 from MySQLdb.cursors import DictCursor
 from MySQLdb.connections import Connection
+from itertools import islice
 
 
 def sortit(iterable, key=None, reverse=False, conv=iter):
@@ -67,8 +68,10 @@ class Storage(dict):
     def __repr__(self):
         return '<Storage ' + dict.__repr__(self) + '>'
 
+
 class FieldStorage(set):
     pass
+
 
 class DataBase(Connection):
 
@@ -83,19 +86,23 @@ class DataBase(Connection):
         for name in (r.values()[0] for r in cursor.fetchall()):
             self.tables[name] = Table(db=self, name=name)
 
-    def GetTable(self, name):
-        return self.tables[name]
+    def GetTable(self, tblname):
+        return self.tables[tblname]
 
-    def GetTableByFieldName(self, fieldname):
+    def IterTable(self, fieldname):
         for table in self.tables.itervalues():
             if fieldname in table.fields:
-                return table
+                yield table
 
-    def GetField(self, tablename, fieldname):
-        return self.tables[tablename].fields[fieldname]
+    def GetField(self, tblname, fieldname):
+        return self.tables[tblname].fields[fieldname]
 
-    def DQL(self):
-        return _DQL(self)
+    def IterField(self, fieldname):
+        for table in self.IterTable(fieldname):
+            yield table.fields[fieldname]
+
+    def InitDQL(self):
+        return DQL(self)
 
 
 class Table:
@@ -119,10 +126,15 @@ class Table:
         for f in fields:
             fs[f.name] = f
 
-    def get_fields(self):
-        return sortit(self.fields, conv=set)
+    def iterfields(self):
+        for f in self.fields.values():
+            yield f
 
-    FieldNames = property(get_fields)
+    def iterfieldnames(self):
+        for f in self.iterfields():
+            yield (f.mutation or f.name)
+
+    FieldNames = property(iterfieldnames)
 
     def __repr__(self):
         return '<type: %r, name: %r, alias: %r>' % (self.__class__.__name__, self.name, self.alias)
@@ -138,7 +150,7 @@ class Field:
         self.name = name
         self.mutation = None
 
-    def date_format(self, fmt, alias=''):
+    def DateFormat(self, fmt, alias=''):
         if self.tb.alias:
             mut = 'DATE_FORMAT(%s.%s, %r) AS %s' % (
                 self.tb.alias, self.name, fmt, alias or self.name)
@@ -244,13 +256,28 @@ class Clause:
         return ' AND '.join(self.get_fraction(key) for key in self.dict.iterkeys())
 
 
+class QuerySet:
+
+    def __init__(self, iterable):
+        self.iteror = iter(iterable)
+
+    def sliceto(self, start, stop, conv=tuple, step=1):
+        return conv(self.slice(start, stop, step))
+
+    def slice(self, start, stop, step=1):
+        """
+        start, stop, step
+        """
+        for i in islice(self.iteror, start, stop, step):
+            yield i
+
 INNER_JOIN = lambda tbl: ' INNER JOIN '.join(tbl)
 
 
-class _DQL:
+class DQL:
 
     """
-        '_DQL' is a simple extension-class based on MySQLdb, 
+        'DQL' is a simple extension-class based on MySQLdb, 
         which is intended to make convenient-api for satisfying regular DQL-demand.
 
     """
@@ -288,14 +315,14 @@ class _DQL:
         'table' expects Table.name
         """
         _table = getattr(self.db.tables, tablename)
-        try:
-            assert isinstance(_table, Table)
-        except AssertionError:
-            raise TypeError("%r is not an instance of 'Table'" % _table)
-        else:
-            _table.set_alias(alias)
-            self.maintable = _table
-            return _table
+        # try:
+        #     assert isinstance(_table, Table)
+        # except AssertionError:
+        #     raise TypeError("%r is not an instance of 'Table'" % _table)
+        # else:
+        _table.set_alias(alias)
+        self.maintable = _table
+        return _table
 
     def get_dql(self, *args, **kwargs):
         """
@@ -353,6 +380,10 @@ class _DQL:
         cursor.execute(self.get_dql(*args, **kwargs))
         return cursor.fetchall()
 
+    def _queryset(self, *args, **kwargs):
+        return QuerySet(self.query(*args, **kwargs))
+    queryset = property(_queryset)
+
     def queryone(self, *args, **kwargs):
         cursor = self.db.cursor()
         cursor.execute(self.get_dql(*args, **kwargs))
@@ -394,28 +425,13 @@ class _DQL:
 
 def main():
     # ==========
-    # dql = connect(host='localhost', db='QGYM', user='root', passwd='123123')
-    # dql.set_main(dql.tables.order_table, 'o')
-    db = connect(host='localhost', db='db', user='root', passwd='123123')
-    dql = db.DQL()
+    db = connect(host="localhost", db="QGYM", user="root", passwd="123123")
+    dql = db.InitDQL()
     print dql.fields
-    print dql.set_main('student', 'st')
+    dql.set_main('order_table')
+    print dql.fields
+    print dql.query(where={'order_id__lte': 10})
+    # ==========
 
-    # print dql.get_dql()
-    # dql.query()
-    print db.GetField('student', 'sbirthday').date_format('%Y-%m', 'birthday')
-    # print dql.db.tables.student.fields.sbirthday.date_format('%Y-%m', 'birthday')
-
-    # print dql.tables.student.fields
-    # print dql.fields
-    # print dql.set_main(dql.tables.student, 'c')
-    # dql.format_field('course_avatar', key=dql.date_format("%m%d"), alias='ca')
-    # dql.inner_join(dql.tables.score,
-    #                on='st.sno=cs.sno', alias='cs')
-    # print dql.fields
-    # dql.set_main(dql.tables.score, 'o')
-    # print dql.fields
-    # dql.query()
-    # print Clause({'a__like': '%as%'}).get_condition_sql()
 if __name__ == '__main__':
     main()
