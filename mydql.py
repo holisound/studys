@@ -3,12 +3,12 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-11-02 15:29:45
+# @Last Modified time: 2015-11-02 18:20:16
 __metaclass__ = type
 from MySQLdb.cursors import DictCursor
 from MySQLdb.connections import Connection
 from itertools import islice
-
+from operator import itemgetter
 
 def sortit(iterable, key=None, reverse=False, conv=iter):
     """
@@ -25,6 +25,12 @@ def connect(**kwargs):
     kwargs['charset'] = kwargs.pop('charset', None) or 'utf8'
     return DataBase(**kwargs)
 
+def dedupe(items):
+    seen = set()
+    for item in items:
+        if item not in seen:
+            yield item
+            seen.add(item)
 # ====================
 
 
@@ -101,7 +107,7 @@ class DataBase(Connection):
         for table in self.IterTable(fieldname):
             yield table.fields[fieldname]
 
-    def InitDQL(self):
+    def dql(self):
         return DQL(self)
 
 
@@ -262,15 +268,30 @@ class QuerySet:
     def __init__(self, iterable):
         self.iteror = iter(iterable)
 
-    def sliceinto(self, start, stop, step=1, conv=tuple):
-        return conv(self.slice(start, stop, step))
+    def orderby(self, field, desc=False):
+        ls = list(self.iteror)
+        ls.sort(key=itemgetter(field), reverse=desc)
+        self.iteror = iter(ls)
+        return self
+
+    def distinct(self):
+        pass
+
+    def values(self, field, distinct=False):
+        gen = ( i[field] for i in self.iteror)
+        if bool(distinct) is True:
+            return tuple(dedupe(gen))
+        else:
+            return tuple(gen)
+
+    def all(self):
+        return tuple(self.iteror)
 
     def slice(self, start, stop, step=1):
         """
         start, stop, step
         """
-        for i in islice(self.iteror, start, stop, step):
-            yield i
+        return tuple( i for i in islice(self.iteror, start, stop, step))
 
 INNER_JOIN = lambda tbl: ' INNER JOIN '.join(tbl)
 
@@ -311,19 +332,16 @@ class DQL:
         return fs
     fields = property(get_fields)
 
-    def set_main(self, tablename, alias=''):
-        """
-        'table' expects Table.name
-        """
-        _table = getattr(self.db.tables, tablename)
+    def setmain(self, tblname, alias=''):
         # try:
         #     assert isinstance(_table, Table)
         # except AssertionError:
         #     raise TypeError("%r is not an instance of 'Table'" % _table)
         # else:
-        _table.set_alias(alias)
-        self.maintable = _table
-        return _table
+        tb = getattr(self.db.tables, tblname)
+        tb.set_alias(alias)
+        self.maintable = tb
+        return self.maintable
 
     def get_dql(self, *args, **kwargs):
         """
@@ -380,35 +398,18 @@ class DQL:
     def query(self, *args, **kwargs):
         cursor = self.db.cursor()
         cursor.execute(self.get_dql(*args, **kwargs))
-        return cursor.fetchall()
-
-    def _queryset(self, *args, **kwargs):
-        return QuerySet(self.query(*args, **kwargs))
-    queryset = property(_queryset)
+        return QuerySet(cursor.fetchall())
+    queryset = property(query)
 
     def queryone(self, *args, **kwargs):
         cursor = self.db.cursor()
         cursor.execute(self.get_dql(*args, **kwargs))
         return cursor.fetchone()
 
-    def inner_join(self, table, on, alias=''):
-        if isinstance(table, Table):
-            pass
-        elif isinstance(table, basestring):
-            table = getattr(self.tables, table)
-        else:
-            raise ValueError("invalid: Support 'str' or 'Table'")
-        table.set_alias(alias)
-        #
-        try:
-            assert isinstance(self.maintable, Table)
-        except AssertionError:
-            raise ValueError(
-                "invalid: maintable is not an instance of 'Table'")
-        else:
-            self.joints.append(Joint(table, on))
-        finally:
-            return table
+    def inner_join(self, tblname, on, alias=''):
+        tb = getattr(self.db.tables, tblname)
+        tb.set_alias(alias)
+        self.joints.append(Joint(tb,on))
 
     def _relate(self, method):
         tbl = []
@@ -428,11 +429,11 @@ class DQL:
 def main():
     # ==========
     db = connect(host="localhost", db="QGYM", user="root", passwd="123123")
-    dql = db.InitDQL()
+    dql = db.dql()
     print dql.fields
-    dql.set_main('order_table')
+    dql.setmain('order_table')
     print dql.fields
-    print dql.query(where={'order_id__lte': 10})
+    print dql.query(where={'order_id__lte': 10}).all()
     # ==========
 
 if __name__ == '__main__':
