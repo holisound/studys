@@ -33,6 +33,7 @@ def render_template(template_name, **context):
 class hello:
 
     def GET(self):
+        # 
         # web.header('Content-Type','application/json')
         # return json.dumps({'greet': 'Hello,world!'})
         # You can use a relative path as template name, for example,
@@ -40,10 +41,16 @@ class hello:
         return open("templates/ng01.html")
 class Home:
     def GET(self):
-        dql = conn.dql()
-        st = dql.set_main('student')
-        st.sbirthday.date_format("%Y-%m-%d", "birth")
-        return json.dumps({ "testdata":dql.query()})
+        dql = DB.dql()
+        st = dql.setmain('student')
+        it = dql.test()
+        r = next(it, None)
+        print r,11
+        while r is not None:
+            r  = next(it, None)
+            print r
+        web.header('Content-Type', 'application/json')
+        return json.dumps({ "testdata":dql.queryset.all()})
 # ==========
 
 class Data:

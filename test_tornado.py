@@ -16,7 +16,8 @@ from tornado.ioloop import IOLoop
 from tornado.options import define
 import tornado
 import os
-
+import db
+DB = db.init()
 class OtherHtmlHandler(RequestHandler):
 
     def get_current_user(self):
@@ -58,6 +59,12 @@ class MainHanlder(RequestHandler):
         items = ["Item 1","Item 2","Item 3",]
         self.render('tmp.html', title='My Title', items=items)
 
+class TestData(RequestHandler):
+    def get(self):
+        dql = DB.dql()
+        dql.setmain('student')
+        results = dql.queryset.all()
+        self.write({'testdata': results})
 # tornado资源配置
 settings = {
     'template_path': os.path.join(os.path.dirname(__file__), 'templates'),
@@ -72,6 +79,7 @@ Application([
     (r'/login/?', LoginHandler),
     (r'/other/?', OtherHtmlHandler),
     (r'/main/?', MainHanlder),
+    (r'/data/?', TestData),
     ], **settings).listen(8888)
 
 IOLoop.current().start()

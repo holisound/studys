@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-11-02 18:42:55
+# @Last Modified time: 2015-11-02 22:48:34
 __metaclass__ = type
 from MySQLdb.cursors import DictCursor
 from MySQLdb.connections import Connection
@@ -12,7 +12,7 @@ from operator import itemgetter
 
 def sortit(iterable, key=None, reverse=False, conv=iter):
     """
-    An alternative to 'sorted' which returns a sorted-iteror instead of a list.
+    An alternative to 'sorted' which returns a sorted-iterator instead of a list.
     """
     return conv(sorted(iterable, key=key, reverse=reverse))
 
@@ -21,7 +21,7 @@ def connect(**kwargs):
     """
     A wrapped function based on 'MySQLdb.connections.Connection' returns a 'Connection' instance.
     """
-    kwargs['cursorclass'] = kwargs.pop('cursorclass', None) or DictCursor
+    kwargs['cursorclass'] = kwargs.pop('cursorclass', None) or DQLCursor
     kwargs['charset'] = kwargs.pop('charset', None) or 'utf8'
     return DataBase(**kwargs)
 
@@ -32,7 +32,14 @@ def dedupe(items):
             yield item
             seen.add(item)
 # ====================
-
+class DQLCursor(DictCursor):
+    def iterator(self):
+        while 1:    
+            r = self.fetchone()
+            if r is None:
+                break
+            else:
+                yield r
 
 class Storage(dict):
 
@@ -89,7 +96,7 @@ class DataBase(Connection):
         cursor = self.cursor()
         cursor.execute('SHOW TABLES')
         self.tables = Storage()
-        for name in (r.values()[0] for r in cursor.fetchall()):
+        for name in (r.values()[0] for r in cursor.iterator()):
             self.tables[name] = Table(db=self, name=name)
 
     def GetTable(self, tblname):
@@ -127,7 +134,7 @@ class Table:
         cursor = self.db.cursor()
         cursor.execute('DESC %s' % self.name)
         fields = (Field(tb=self, name=r['Field'])
-                  for r in cursor.fetchall())
+                  for r in cursor.iterator())
         self.fields = fs = Storage()
         for f in fields:
             fs[f.name] = f
@@ -264,33 +271,33 @@ class Clause:
 
 class QuerySet:
 
-    def __init__(self, iterable):
-        self.iteror = iter(iterable)
+    def __init__(self, iterator):
+        self.iterator = iterator
 
     def orderby(self, field, desc=False):
-        ls = list(self.iteror)
+        ls = list(self.iterator)
         ls.sort(key=itemgetter(field), reverse=desc)
-        self.iteror = iter(ls)
+        self.iterator = iter(ls)
         return self
 
     def distinct(self):
         pass
 
     def values(self, field, distinct=False):
-        gen = ( i[field] for i in self.iteror)
+        gen = ( i[field] for i in self.iterator)
         if bool(distinct) is True:
             return tuple(dedupe(gen))
         else:
             return tuple(gen)
 
     def all(self):
-        return tuple(self.iteror)
+        return tuple(self.iterator)
 
     def slice(self, start, stop, step=1):
         """
         start, stop, step
         """
-        return tuple( i for i in islice(self.iteror, start, stop, step))
+        return tuple( i for i in islice(self.iterator, start, stop, step))
 
 INNER_JOIN = lambda tbl: ' INNER JOIN '.join(tbl)
 
@@ -397,7 +404,7 @@ class DQL:
     def query(self, *args, **kwargs):
         cursor = self.db.cursor()
         cursor.execute(self.get_dql(*args, **kwargs))
-        return QuerySet(cursor.fetchall())
+        return QuerySet(cursor.iterator())
     queryset = property(query)
 
     def queryone(self, *args, **kwargs):
@@ -409,6 +416,11 @@ class DQL:
         tb = getattr(self.db.tables, tblname)
         tb.set_alias(alias)
         self.joints.append(Joint(tb,on))
+
+    def test(self):
+        cursor = self.db.cursor()
+        cursor.execute(self.get_dql())
+        return cursor.iterator()
 
     def _relate(self, method):
         tbl = []
