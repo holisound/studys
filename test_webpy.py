@@ -55,7 +55,7 @@ class Data:
         # =====*database query*=====
         dql = DB.dql()
         dql.setmain('order_table')
-        print dql.fields
+        # print dql.fields
         # dql.inner_join('course_schedule_table', on='course_id=course_schedule_courseid')
         # dql.inner_join('gym_branch_table', on="course_schedule_gymbranchid=gym_branch_id")
         # dql.inner_join('category_table', on="course_categoryid=category_id")

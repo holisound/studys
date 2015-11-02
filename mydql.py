@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-11-02 18:40:26
+# @Last Modified time: 2015-11-02 18:42:55
 __metaclass__ = type
 from MySQLdb.cursors import DictCursor
 from MySQLdb.connections import Connection
@@ -138,7 +138,7 @@ class Table:
 
     def iterfieldnames(self):
         for f in self.iterfields():
-            yield (f.mutation or f.name)
+            yield (f.mutation or '%s.%s' % (self.name, f.name))
 # here
     FieldNames = property(iterfieldnames)
 
