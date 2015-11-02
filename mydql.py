@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-11-02 18:20:16
+# @Last Modified time: 2015-11-02 18:34:45
 __metaclass__ = type
 from MySQLdb.cursors import DictCursor
 from MySQLdb.connections import Connection
@@ -157,12 +157,11 @@ class Field:
         self.mutation = None
 
     def DateFormat(self, fmt, alias=''):
-        if self.tb.alias:
-            mut = 'DATE_FORMAT(%s.%s, %r) AS %s' % (
-                self.tb.alias, self.name, fmt, alias or self.name)
-        else:
-            mut = 'DATE_FORMAT(%s, %r) AS %s' % (
-                self.name, fmt, alias or self.name)
+        mut = 'DATE_FORMAT(%s.%s, %r) AS %s' % (
+            self.tb.alias or self.tb.name,
+            self.name,
+            fmt,
+            alias or self.name)
         self.mutation = mut
         return mut
         
