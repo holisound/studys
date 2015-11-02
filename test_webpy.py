@@ -48,6 +48,7 @@ class Data:
         # =====*frontend input*=====
         args = web.input(start=0, count=10)
         start, count = int(args.start), int(args.count)
+        stop = start + count
         # =====*database query*=====
         dql = db.InitDQL()
         dql.set_main('order_table')
@@ -59,14 +60,17 @@ class Data:
         db.GetField('order_table', 'order_date').DateFormat("%Y-%m-%d")
         db.GetField('order_table', 'order_begintime').DateFormat("%H:%i")
         db.GetField('order_table', 'order_endtime').DateFormat("%H:%i")
+        db.GetField('order_table', 'order_datetime').DateFormat("%Y-%m-%d %H:%i")
 
         # dql.fields.order_date.
         # results = dql.query(where=dict(order_date='2015-12-22',order_type=2))
-        results = dql.queryset.sliceto(start, (count + start))
+        print dql.get_dql()
+        results = dql.queryset.sliceinto(start, stop)
 
         # for r in results:
         #     r['course_schedule_stock'] = json.loads(r["course_schedule_stock"])
         # results = tuple( r for r in islice(results,1,15))
+        web.header('Content-Type', 'application/json')
         return json.dumps({'result':1, 'testdata': results})
 
 class Register:

@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-11-02 11:55:13
+# @Last Modified time: 2015-11-02 15:29:45
 __metaclass__ = type
 from MySQLdb.cursors import DictCursor
 from MySQLdb.connections import Connection
@@ -159,6 +159,7 @@ class Field:
                 self.name, fmt, alias or self.name)
         self.mutation = mut
         return mut
+        
 
 
 class Joint:
@@ -261,7 +262,7 @@ class QuerySet:
     def __init__(self, iterable):
         self.iteror = iter(iterable)
 
-    def sliceto(self, start, stop, conv=tuple, step=1):
+    def sliceinto(self, start, stop, step=1, conv=tuple):
         return conv(self.slice(start, stop, step))
 
     def slice(self, start, stop, step=1):
@@ -352,6 +353,7 @@ class DQL:
         where = kwargs.get('where')
         fields = kwargs.get('fields')
         excludes = kwargs.get('excludes')
+
         # ==============================
         if fields is None:
             _fields = ', '.join(set(self.fields) - set(excludes or []))
