@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-11-03 14:46:56
+# @Last Modified time: 2015-11-03 15:20:33
 __metaclass__ = type
 from MySQLdb.cursors import DictCursor
 from MySQLdb.connections import Connection
@@ -446,7 +446,7 @@ def main():
     print dql.fields
     dql.setmain('order_table')
     print dql.fields
-    print dql.query(where={'order_id__lte': 10}).all()
+    print dql.query(where={'order_id__lte': 10}).slice(0,1)
     # ==========
 
 if __name__ == '__main__':
