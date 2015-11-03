@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-11-03 15:20:33
+# @Last Modified time: 2015-11-03 15:34:03
 __metaclass__ = type
 from MySQLdb.cursors import DictCursor
 from MySQLdb.connections import Connection
@@ -281,11 +281,11 @@ class QuerySet:
         pass
 
     def values(self, field, distinct=False):
-        gen = ( i[field] for i in self.iterator)
+        vg = (i[field] for i in self.iterator)
         if bool(distinct) is True:
-            return tuple(dedupe(gen))
+            return tuple(dedupe(vg))
         else:
-            return tuple(gen)
+            return tuple(vg)
 
     def all(self):
         return tuple(self.iterator)
