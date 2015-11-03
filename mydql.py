@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-11-02 22:48:34
+# @Last Modified time: 2015-11-03 11:08:26
 __metaclass__ = type
 from MySQLdb.cursors import DictCursor
 from MySQLdb.connections import Connection
@@ -96,7 +96,7 @@ class DataBase(Connection):
         cursor = self.cursor()
         cursor.execute('SHOW TABLES')
         self.tables = Storage()
-        for name in (r.values()[0] for r in cursor.iterator()):
+        for name in (next(r.itervalues()) for r in cursor.iterator()):
             self.tables[name] = Table(db=self, name=name)
 
     def GetTable(self, tblname):
@@ -140,14 +140,12 @@ class Table:
             fs[f.name] = f
 
     def iterfields(self):
-        for f in self.fields.values():
+        for f in self.fields.itervalues():
             yield f
 
     def iterfieldnames(self):
         for f in self.iterfields():
             yield (f.mutation or '%s.%s' % (self.name, f.name))
-# here
-    FieldNames = property(iterfieldnames)
 
     def __repr__(self):
         return '<type: %r, name: %r, alias: %r>' % (self.__class__.__name__, self.name, self.alias)
@@ -328,15 +326,17 @@ class DQL:
     #     for name in (r.values()[0] for r in cursor.fetchall()):
     #         tbl.append(Table(dql=self, name=name))
     #     self.tables = Store(tbl)
+    @property
+    def fields(self):
+        return self._get_fields()
 
-    def get_fields(self):
-        fs = FieldStorage()
+    def _get_fields(self):
+        fls = []
         if self.maintable is not None:
-            fs.update(self.maintable.FieldNames)
+            fls.extend(self.maintable.iterfieldnames())
             for j in self.joints:
-                fs.update(j.tb.FieldNames)
-        return fs
-    fields = property(get_fields)
+                fls.extend(j.tb.iterfieldnames())
+        return tuple(fls)
 
     def setmain(self, tblname, alias=''):
         # try:
@@ -401,11 +401,14 @@ class DQL:
         setattr(self.db, name, _view)
         return _view
 
+    @property
+    def queryset(self):
+        return self.query()
+
     def query(self, *args, **kwargs):
         cursor = self.db.cursor()
         cursor.execute(self.get_dql(*args, **kwargs))
         return QuerySet(cursor.iterator())
-    queryset = property(query)
 
     def queryone(self, *args, **kwargs):
         cursor = self.db.cursor()
