@@ -16,8 +16,16 @@ from tornado.ioloop import IOLoop
 from tornado.options import define
 import tornado
 import os
-import db
-DB = db.init()
+from db import mydql
+
+class Handler(RequestHandler):
+    def get_argument_into(self, *args, **kwargs):
+        into = kwargs.pop('into', None)
+        r = self.get_argument(*args,**kwargs)
+        if into is not None:
+            r = into(r)
+        return r
+
 class OtherHtmlHandler(RequestHandler):
 
     def get_current_user(self):
@@ -59,11 +67,14 @@ class MainHanlder(RequestHandler):
         items = ["Item 1","Item 2","Item 3",]
         self.render('tmp.html', title='My Title', items=items)
 
-class TestData(RequestHandler):
+class TestData(Handler):
     def get(self):
-        dql = DB.dql()
+        start = self.get_argument_into('startpos', 0, into=int)
+        stop = start + self.get_argument_into('count', 10, into=int)
+        dql = mydql()
         dql.setmain('student')
-        results = dql.queryset.all()
+        # dql.setmain('order_table')
+        results = dql.query(where={'DATE_FORMAT(sbirthday, "%Y-%m-%d")__gte':'1985-01-01'}).orderby('sbirthday', desc=True).slice(start, stop)
         self.write({'testdata': results})
 # tornado资源配置
 settings = {
@@ -71,6 +82,7 @@ settings = {
     'static_path': os.path.join(os.path.dirname(__file__),'static'),
     'login_url': '/login',
     'autoreload': True,
+    'debug': True,
     'cookie_secret': 'abcdefg',
 }
 

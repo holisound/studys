@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-11-02 22:48:34
+# @Last Modified time: 2015-11-03 23:08:46
 __metaclass__ = type
 from MySQLdb.cursors import DictCursor
 from MySQLdb.connections import Connection
@@ -96,7 +96,7 @@ class DataBase(Connection):
         cursor = self.cursor()
         cursor.execute('SHOW TABLES')
         self.tables = Storage()
-        for name in (r.values()[0] for r in cursor.iterator()):
+        for name in (next(r.itervalues()) for r in cursor.iterator()):
             self.tables[name] = Table(db=self, name=name)
 
     def GetTable(self, tblname):
@@ -133,21 +133,18 @@ class Table:
     def _init_fields(self):
         cursor = self.db.cursor()
         cursor.execute('DESC %s' % self.name)
-        fields = (Field(tb=self, name=r['Field'])
-                  for r in cursor.iterator())
+        fg = (Field(tb=self, name=r['Field']) for r in cursor.iterator())
         self.fields = fs = Storage()
-        for f in fields:
+        for f in fg:
             fs[f.name] = f
 
     def iterfields(self):
-        for f in self.fields.values():
+        for f in self.fields.itervalues():
             yield f
 
     def iterfieldnames(self):
         for f in self.iterfields():
             yield (f.mutation or '%s.%s' % (self.name, f.name))
-# here
-    FieldNames = property(iterfieldnames)
 
     def __repr__(self):
         return '<type: %r, name: %r, alias: %r>' % (self.__class__.__name__, self.name, self.alias)
@@ -161,7 +158,11 @@ class Field:
     def __init__(self, tb, name):
         self.tb = tb
         self.name = name
-        self.mutation = None
+        self._mutation = None
+
+    @property
+    def mutation(self):
+        return self._mutation
 
     def DateFormat(self, fmt, alias=''):
         mut = 'DATE_FORMAT(%s.%s, %r) AS %s' % (
@@ -169,10 +170,9 @@ class Field:
             self.name,
             fmt,
             alias or self.name)
-        self.mutation = mut
+        self._mutation = mut
         return mut
-        
-
+    
 
 class Joint:
 
@@ -192,11 +192,12 @@ class Joint:
         self.rel = rel.strip()
         self.duplication = self.rel.split('=')[0].strip()
 
-
 class Clause:
+    pass
+    
+class WhereClause(Clause):
 
-    def __init__(self, dql, dictObj):
-        self.dql = dql
+    def __init__(self, dictObj):
         self.dict = self._valid_dict(dictObj)
         self.token_mapping = {
             'eq': '= %s',
@@ -284,11 +285,11 @@ class QuerySet:
         pass
 
     def values(self, field, distinct=False):
-        gen = ( i[field] for i in self.iterator)
+        vg = (i[field] for i in self.iterator)
         if bool(distinct) is True:
-            return tuple(dedupe(gen))
+            return tuple(dedupe(vg))
         else:
-            return tuple(gen)
+            return tuple(vg)
 
     def all(self):
         return tuple(self.iterator)
@@ -328,15 +329,17 @@ class DQL:
     #     for name in (r.values()[0] for r in cursor.fetchall()):
     #         tbl.append(Table(dql=self, name=name))
     #     self.tables = Store(tbl)
+    @property
+    def fields(self):
+        return self._get_fields()
 
-    def get_fields(self):
-        fs = FieldStorage()
+    def _get_fields(self):
+        fls = []
         if self.maintable is not None:
-            fs.update(self.maintable.FieldNames)
+            fls.extend(self.maintable.iterfieldnames())
             for j in self.joints:
-                fs.update(j.tb.FieldNames)
-        return fs
-    fields = property(get_fields)
+                fls.extend(j.tb.iterfieldnames())
+        return tuple(fls)
 
     def setmain(self, tblname, alias=''):
         # try:
@@ -384,14 +387,14 @@ class DQL:
         else:
             _fields = ', '.join(fields or self.fields)
         #
-        _where_clause = Clause(
-            self, where).get_condition_sql() if where else '1=1'
+        _where_clause = WhereClause(where).get_condition_sql() if where else '1=1'
         _dql = _dql_format.format(
             distinct='DISTINCT ' if distinct else '',
             fields=_fields,
             tables=self._relate(INNER_JOIN),
             conditions=_where_clause,
         )
+        print _dql
         return _dql
 
     def create_view(self, name, *args, **kwargs):
@@ -401,11 +404,14 @@ class DQL:
         setattr(self.db, name, _view)
         return _view
 
+    @property
+    def queryset(self):
+        return self.query()
+
     def query(self, *args, **kwargs):
         cursor = self.db.cursor()
         cursor.execute(self.get_dql(*args, **kwargs))
         return QuerySet(cursor.iterator())
-    queryset = property(query)
 
     def queryone(self, *args, **kwargs):
         cursor = self.db.cursor()
@@ -439,12 +445,12 @@ class DQL:
 
 def main():
     # ==========
-    db = connect(host="localhost", db="QGYM", user="root", passwd="123123")
+    db = connect(host="localhost", db="db", user="root", passwd="123123")
     dql = db.dql()
     print dql.fields
     dql.setmain('order_table')
     print dql.fields
-    print dql.query(where={'order_id__lte': 10}).all()
+    print dql.query(where={'order_id__lte': 10}).slice(0,1)
     # ==========
 
 if __name__ == '__main__':

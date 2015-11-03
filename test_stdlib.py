@@ -34,10 +34,10 @@ if __name__ == '__main__':
     ll = list()
     a=time.clock()
     for i in xrange(10**7):
-        ll.append(i)
+        ll.extend([i])
     b=time.clock()
     for i in xrange(10**7):
-        ss.add(i)
+        ss.update({i})
     c=time.clock()
     print (b-a)
     print (c-b)
