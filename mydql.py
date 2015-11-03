@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-11-03 11:08:26
+# @Last Modified time: 2015-11-03 14:46:56
 __metaclass__ = type
 from MySQLdb.cursors import DictCursor
 from MySQLdb.connections import Connection
@@ -133,10 +133,9 @@ class Table:
     def _init_fields(self):
         cursor = self.db.cursor()
         cursor.execute('DESC %s' % self.name)
-        fields = (Field(tb=self, name=r['Field'])
-                  for r in cursor.iterator())
+        fg = (Field(tb=self, name=r['Field']) for r in cursor.iterator())
         self.fields = fs = Storage()
-        for f in fields:
+        for f in fg:
             fs[f.name] = f
 
     def iterfields(self):
