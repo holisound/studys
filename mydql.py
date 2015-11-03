@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-11-03 23:08:46
+# @Last Modified time: 2015-11-03 23:15:28
 __metaclass__ = type
 from MySQLdb.cursors import DictCursor
 from MySQLdb.connections import Connection
@@ -394,7 +394,6 @@ class DQL:
             tables=self._relate(INNER_JOIN),
             conditions=_where_clause,
         )
-        print _dql
         return _dql
 
     def create_view(self, name, *args, **kwargs):
