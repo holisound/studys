@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-11-03 16:13:24
+# @Last Modified time: 2015-11-03 17:07:58
 __metaclass__ = type
 from MySQLdb.cursors import DictCursor
 from MySQLdb.connections import Connection
@@ -384,7 +384,7 @@ class DQL:
         else:
             _fields = ', '.join(fields or self.fields)
         #
-        _where_clause = Clause(where).get_condition_sql() if where else '1=1'
+        _where_clause = WhereClause(where).get_condition_sql() if where else '1=1'
         _dql = _dql_format.format(
             distinct='DISTINCT ' if distinct else '',
             fields=_fields,
