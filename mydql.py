@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-11-03 15:34:03
+# @Last Modified time: 2015-11-03 16:13:24
 __metaclass__ = type
 from MySQLdb.cursors import DictCursor
 from MySQLdb.connections import Connection
@@ -189,11 +189,12 @@ class Joint:
         self.rel = rel.strip()
         self.duplication = self.rel.split('=')[0].strip()
 
+class _Clause:
+    pass
+    
+class WhereClause(_Clause):
 
-class Clause:
-
-    def __init__(self, dql, dictObj):
-        self.dql = dql
+    def __init__(self, dictObj):
         self.dict = self._valid_dict(dictObj)
         self.token_mapping = {
             'eq': '= %s',
@@ -383,8 +384,7 @@ class DQL:
         else:
             _fields = ', '.join(fields or self.fields)
         #
-        _where_clause = Clause(
-            self, where).get_condition_sql() if where else '1=1'
+        _where_clause = Clause(where).get_condition_sql() if where else '1=1'
         _dql = _dql_format.format(
             distinct='DISTINCT ' if distinct else '',
             fields=_fields,
