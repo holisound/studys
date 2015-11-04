@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2015-10-09 13:41:39
 # @Last Modified by:   edward
-# @Last Modified time: 2015-11-03 23:15:28
+# @Last Modified time: 2015-11-04 10:34:59
 __metaclass__ = type
 from MySQLdb.cursors import DictCursor
 from MySQLdb.connections import Connection
@@ -350,7 +350,7 @@ class DQL:
         tb = getattr(self.db.tables, tblname)
         tb.set_alias(alias)
         self.maintable = tb
-        return self.maintable
+        return self
 
     def get_dql(self, *args, **kwargs):
         """
@@ -421,6 +421,7 @@ class DQL:
         tb = getattr(self.db.tables, tblname)
         tb.set_alias(alias)
         self.joints.append(Joint(tb,on))
+        return self
 
     def test(self):
         cursor = self.db.cursor()
