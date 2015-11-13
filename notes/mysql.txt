@@ -19,3 +19,8 @@ SET PASSWORD FOR 'root'@'localhost' = PASSWORD('password');
 CREATE USER 'username'@'localhost' IDENTIFIED BY 'password';
 GRANT ALL PRIVILEGES ON db_name.* TO 'username'@'localhost';
 FLUSH PRIVILEGES;
+
+查询和修改AUTO_INCREMENT
+SELECT AUTO_INCREMENT FROM information_schema.tables WHERE table_name="table_name";
+ALTER TABLE tableName auto_increment=number;
+
