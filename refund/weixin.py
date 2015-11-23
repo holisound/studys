@@ -3,10 +3,10 @@
 # @Author: python
 # @Date:   2015-11-23 13:04:50
 # @Last Modified by:   python
-# @Last Modified time: 2015-11-23 16:53:52
+# @Last Modified time: 2015-11-23 18:23:53
 
 from hashlib import md5
-from xml.etree.ElementTree import Element, tostring
+from xml.etree.ElementTree import Element, tostring, fromstring
 import random
 
 
@@ -62,7 +62,18 @@ def make_nonce_bunch(length=16):
         _bunch_list.append(char)
     return ''.join(_bunch_list)
  
+def xml_loads(xml_bunch):
+    """
+    xml_bunch: str ==> dict object
+    >>> xml_loads("<xml><a>111</a><b>222</b></xml>")
+    {'a': '111', 'b': '222'}
+    """
+    root = fromstring(xml_bunch)
+    return {child.tag: child.text for child in root.getchildren()}
+
 if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
     params = dict(
         appid='wxd930ea5d5a258f4f',
         mch_id='10000100',

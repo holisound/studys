@@ -3,22 +3,19 @@
 # @Author: python
 # @Date:   2015-11-23 15:18:54
 # @Last Modified by:   python
-# @Last Modified time: 2015-11-23 16:11:42
+# @Last Modified time: 2015-11-23 19:01:39
 import web
-from weixin import make_weixin_signatrue, make_xml_bunch, make_nonce_bunch
+from weixin import make_weixin_signatrue, make_xml_bunch, make_nonce_bunch, xml_loads
+web.config.debug = True
 
 urls = (
-    r'/test/xml/?', 'TestXML',
+    r'/handle/xml/?', 'HandleXML',
 )
 
-class TestXML:
-    def GET(self):
-        params = dict(
-            appid='wxd930ea5d5a258f4f',
-            mch_id='10000100',
-            device_info='1000',
-            body='test',
-            nonce_str=make_nonce_bunch())
+class HandleXML:
+    def POST(self):
+        print web.ctx
+        params = xml_loads(web.data())
             
         signature = make_weixin_signatrue(
             mch_key = '192006250b4c09247ec02edce69f6a2d', # secret
