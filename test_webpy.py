@@ -5,8 +5,6 @@ import web
 import json
 from jinja2 import Environment, FileSystemLoader
 from itertools import islice
-import db
-DB = db.init()
 # 
 urls = (r"/?", "hello",
         r'/register/?', 'Register',
