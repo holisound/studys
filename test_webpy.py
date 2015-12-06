@@ -39,16 +39,7 @@ class hello:
         return open("templates/ng01.html")
 class Home:
     def GET(self):
-        dql = DB.dql()
-        st = dql.setmain('student')
-        it = dql.test()
-        r = next(it, None)
-        print r,11
-        while r is not None:
-            r  = next(it, None)
-            print r
-        web.header('Content-Type', 'application/json')
-        return json.dumps({ "testdata":dql.queryset.all()})
+        return '<h1>Hello, I am at home.</h1>'
 # ==========
 
 class Data:
@@ -92,6 +83,7 @@ class Upload:
             f.write(data.myfile.value)
         callback = open(data.myfile.filename).read()
         return callback
+
 if __name__ == '__main__':
     app.run()
     # application = app.wsgifunc()
