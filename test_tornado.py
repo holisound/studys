@@ -92,6 +92,6 @@ Application([
     (r'/other/?', OtherHtmlHandler),
     (r'/main/?', MainHanlder),
     (r'/data/?', TestData),
-    ], **settings).listen(8888)
+    ], default_host="0.0.0.0", **settings).listen(8888)
 
 IOLoop.current().start()
