@@ -55,7 +55,7 @@
                 <ul ng-controller="avatarCtrl">
                         <li ng-if="$odd" ng-repeat="ad in sliderbannerlist" >
                         <span><a href="{{ ad.ads_externalurl }}">
-                        <img src="{{ ad.ads_avatar }}" alt="{{ ad.ads_id }}"></a></span></li>
+                        <img ng-src="{{ ad.ads_avatar }}" alt="{{ ad.ads_id }}"></a></span></li>
                 </ul>
                 <a href="javascript:;" id="btn_prev"></a>
                 <a href="javascript:;" id="btn_next"></a>
@@ -99,7 +99,7 @@
                 <ul class="clearfix" >
                     <li class="left" ng-repeat="info in BigAdsInfo">
                         <a href="{{ info.ads_externalurl }}">
-                            <img src="{{ info.ads_avatar }}" alt="{{ info.ads_id }}"/>
+                            <img ng-src="{{ info.ads_avatar }}" alt="{{ info.ads_id }}"/>
                         </a>
                     </li>
               <!--       <li class="right">
@@ -138,7 +138,7 @@
                         <ul>
                             <li ng-repeat="(key, value) in R1Info">
                                 <a href="{{value.ads_externalurl}}">
-                                    <img src="{{value.ads_avatar}}" alt="{{key}}"/>
+                                    <img ng-src="{{value.ads_avatar}}" alt="{{key}}"/>
                                 </a>
                             </li>
                         </ul>
@@ -155,7 +155,7 @@
                         <ul>
                             <li ng-repeat="(key, value) in R2Info">
                                 <a href="{{ value.ads_external_url}}">
-                                    <img src="{{ value.ads_avatar}}" alt="{{ key }}"/>
+                                    <img ng-src="{{ value.ads_avatar}}" alt="{{ key }}"/>
                                 </a>
                             </li>
                         </ul>
@@ -164,14 +164,15 @@
                         <ul class="clearfix" ng-controller="avatarCtrl">
                             <li ng-repeat="(key, value) in R3Info">
                                 <a href="{{ value.ads_externalurl }}">
-                                    <!-- <span ng-style='setAvatar("R3_1")'></span> -->
-                                    <img src="{{ value.ads_avatar }}" alt="{{ key }}">
+                                    <span ng-style='setAvatar(value.ads_avatar)'></span>
+                                    <!-- <img ng-src="{{ value.ads_avatar }}" alt="{{ key }}"> -->
 
                                 </a>
                             </li>
                             <li ng-repeat="(key, value) in R4Info">
                                 <a href="{{ value.ads_externalurl }}">
-                                    <img src="{{ value.ads_avatar }}" alt="{{ key }}">
+                                    <span ng-style='setAvatar(value.ads_avatar)'></span>
+                                    <!-- <img ng-src="{{ value.ads_avatar }}" alt="{{ key }}"> -->
                                 </a>
                             </li>
 
@@ -186,7 +187,7 @@
                     </div>
                     <div class="recommend" >
                         <ul>
-                            <li ng-repeat=" r in RBInfo "><a href="{{ r.ads_externalurl }}"><img src="{{ r.ads_avatar }}"></a></li>
+                            <li ng-repeat=" r in RBInfo "><a href="{{ r.ads_externalurl }}"><img ng-src="{{ r.ads_avatar }}"></a></li>
                         </ul>
                     </div>
 
@@ -287,6 +288,13 @@
                         'R3_2':response.R3_2[0],
                         'R3_3':response.R3_3[0],
                     };
+                    
+                    $scope.setAvatar = function(avatarurl){
+                        return {background: 'url(' + avatarurl + ')',
+                                width:230,
+                                height:84};
+                    };
+
                     $scope.R4Info = {
                         'R4_1':response.R4_1[0],
                         'R4_2':response.R4_2[0],
