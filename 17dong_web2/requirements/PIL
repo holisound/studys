@@ -1,3 +1,0 @@
-pip uninstall PIL
-brew install libjpeg ( For CentOS: libjpeg-turbo & libjpeg-turbo-devel )
-pip install PIL --allow-external PIL --allow-unverified PIL
