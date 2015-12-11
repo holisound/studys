@@ -1,0 +1,2 @@
+sudo pip install PIL
+sudo pip install wheezy.captcha

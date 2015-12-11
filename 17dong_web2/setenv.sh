@@ -1,0 +1,3 @@
+export _17DONG_WEB_KJ=1
+export _17DONG_WEB_DB_NAME=FIVESTARCAMP
+export _17DONG_WEB_DB_PASSWORD=kenlmxljhz

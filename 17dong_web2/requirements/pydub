@@ -1,0 +1,8 @@
+sudo pip install pydub
+
+https://github.com/jiaaro/pydub/
+
+
+from pydub import AudioSegment
+sound = AudioSegment.from_file("/input/file")
+sound.export("/output/file", format="mp3", bitrate="128k")

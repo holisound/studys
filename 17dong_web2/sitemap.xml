@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>http://www.17dong.com.cn/rss/training.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>http://www.17dong.com.cn/rss/tourism.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>http://www.17dong.com.cn/rss/freetrial.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>http://www.17dong.com.cn/rss/activities.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>http://www.17dong.com.cn/rss/mall.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>http://www.17dong.com.cn/rss/privatecoach.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>http://www.17dong.com.cn/rss/topics.xml</loc>
+  </sitemap>
+</sitemapindex>
