@@ -97,7 +97,7 @@
         <section class="content">
             <section class="sec-recommend" ng-controller="avatarCtrl">
                 <ul class="clearfix" >
-                    <li class="left" ng-if="$even" ng-repeat="info in BigAdsInfo">
+                    <li class="left" ng-repeat="info in BigAdsInfo">
                         <a href="{{ info.ads_externalurl }}">
                             <img src="{{ info.ads_avatar }}" alt="{{ info.ads_id }}"/>
                         </a>
@@ -162,42 +162,19 @@
                     </div>
                     <div class="rec-nav">
                         <ul class="clearfix" ng-controller="avatarCtrl">
-                            <li>
-                                <a href="">
-                                    <span ng-style='setAvatar("R3_1")'></span>
+                            <li ng-repeat="(key, value) in R3Info">
+                                <a href="{{ value.ads_externalurl }}">
+                                    <!-- <span ng-style='setAvatar("R3_1")'></span> -->
+                                    <img src="{{ value.ads_avatar }}" alt="{{ key }}">
 
                                 </a>
                             </li>
-                            <li>
-                                <a href="">
-                                    <span ng-style='setAvatar("R3_2")'></span>
-
+                            <li ng-repeat="(key, value) in R4Info">
+                                <a href="{{ value.ads_externalurl }}">
+                                    <img src="{{ value.ads_avatar }}" alt="{{ key }}">
                                 </a>
                             </li>
-                            <li>
-                                <a href="">
-                                    <span ng-style='setAvatar("R3_3")'></span>
 
-                                </a>
-                            </li>
-                            <li>
-                                <a href="">
-                                    <span ng-style='setAvatar("R4_1")'></span>
-
-                                </a>
-                            </li>
-                            <li>
-                                <a href="">
-                                    <span ng-style='setAvatar("R4_2")'></span>
-
-                                </a>
-                            </li>
-                            <li>
-                                <a href="">
-                                    <span ng-style='setAvatar("R4_3")'></span>
-
-                                </a>
-                            </li>
                         </ul>
                     </div>
                 </section>
@@ -299,19 +276,21 @@
                     $scope.R1Info = {
                         'R1_1':response.R1_1[0],
                         'R1_2':response.R1_2[0],
-                        'R1_3':response.R1_3[0]};
+                        'R1_3':response.R1_3[0]
+                    };
                     $scope.R2Info = {
                         'R2_1':response.R2_1[0],
                         'R2_2':response.R2_2[0]
                     };
-                    $scope.setAvatar = function(key){
-                        var avatarurl = response[key][0].ads_avatar;
-                        return { 
-                            "background": "url(" + avatarurl + ")",
-                            "width": 230,
-                            "height": 84,
-
-                                };
+                    $scope.R3Info = {
+                        'R3_1':response.R3_1[0],
+                        'R3_2':response.R3_2[0],
+                        'R3_3':response.R3_3[0],
+                    };
+                    $scope.R4Info = {
+                        'R4_1':response.R4_1[0],
+                        'R4_2':response.R4_2[0],
+                        'R4_3':response.R4_3[0],
                     };
                 });
             });
