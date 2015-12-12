@@ -53,9 +53,36 @@
             </div>
             <div class="main_image">
                 <ul>
-                    <li ng-if="$odd" ng-repeat="ad in sliderbannerlist" >
-                    <span><a href="{{ ad.ads_externalurl }}">
-                    <img ng-src="{{ ad.ads_avatar }}" alt="{{ ad.ads_id }}"></a></span></li>
+<!--                     <li>
+                        <span>
+                            <a href="#">
+                                <img src="./static/img/mobile/mainImg1.png" alt=""/>
+                            </a>
+                        </span>
+                    </li>
+                    <li>
+                        <span>
+                            <a href="#">
+                                <img src="./static/img/mobile/P48_9274210247.jpeg" alt=""/>
+                            </a>
+                        </span>
+                    </li>
+                    <li>
+                        <span>
+                            <a href="#">
+                                <img src="./static/img/mobile/P49_9275141058.jpeg" alt=""/>
+                            </a>
+                        </span>
+                    </li> -->
+                    <li>
+                    <span><a href="{{ sliderbannerlist[0].ads_externalurl }}">
+                    <img ng-src="{{ sliderbannerlist[0].ads_avatar }}" alt="{{ sliderbannerlist[0].ads_id }}" /></a></span></li>
+                    <li>
+                    <span><a href="{{ sliderbannerlist[1].ads_externalurl }}">
+                    <img ng-src="{{ sliderbannerlist[1].ads_avatar }}" alt="{{ sliderbannerlist[1].ads_id }}" /></a></span></li>
+                    <li>
+                    <span><a href="{{ sliderbannerlist[2].ads_externalurl }}">
+                    <img ng-src="{{ sliderbannerlist[2].ads_avatar }}" alt="{{ sliderbannerlist[2].ads_id }}" /></a></span></li>
                 </ul>
                 <a href="javascript:;" id="btn_prev"></a>
                 <a href="javascript:;" id="btn_next"></a>
