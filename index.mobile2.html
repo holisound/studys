@@ -27,7 +27,7 @@
 </head>
 <body>
     
-    <div class="wrapper" ng-app="index">
+    <div class="wrapper" ng-app="index" ng-controller="topCtrl">
         <header class="header">
             <div class="btitle">
                 <a class="logo" href="/"></a>
@@ -52,10 +52,10 @@
                 </div>
             </div>
             <div class="main_image">
-                <ul ng-controller="avatarCtrl">
-                        <li ng-if="$odd" ng-repeat="ad in sliderbannerlist" >
-                        <span><a href="{{ ad.ads_externalurl }}">
-                        <img ng-src="{{ ad.ads_avatar }}" alt="{{ ad.ads_id }}"></a></span></li>
+                <ul>
+                    <li ng-if="$odd" ng-repeat="ad in sliderbannerlist" >
+                    <span><a href="{{ ad.ads_externalurl }}">
+                    <img ng-src="{{ ad.ads_avatar }}" alt="{{ ad.ads_id }}"></a></span></li>
                 </ul>
                 <a href="javascript:;" id="btn_prev"></a>
                 <a href="javascript:;" id="btn_next"></a>
@@ -95,7 +95,7 @@
             </ul>
         </nav>
         <section class="content">
-            <section class="sec-recommend" ng-controller="avatarCtrl">
+            <section class="sec-recommend">
                 <ul class="clearfix" >
                     <li class="left">
                         <a href="{{ BigAdsInfo.ads_externalurl }}">
@@ -126,7 +126,7 @@
                 </ul>
             </section>
 
-            <div class="sec-special" ng-controller="avatarCtrl">
+            <div class="sec-special">
                 <section class="sec1">
                     <div class="topic">
                         <i></i>
@@ -134,9 +134,9 @@
                         <h1>周末去哪</h1>
                         <span>more</span>
                     </div>
-                    <div class="recommend" ng-controller="avatarCtrl" >
+                    <div class="recommend">
                         <ul>
-                            <li ng-repeat="(key, value) in R1Info">
+                            <li ng-repeat="value in R1Info">
                                 <a href="{{value.ads_externalurl}}">
                                     <img ng-src="{{value.ads_avatar}}" alt="{{key}}"/>
                                 </a>
@@ -153,7 +153,7 @@
                     </div>
                     <div class="recommend">
                         <ul>
-                            <li ng-repeat="(key, value) in R2Info">
+                            <li ng-repeat="value in R2Info">
                                 <a href="{{ value.ads_external_url}}">
                                     <img ng-src="{{ value.ads_avatar}}" alt="{{ key }}"/>
                                 </a>
@@ -161,15 +161,15 @@
                         </ul>
                     </div>
                     <div class="rec-nav">
-                        <ul class="clearfix" ng-controller="avatarCtrl">
-                            <li ng-repeat="(key, value) in R3Info">
+                        <ul class="clearfix">
+                            <li ng-repeat="value in R3Info">
                                 <a href="{{ value.ads_externalurl }}">
                                     <span ng-style='setAvatar(value.ads_avatar)'></span>
                                     <!-- <img ng-src="{{ value.ads_avatar }}" alt="{{ key }}"> -->
 
                                 </a>
                             </li>
-                            <li ng-repeat="(key, value) in R4Info">
+                            <li ng-repeat="value in R4Info">
                                 <a href="{{ value.ads_externalurl }}">
                                     <span ng-style='setAvatar(value.ads_avatar)'></span>
                                     <!-- <img ng-src="{{ value.ads_avatar }}" alt="{{ key }}"> -->
@@ -268,28 +268,27 @@
                 });
             });
             // ===============
-            app.controller('avatarCtrl', function($scope, $http){
+            app.controller('topCtrl', function($scope, $http){
                 $http.get("/api/v2.0/product/advertised")
                 .success(function(response){
                     $scope.RBInfo = response.RB;
                     $scope.BigAdsInfo = response.BigAdsInfo[0];
                     $scope.SmallAdsInfo = response.SmallAdsInfo[0];
-
                     $scope.sliderbannerlist = response.AllAdvertisedProduct;
-                    $scope.R1Info = {
-                        'R1_1':response.R1_1[0],
-                        'R1_2':response.R1_2[0],
-                        'R1_3':response.R1_3[0]
-                    };
-                    $scope.R2Info = {
-                        'R2_1':response.R2_1[0],
-                        'R2_2':response.R2_2[0]
-                    };
-                    $scope.R3Info = {
-                        'R3_1':response.R3_1[0],
-                        'R3_2':response.R3_2[0],
-                        'R3_3':response.R3_3[0],
-                    };
+                    $scope.R1Info = [
+                        response.R1_1[0],
+                        response.R1_2[0],
+                        response.R1_3[0],
+                    ];
+                    $scope.R2Info = [
+                        response.R2_1[0],
+                        response.R2_2[0],
+                    ];
+                    $scope.R3Info = [
+                        response.R3_1[0],
+                        response.R3_2[0],
+                        response.R3_3[0],
+                    ];
                     
                     $scope.setAvatar = function(avatarurl){
                         return {background: 'url(' + avatarurl + ')',
@@ -297,11 +296,11 @@
                                 height:84};
                     };
 
-                    $scope.R4Info = {
-                        'R4_1':response.R4_1[0],
-                        'R4_2':response.R4_2[0],
-                        'R4_3':response.R4_3[0],
-                    };
+                    $scope.R4Info = [
+                        response.R4_1[0],
+                        response.R4_2[0],
+                        response.R4_3[0],
+                    ];
                 });
             });
         </script>
