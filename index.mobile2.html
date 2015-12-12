@@ -97,16 +97,16 @@
         <section class="content">
             <section class="sec-recommend" ng-controller="avatarCtrl">
                 <ul class="clearfix" >
-                    <li class="left" ng-repeat="info in BigAdsInfo">
-                        <a href="{{ info.ads_externalurl }}">
-                            <img ng-src="{{ info.ads_avatar }}" alt="{{ info.ads_id }}"/>
+                    <li class="left">
+                        <a href="{{ BigAdsInfo.ads_externalurl }}">
+                            <img ng-src="{{ BigAdsInfo.ads_avatar }}" alt="{{ BigAdsInfo.ads_id }}"/>
                         </a>
                     </li>
-              <!--       <li class="right">
+                    <li class="right">
                         <ul class="clearfix">
                             <li>
-                                <a href="">
-                                    <img src="/static/img/mobile/mobile-index_03.jpg" alt=""/>
+                                <a href="{{ SmallAdsInfo.ads_externalurl }}">
+                                    <img ng-src="{{ SmallAdsInfo.ads_avatar }}" alt="{{ SmallAdsInfo.ads_id }}"/>
                                 </a>
                             </li>
                             <ul class="right_ul">
@@ -122,7 +122,7 @@
                                 </li>
                             </ul>
                         </ul>
-                    </li> -->
+                    </li>
                 </ul>
             </section>
 
@@ -272,7 +272,9 @@
                 $http.get("/api/v2.0/product/advertised")
                 .success(function(response){
                     $scope.RBInfo = response.RB;
-                    $scope.BigAdsInfo = response.BigAdsInfo;
+                    $scope.BigAdsInfo = response.BigAdsInfo[0];
+                    $scope.SmallAdsInfo = response.SmallAdsInfo[0];
+
                     $scope.sliderbannerlist = response.AllAdvertisedProduct;
                     $scope.R1Info = {
                         'R1_1':response.R1_1[0],
