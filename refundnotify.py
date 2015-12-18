@@ -3,10 +3,9 @@
 # @Author: edward
 # @Date:   2015-11-29 21:13:29
 # @Last Modified by:   edward
-# @Last Modified time: 2015-11-29 23:24:58
+# @Last Modified time: 2015-12-18 14:48:12
 from hashlib import md5
 from urllib import urlencode
-import requests
 
 
 def excludes(keys=(), values=()):
@@ -61,12 +60,12 @@ class Refund:
                 'sign_type',
             ]) and all(self.data.values())
 
+    def set_many(self, **kw):
+        self.data.update(kw)
+
     def do_sign(self, key):
         self.data['sign'] = md5_sign(self.data, key)
 
     def get_url(self):
         self._assert_requirement()
         return ''.join([self.GATEWAY, '?', urlencode_params(self.data)])
-
-    def get_result(self):
-        return requests.get(self.get_url()).text
