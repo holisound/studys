@@ -60,7 +60,7 @@
         </table>
         <hello:world/>
     </div>
-    <script src="../static/js/angular.min.js"></script>
+    <script src="/static/js/angular.min.js"></script>
     <script>
         app = angular.module("myapp", []);
        app.directive('helloWorld', function() {
@@ -71,7 +71,7 @@
          };
        });
         app.controller('myctrl', function($scope, $http){
-            $http.get("http://localhost:8080/home").success(function(response) { $scope.json = response.testdata;});
+            $http.get("/home").success(function(response) { $scope.json = response.testdata;});
             $scope.showname = function(x){
                 return x.name;
             };
