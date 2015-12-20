@@ -5,12 +5,14 @@ import web
 import json
 from jinja2 import Environment, FileSystemLoader
 from itertools import islice
-# 
+from webutils import make_response
+
 urls = (r"/?", "hello",
         r'/register/?', 'Register',
         r'/upload/?', 'Upload',
         r'/data/?' , 'Data',
         r'/home/?', 'Home',
+        r'/directive/01/?', 'Directive01',
         )
 app = web.application(urls, globals(), autoreload=True)
 # ==========
@@ -83,6 +85,10 @@ class Upload:
             f.write(data.myfile.value)
         callback = open(data.myfile.filename).read()
         return callback
+
+class Directive01:
+    def GET(self):
+        return make_response('directive01.html', 'text/html')
 
 if __name__ == '__main__':
     app.run()
