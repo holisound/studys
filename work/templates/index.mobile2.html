@@ -1,0 +1,320 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wb="http://open.weibo.com/wb" xml:lang="zh-cn" lang="zh-cn">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta id="viewport" name="viewport"
+          content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="keywords" content="体育培训，少儿培训，免费活动，私人教练，儿童教育，培训"/>
+    <meta name="description"
+          content="一起动是一个专注于体育类培训、体育旅游、体育活动的网站。提供丰富的少儿培训、私人教练、儿童教育等产品，便捷、安全的在线报名。最专业的体育产品网站，您的不二选择！"/>
+    <meta property="wb:webmaster" content="fe1c955feb8c2075"/>
+    <meta property="qc:admins" content="344026777761747676375636"/>
+    <meta name="google-site-verification" content="6-tlSb5Vpxvp5uLEju6d1nD-Z6gBzHho0DfUlMtnnQ0"/>
+    <meta name="alexaVerifyID" content="K-_YgAwrL-RKMkAvyvCVvdKbii4"/>
+    <meta name="baidu-site-verification" content="uMiUjETcuu"/>
+    <meta name="chinaz-site-verification" content="081e7651-48c6-4c2f-a569-99321685eab1"/>
+
+    <link rel="shortcut icon" href="/static/img/mobile/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="/static/css/mobile/base.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/mobile/base-act.css">
+
+    <script type="text/javascript" src="/static/js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.event.drag-1.5.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.touchSlider.js"></script>
+    <script type="text/javascript" src="/static/js/angular.min.js"></script>
+
+    <title>【一起动】一站式体育服务平台_冬夏令营_篮球培训_足球培训_亲子周末活动</title>
+</head>
+<body>
+    
+    <div class="wrapper" ng-app="index" ng-controller="topCtrl">
+        <header class="header">
+            <div class="btitle">
+                <a class="logo" href="/"></a>
+
+                <form method="POST" action="/search?type=0">
+                    <div id="search_order">
+                        <input type="search" id="search" name="inputProductKey" placeholder="搜索一起动商品"/>
+                        <input type="submit"/>
+                    </div>
+                </form>
+                {{ xsrf_form_html() }}
+                <a class="btn" href=""></a>
+            </div>
+        </header>
+        <!-- {% raw %} -->
+        <section class="main_visual">
+            <div class="flicking_con">
+                <div class="flicking_inner">
+                    <a href="#">1</a>
+                    <a href="#">2</a>
+                    <a href="#">3</a>
+                </div>
+            </div>
+            <div class="main_image">
+                <ul>
+                    <li>
+                    <span><a href="{{ sliderbannerlist[0].ads_externalurl }}">
+                    <img ng-src="{{ sliderbannerlist[0].ads_avatar }}" alt="{{ sliderbannerlist[0].ads_id }}" /></a></span></li>
+                    <li>
+                    <span><a href="{{ sliderbannerlist[1].ads_externalurl }}">
+                    <img ng-src="{{ sliderbannerlist[1].ads_avatar }}" alt="{{ sliderbannerlist[1].ads_id }}" /></a></span></li>
+                    <li>
+                    <span><a href="{{ sliderbannerlist[2].ads_externalurl }}">
+                    <img ng-src="{{ sliderbannerlist[2].ads_avatar }}" alt="{{ sliderbannerlist[2].ads_id }}" /></a></span></li>
+                </ul>
+                <a href="javascript:;" id="btn_prev"></a>
+                <a href="javascript:;" id="btn_next"></a>
+            </div>
+        </section>
+
+        <nav class="nav">
+            <ul class="clearfix" ng-controller="iconCtrl">
+                <li>
+                    <a href="/summercamp">
+                        <span class="1" ng-style='setIcon(0)'></span>
+
+                        <h1>夏令营</h1>
+                    </a>
+                </li>
+                <li>
+                    <a href="/training">
+                        <span class="2" ng-style='setIcon(1)'></span>
+
+                        <h1>体育培训</h1>
+                    </a>
+                </li>
+                <li>
+                    <a href="/activities">
+                        <span class="3" ng-style='setIcon(2)'></span>
+
+                        <h1>周末去哪</h1>
+                    </a>
+                </li>
+                <li>
+                    <a href="/competition">
+                        <span class="4" ng-style='setIcon(3)'></span>
+
+                        <h1>比赛赛事</h1>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <section class="content">
+            <section class="sec-recommend">
+                <ul class="clearfix" >
+                    <li class="left">
+                        <a href="{{ BigAdsInfo.ads_externalurl }}">
+                            <img ng-src="{{ BigAdsInfo.ads_avatar }}" alt="{{ BigAdsInfo.ads_id }}"/>
+                        </a>
+                    </li>
+                    <li class="right">
+                        <ul class="clearfix">
+                            <li>
+                                <a href="{{ SmallAdsInfo.ads_externalurl }}">
+                                    <img ng-src="{{ SmallAdsInfo.ads_avatar }}" alt="{{ SmallAdsInfo.ads_id }}"/>
+                                </a>
+                            </li>
+                            <ul class="right_ul">
+                                <li>
+                                    <a href="/privatecoach">
+                                        <img ng-src='{{iconList[4]}}' alt=""/>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/tourism">
+                                        <img ng-src='{{iconList[5]}}' alt=""/>
+                                    </a>
+                                </li>
+                            </ul>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+
+            <div class="sec-special">
+                <section class="sec1">
+                    <div class="topic">
+                        <i></i>
+
+                        <h1>周末去哪</h1>
+                        <span>more</span>
+                    </div>
+                    <div class="recommend">
+                        <ul>
+                            <li ng-repeat="value in R1Info">
+                                <a href="{{value.ads_externalurl}}">
+                                    <img ng-src="{{value.ads_avatar}}" alt="{{key}}"/>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+                <section class="sec2">
+                    <div class="topic">
+                        <i></i>
+
+                        <h1>运动生活</h1>
+                        <span>more</span>
+                    </div>
+                    <div class="recommend">
+                        <ul>
+                            <li ng-repeat="value in R2Info">
+                                <a href="{{ value.ads_external_url}}">
+                                    <img ng-src="{{ value.ads_avatar}}" alt="{{ key }}"/>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="rec-nav">
+                        <ul class="clearfix">
+                            <li ng-repeat="value in R3Info">
+                                <a href="{{ value.ads_externalurl }}">
+<!--                                     <span ng-class="'rn' + ($index + 1)"></span>
+                                    <h1 ng-bind="['游泳', '足球', '篮球'][$index]"></h1>
+ -->                                    
+ <!-- <span ng-style='setAvatar(value.ads_avatar)'></span> -->
+                                    <img ng-src="{{ value.ads_avatar }}" alt="{{ key }}">
+
+                                </a>
+                            </li>
+                            <li ng-repeat="value in R4Info">
+                                <a href="{{ value.ads_externalurl }}">
+<!--                                     <span ng-class="'rn' + ($index + 4)"></span>
+                                    <h1 ng-bind="['网球', '击剑', '舞蹈'][$index]"></h1>
+ -->                                    
+ <!-- <span ng-style='{{setAvatar(value.ads_avatar)}}'></span> -->
+                                    <img ng-src="{{ value.ads_avatar }}" alt="{{ key }}">
+                                </a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </section>
+                <section class="sec3">
+                    <div class="topic">
+                        <i></i>
+
+                        <h1>精品推荐</h1>
+                    </div>
+                    <div class="recommend" >
+                        <ul>
+                            <li ng-repeat=" r in RBInfo "><a href="{{ r.ads_externalurl }}"><img ng-src="{{ r.ads_avatar }}"></a></li>
+                        </ul>
+                    </div>
+
+                </section>
+            </div>
+    {% endraw %}
+        </section>
+        <footer>
+            <p>
+                <a href="/">首页</a><span></span>
+                <a href="/about">个人中心</a><span></span>
+                <a href="/contact">联系我们</a><span></span>
+                <a href="/faq">常见问题</a><span></span>
+                <a href="/cooperation">商务合作</a>
+            </p>
+            <p>上海应酷网络科技有限公司 版权所有</p>
+        </footer>
+
+        <script>
+            $(document).ready(function () {
+                $(".main_visual").hover(function () {
+                    $("#btn_prev,#btn_next").fadeIn()
+                }, function () {
+                    $("#btn_prev,#btn_next").fadeOut()
+                })
+                $dragBln = false;
+                $(".main_image").touchSlider({
+                    flexible: true,
+                    speed: 200,
+                    btn_prev: $("#btn_prev"),
+                    btn_next: $("#btn_next"),
+                    paging: $(".flicking_con a"),
+                    counter: function (e) {
+                        $(".flicking_con a").removeClass("on").eq(e.current - 1).addClass("on");
+                    }
+                });
+                $(".main_image").bind("mousedown", function () {
+                    $dragBln = false;
+                })
+                $(".main_image").bind("dragstart", function () {
+                    $dragBln = true;
+                })
+                $(".main_image a").click(function () {
+                    if ($dragBln) {
+                        return false;
+                    }
+                })
+                timer = setInterval(function () {
+                    $("#btn_next").click();
+                }, 5000);
+                $(".banner").hover(function () {
+                    clearInterval(timer);
+                }, function () {
+                    timer = setInterval(function () {
+                        $("#btn_next").click();
+                    }, 5000);
+                })
+                $(".main_image").bind("touchstart", function () {
+                    clearInterval(timer);
+                }).bind("touchend", function () {
+                    timer = setInterval(function () {
+                        $("#btn_next").click();
+                    }, 5000);
+                })
+            });
+
+
+        </script>
+        <script>
+            var app = angular.module('index', []);
+            app.controller('iconCtrl', function($rootScope, $http) {
+                $http.get("/api/v2.0/index/icon/list")
+                .success(function(response) {
+                    var icons = $rootScope.iconList = response.AppIndexIconList;
+                    $rootScope.setIcon = function(index){
+                        return {"background": "url(" + icons[index] + ") no-repeat center center", "background-size": "contain"};
+                    };
+                });
+            });
+            // ===============
+            app.controller('topCtrl', function($scope, $http){
+                $http.get("/api/v2.0/product/advertised")
+                .success(function(response){
+                    $scope.RBInfo = response.RB;
+                    $scope.BigAdsInfo = response.BigAdsInfo[0];
+                    $scope.SmallAdsInfo = response.SmallAdsInfo[0];
+                    $scope.sliderbannerlist = response.AllAdvertisedProduct;
+                    $scope.R1Info = [
+                        response.R1_1[0],
+                        response.R1_2[0],
+                        response.R1_3[0],
+                    ];
+                    $scope.R2Info = [
+                        response.R2_1[0],
+                        response.R2_2[0],
+                    ];
+                    $scope.R3Info = [
+                        response.R3_1[0],
+                        response.R3_2[0],
+                        response.R3_3[0],
+                    ];
+                    
+                    $scope.setAvatar = function(avatarurl){
+                        return {background: 'url(' + avatarurl + ')', width:230, height:84};
+                        // return 'background-image: url(' + avatarurl + ')';
+                    };
+
+                    $scope.R4Info = [
+                        response.R4_1[0],
+                        response.R4_2[0],
+                        response.R4_3[0],
+                    ];
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>

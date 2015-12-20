@@ -1,0 +1,75 @@
+<div class="wrapper">
+    <header class="header">
+        <div class="btitle">
+            <h1>订单信息</h1>
+        </div>
+    </header>
+    <section class="order-product">
+        <div>
+            <span><i class="detail"></i>商品详情</span>
+        </div>
+        <div class="clearfix">
+            <img ng-src="{{ productDetail.product_avatar}}" alt=""/>
+            <dl>
+                <dt ng-bind="productDetail.product_name"></dt>
+                <dd class="color-red" ng-bind="'￥' + productDetail.product17dongprice"></dd>
+            </dl>
+        </div>
+    </section>
+    <section class="order-pro-details module">
+        <div class="box">
+            <span class="box-left">课程类型</span>
+            <span class="box-right box-select">
+                <a class="select">
+                    <select>
+                        <option>走训营1/24-1/31</option>
+                        <option>其他类型</option>
+                    </select>
+                </a>
+            </span>
+            <i class="arrow"></i>
+        </div>
+        <div class="box">
+            <span class="box-left">教学点</span>
+            <span class="box-right">
+                <a class="select">
+                    <select>
+                        <option>徐汇区桂林路</option>
+                        <option>其他教学点</option>
+                    </select>
+                </a>
+            </span>
+            <i class="arrow"></i>
+        </div>
+        <div class="box">
+            <span class="box-left">场次</span>
+            <span class="box-right">
+                <a class="select">
+                    <select>
+                        <option>2016年1月24日到1月31日</option>
+                        <option>其他场次</option>
+                    </select>
+                </a>
+            </span>
+            <i class="arrow"></i>
+        </div>
+        <div id="calculate">
+            <div class="box">
+                <span class="box-left">报名数量</span>
+            <span class="box-right">
+                <input class="btn-reduce" type="button" quantity-click="-1" ng-class="{'btn-reduce-disabled': quantity == 1}"/>
+                <input type="text" class="count" ng-model="quantity"/>
+                <input class="btn-add" type="button" quantity-click="1" ng-class="{'btn-add-disabled': quantity == maxquantity}"/>
+            </span>
+            </div>
+            <div class="box sum">
+                <span>共计<b ng-bind="quantity"></b>件商品</span>
+                <span>合计:&nbsp;<em class="color-red">&yen; <i ng-bind="quantity*1100"></i></em></span>
+            </div>
+        </div>
+    </section>
+    <footer class="footer-order footer-order-2">
+        <a href="#/step2">确认提交</a>
+    </footer>
+</div>
+

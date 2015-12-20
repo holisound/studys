@@ -1,0 +1,169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wb="http://open.weibo.com/wb" xml:lang="zh-cn" lang="zh-cn">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta id="viewport" name="viewport"
+          content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="keywords" content="体育培训，少儿培训，免费活动，私人教练，儿童教育，培训"/>
+    <meta name="description"
+          content="一起动是一个专注于体育类培训、体育旅游、体育活动的网站。提供丰富的少儿培训、私人教练、儿童教育等产品，便捷、安全的在线报名。最专业的体育产品网站，您的不二选择！"/>
+    <meta property="wb:webmaster" content="fe1c955feb8c2075"/>
+    <meta property="qc:admins" content="344026777761747676375636"/>
+    <meta name="google-site-verification" content="6-tlSb5Vpxvp5uLEju6d1nD-Z6gBzHho0DfUlMtnnQ0"/>
+    <meta name="alexaVerifyID" content="K-_YgAwrL-RKMkAvyvCVvdKbii4"/>
+    <meta name="baidu-site-verification" content="uMiUjETcuu"/>
+    <meta name="chinaz-site-verification" content="081e7651-48c6-4c2f-a569-99321685eab1"/>
+
+    <link rel="shortcut icon" href="/static/img/mobile/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/static/css/mobile/base.css">
+    <link rel="stylesheet" href="/static/css/mobile/new.css">
+
+    <script type="text/javascript" src="/static/js/jquery-1.8.3.min.js"></script>
+
+</head>
+<body>
+<div class="wrapper bg-gray">
+    <header class="header">
+        <div class="btitle">
+            <h1>订单填写</h1>
+        </div>
+    </header>
+    <section class="content">
+        <div class="contact">
+            <fieldset>
+                <legend>联系信息</legend>
+                <div>
+                    <label for="user">联系人</label>
+                    <input id="user" type="text" value="xiaohui"/>
+                </div>
+                <div>
+                    <label for="tel">联系电话</label>
+                    <input id="tel" type="text" value="15002103667"/>
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="remark module">
+            <p>备注</p>
+            <textarea name="remark"></textarea>
+        </div>
+
+        <div class="coupons module">
+            <div class="box">
+                <span class="box-left">优惠券</span>
+                <span class="box-right">
+                    <select class="select">
+                        <option><i>0</i>张可用</option>
+                        <option>满1000减100</option>
+                    </select>
+                </span>
+            </div>
+            <div class="box" id="discount">
+                <a href="javascript:;">
+                    <span class="box-left">折扣券</span>
+                </a>
+            </div>
+            <div class="box">
+                <span class="box-left">积分:&nbsp;<em>51</em>分，可用<em>51</em>分</span>
+                <span class="box-right slide">
+                    <a class="checkbox">
+                        <input type="checkbox"/>
+                        <label></label>
+                    </a>
+                </span>
+            </div>
+        </div>
+
+        <div class="coupons_sum module">
+            <div class="box">
+                <span class="box-left">商品原价</span>
+                <span class="box-right color-red"><strong>￥1100.00</strong></span>
+            </div>
+            <div class="box">
+                <span class="box-left">积分抵扣</span>
+                <span class="box-right color-gray">Y0.00</span>
+            </div>
+            <div class="box">
+                <span class="box-left">优惠券抵扣</span>
+                <span class="box-right color-gray">Y0.00</span>
+            </div>
+            <div class="box">
+                <span class="box-left">折扣券抵扣</span>
+                <span class="box-right color-gray">Y0.00</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="modal">
+        <div class="overlay"></div>
+        <div class="under">
+            <div id="modal">
+                <p>请输入抵扣券序列号</p>
+
+                <p><input id="ipt1" type="text"/> - <input id="ipt2" type="text"/> - <input id="ipt3" type="text"/> -
+                    <input id="ipt4" type="text" maxlength="4"/></p>
+
+                <p>
+                    <input type="button" value="关闭" data-btn="close"/>
+                    <input type="button" value="使用" data-btn="use"/>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer-order footer-order-2">
+        <a href="#/step3">前往支付</a>
+    </footer>
+</div>
+<script>
+    $(document).ready(function () {
+        var $modal = $('#modal'),
+                $overlay = $('.overlay'),
+                $under = $('.under');
+        $('#discount').click(function () {
+            $under.fadeIn(200);
+            $overlay.fadeIn(200);
+        });
+        $modal.each(function () {
+            var num = '';
+
+            var $ipts = $(this).find('input[type=text]');
+            $ipts.bind('input propertychange', function () {
+
+                if ($(this).val().length >= 4) {
+                    $(this).next().focus();
+                }
+                num = $('#ipt1').val() + $('#ipt2').val() + $('#ipt3').val() + $('#ipt4').val();
+                console.log(num);
+            });
+
+            var $btns = $(this).find('input[type=button]');
+
+            $under.click(function (e) {
+                $overlay.fadeOut(200);
+                $under.fadeOut(200);
+            });
+
+            $modal.click(function (e) {
+                e.stopPropagation()
+            });
+
+            $btns.click(function () {
+
+                if ($(this).attr('data-btn') == 'use') {
+                    if (num.length == 16) {
+                        //这里需要把num作为抵扣券序列号传输给后端
+                    } else {
+                        alert('输入有误请重新输入!');
+                    }
+                } else {
+                    $overlay.fadeOut(200);
+                    $under.fadeOut(200);
+                }
+            });
+        });
+
+    });
+</script>
+</body>
+</html>

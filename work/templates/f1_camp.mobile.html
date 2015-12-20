@@ -1,0 +1,195 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wb="http://open.weibo.com/wb" xml:lang="zh-cn" lang="zh-cn">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta id="viewport" name="viewport"
+          content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="keywords" content="体育培训，少儿培训，免费活动，私人教练，儿童教育，培训"/>
+    <meta name="description"
+          content="一起动是一个专注于体育类培训、体育旅游、体育活动的网站。提供丰富的少儿培训、私人教练、儿童教育等产品，便捷、安全的在线报名。最专业的体育产品网站，您的不二选择！"/>
+    <meta property="wb:webmaster" content="fe1c955feb8c2075"/>
+    <meta property="qc:admins" content="344026777761747676375636"/>
+    <meta name="google-site-verification" content="6-tlSb5Vpxvp5uLEju6d1nD-Z6gBzHho0DfUlMtnnQ0"/>
+    <meta name="alexaVerifyID" content="K-_YgAwrL-RKMkAvyvCVvdKbii4"/>
+    <meta name="baidu-site-verification" content="uMiUjETcuu"/>
+    <meta name="chinaz-site-verification" content="081e7651-48c6-4c2f-a569-99321685eab1"/>
+
+    <link rel="shortcut icon" href="../images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="/static/css/mobile/base.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/mobile/new.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/mobile/base-act.css">
+
+    <script type="text/javascript" src="/static/js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.event.drag-1.5.min.js"></script>
+    <script type="text/javascript" src="/static/js/angular.min.js"></script>
+
+    <title>【一起动】一站式体育服务平台_冬夏令营_篮球培训_足球培训_亲子周末活动</title>
+
+</head>
+<body>
+{% raw %}
+<div class="wrapper" ng-app="campProductList">
+    <header class="header">
+        <div class="btitle">
+            <h1>夏令营</h1>
+        </div>
+    </header>
+
+    <nav class="nav_dropdown">
+        <ul class="nav_dp nd3 clearfix" ng-controller="selectCtrl">
+            <li class="dp" id="dp1">
+                <a href="#">
+                    <span ng-bind="term">所有项目</span>
+                    <i></i>
+                </a>
+                <ul>
+                    <li class="on">所有项目</li>
+                    <li ng-click="termClick()" ng-repeat="item in itemList">{{ item.category_name }}</li>
+                    <!-- <li>国外营</li> -->
+                </ul>
+            </li>
+            <li class="dp" id="dp2">
+                <a href="#">
+                    <span ng-bind="area">所有区域</span>
+                    <i></i>
+                </a>
+                <ul>
+                    <li class="on">所有区域</li>
+                    <li ng-repeat="l in locationList">{{l.product_area}}</li>
+                    </ul>
+            </li>
+            <li class="dp" id="dp3">
+                <a href="#">
+                    <span ng-bind="sortby">推荐排序</span>
+                    <i></i>
+                </a>
+                <ul>
+                    <li class="on">推荐顺序</li>
+                    <li>离我最近</li>
+                    <li>最新产品</li>
+                    <li>产品评价</li>
+                    <li>价格高低</li>
+                </ul>
+            </li>
+        </ul>
+        <div class="overlay"></div>
+    </nav>
+
+    <section class="search_list">
+        <div class="product_list" ng-controller="listCtrl">
+            <div class="clearfix" ng-repeat="p in productList">
+                <a href="">
+                    <div class="left">
+                        <img ng-src="{{ p.product_avatar }}" alt="{{p.product_name}}"/>
+                    </div>
+                    <div class="right">
+                        <dl>
+                            <dt>{{p.product_name}}</dt>
+                            <dd>
+                                <span>{{ p.product_auditfailreason}}</span>
+                                <span><i>&yen;{{ p.product17dongprice}}</i>&nbsp;&#47;&nbsp;<em>&yen;{{p.productmarketprice}}</em></span>
+                            </dd>
+                        </dl>
+                        <div class="add">
+                            <ul>
+                                <li ng-if="p.producthaspromotion">
+                                    <i class="hui"></i>
+                                    <span>国庆特惠APP下单立减100</span>
+                                </li>
+                                <li ng-if=" p.producthascoupon && p.product_couponwhenorder">
+                                    <i class="quan"></i>
+                                    <span>可领取{{ p.product_couponwhenorder}}元优惠券</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <div class="overlay"></div>
+    <footer>
+        <p>
+            <a href="/">首页</a><span></span>
+            <a href="/about">个人中心</a><span></span>
+            <a href="/contact">联系我们</a><span></span>
+            <a href="/faq">常见问题</a><span></span>
+            <a href="/cooperation">商务合作</a>
+        </p>
+
+        <p>上海应酷网络科技有限公司 版权所有</p>
+    </footer>
+{% endraw %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.nav_dropdown').each(function () {
+                var dps = $(this).find('.dp'),
+                        overlay = $(this).find('.overlay');
+                dps.find('ul').hide();
+                dps.bind('click', function (e) {
+                    if ($(this).hasClass('on')) {
+                        $(this).removeClass('on');
+                        overlay.fadeOut(200);
+                        $(this).find('ul').fadeOut(200);
+                    } else {
+                        $(this).addClass('on');
+                        overlay.fadeIn(200);
+                        $(this).find('ul').fadeIn(200);
+                        $(this).siblings().removeClass('on');
+                        $(this).siblings().find('ul').fadeOut(200);
+                    }
+                });
+
+                overlay.bind('click',function(){
+                    dps.find('ul').fadeOut(200);
+                    $(this).fadeOut(200);
+                })
+            })
+        });
+    </script>
+    <script>
+    /**
+    * campProductList Module
+    *
+    * Description
+    */
+    var app = angular.module('campProductList', []);
+    app.controller('listCtrl', ['$http', '$scope', function($http, $scope){
+        $http.get('/api/v2.0/product/wintercamp/list/').success(function(response){
+            $scope.productList = response.ProductList;
+        });
+    }]);
+    app.controller('selectCtrl', ['$http', '$scope', function($http, $scope){
+        $http.get('/api/v2.0/product/filter/list?type=7&filtername=item').success(function(response){
+            $scope.itemList = response.FilterItems;
+        });
+        $http.get('/api/v2.0/product/filter/list?type=7&filtername=location').success(function(response){
+            $scope.locationList = response.FilterItems;
+        });
+        //filter productlist by conditions
+        $scope.term = "所有项目";
+        $scope.area = "所有区域";
+        $scope.sortby = "推荐排序";
+        $scope.termClick = function($element){
+            console.log($element);
+            // $scope.term = e.item.category_name;
+            // console.log($scope.term);
+        };
+        $scope.$watchGroup(['term', 'area', 'sortby'], function(newValue, oldValue){
+            if (newValue != oldValue){
+                $http({
+                    method: "get",
+                    url: "/api/v2.0/product/list",
+                    data: {
+                        startposition: 0,
+                        count: 10,
+
+                    }
+                });
+            }
+        });
+    }]);
+    </script>
+</body>
+</html>
