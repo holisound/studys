@@ -16,8 +16,8 @@
 
     <link rel="shortcut icon" href="../images/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="/static/css/mobile/base.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/mobile/new.css">
     <link rel="stylesheet" type="text/css" href="/static/css/mobile/base-act.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/mobile/new.css">
 
     <script type="text/javascript" src="/static/js/jquery-1.8.3.min.js"></script>
     <script type="text/javascript" src="/static/js/jquery.event.drag-1.5.min.js"></script>
@@ -31,54 +31,59 @@
 <div class="wrapper" ng-app="campProductList">
     <header class="header">
         <div class="btitle">
-            <h1>夏令营</h1>
+            <h1>冬夏令营</h1>
         </div>
     </header>
 
-    <nav class="nav_dropdown">
-        <ul class="nav_dp nd3 clearfix" ng-controller="selectCtrl">
+    <nav class="nav-dropdown">
+        <ul class="nav-dp nd3 clearfix" ng-controller="selectCtrl">
             <li class="dp" id="dp1">
                 <a href="#">
-                    <span ng-bind="term">所有项目</span>
+                    <span>所有项目</span>
                     <i></i>
                 </a>
                 <ul>
-                    <li class="on">所有项目</li>
-                    <li ng-click="termClick()" ng-repeat="item in itemList">{{ item.category_name }}</li>
+                    <li class="on">所有项目<input type="hidden" value=""></li>
+                    <li ng-repeat="item in itemList">{{ item.category_name }}
+                        <input type="hidden" ng-value="item.category_name">
+                    </li>
                     <!-- <li>国外营</li> -->
                 </ul>
             </li>
             <li class="dp" id="dp2">
                 <a href="#">
-                    <span ng-bind="area">所有区域</span>
+                    <span>所有区域</span>
                     <i></i>
                 </a>
                 <ul>
-                    <li class="on">所有区域</li>
-                    <li ng-repeat="l in locationList">{{l.product_area}}</li>
+                    <li class="on">所有区域<input type="hidden" value=""></li>
+                    <li ng-repeat="l in locationList">{{l.product_area}}
+                        <input type="hidden" ng-value="l.product_area">
+                    </li>
                     </ul>
             </li>
             <li class="dp" id="dp3">
                 <a href="#">
-                    <span ng-bind="sortby">推荐排序</span>
+                    <span>推荐排序</span>
                     <i></i>
                 </a>
                 <ul>
-                    <li class="on">推荐顺序</li>
-                    <li>离我最近</li>
-                    <li>最新产品</li>
-                    <li>产品评价</li>
-                    <li>价格高低</li>
+                    <li class="on">推荐顺序<input type="hidden" value="0"></li>
+                    <li>离我最近<input type="hidden" value="5"></li>
+                    <li>最新产品<input type="hidden" value="2"></li>
+                    <li>产品评价<input type="hidden" value="3"></li>
+                    <li>价格高低<input type="hidden" value="4"></li>
                 </ul>
             </li>
         </ul>
         <div class="overlay"></div>
     </nav>
 
-    <section class="search_list">
-        <div class="product_list" ng-controller="listCtrl">
+    <section class="search-list">
+        <div class="product-list" ng-controller="listCtrl">
+            <input type="hidden" id="currentproductcount" name="currentproductcount" value="{{ productsLength }}">
             <div class="clearfix" ng-repeat="p in productList">
-                <a href="">
+                <a href="{{ '/product/' + p.product_id}}">
                     <div class="left">
                         <img ng-src="{{ p.product_avatar }}" alt="{{p.product_name}}"/>
                     </div>
@@ -106,6 +111,10 @@
                 </a>
             </div>
         </div>
+            <div class="loading" page="1">
+        <a id="pic" href="javascript:void(0);" onclick="loadmoreproducts();">加载更多</a>
+        </div>
+        <div class="loading spiffygif" id="ajaxLoader1" page="1" style="display:none;"></div>
     </section>
 
     <div class="overlay"></div>
@@ -123,7 +132,7 @@
 {% endraw %}
     <script type="text/javascript">
         $(document).ready(function () {
-            $('.nav_dropdown').each(function () {
+            $('.nav-dropdown').each(function () {
                 var dps = $(this).find('.dp'),
                         overlay = $(this).find('.overlay');
                 dps.find('ul').hide();
@@ -149,45 +158,92 @@
         });
     </script>
     <script>
+    function loadmoreproducts() {
+        var startpos = $("#currentproductcount").val();
+        var count = 10;
+        var type = "{{ producttype }}";
+        var item = $('#dp1 .on').children('input').val();
+        var sort = $('#dp3 .on').children('input').val();
+        var location = $('#dp2 .on').children('input').val();
+        var age = $("#agevalue").val();
+        var elem = angular.element(document.querySelector('[ng-app]'));
+        var injector = elem.injector();
+        var $rootScope = injector.get('$rootScope');   
+        $.ajax({
+            type : "get",
+            url : "/api/v2.0/product/list",
+            data : { "startposition" : startpos, "count" : count, "type" : type, "sort" : sort, "item" : item, "location" : location, "age" : age },
+            dataType : "json",
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            async : true,
+            success : function(data) {
+                $rootScope.$apply(function(){
+                    $rootScope.productList=$rootScope.productList.concat(data.ProductList);
+                    $rootScope.productsLength = $rootScope.productList.length;
+                });
+            }, 
+            error : function(){
+            }
+        });
+    }
+
+     $(".dp").on('click', 'li', function(){
+        // 
+        var _text = $(this).text();
+        var $span = $(this).closest('ul').prev('a').children('span');
+        $(this).addClass('on').siblings().removeClass('on');
+        //
+        if (_text != $span.text()){
+            $span.text(_text);
+            // ====================
+            var startpos = 0;
+            var count = 10;
+            var type = "{{ producttype }}";
+            var item = $('#dp1 .on').children('input').val();
+            var sort = $('#dp3 .on').children('input').val();
+            var location = $('#dp2 .on').children('input').val();
+            var age = $("#agevalue").val();
+            //
+            var elem = angular.element(document.querySelector('[ng-app]'));
+            var injector = elem.injector();
+            var $rootScope = injector.get('$rootScope');   
+            $.ajax({
+                type : "get",
+                url : "/api/v2.0/product/list",
+                data : { "startposition" : startpos, "count" : count, "type" : type, "sort" : sort, "item" : item, "location" : location, "age" : age },
+                dataType : "json",
+                contentType: "application/x-www-form-urlencoded; charset=utf-8",
+                async : true,
+                success : function(data) {
+                    $rootScope.$apply(function(){
+                        $rootScope.productList = data.ProductList;
+                        $rootScope.productsLength = data.ProductList.length;
+                    });
+                }, 
+                error : function(){
+                }
+                });
+        }
+    });
     /**
     * campProductList Module
     *
     * Description
     */
     var app = angular.module('campProductList', []);
-    app.controller('listCtrl', ['$http', '$scope', function($http, $scope){
-        $http.get('/api/v2.0/product/wintercamp/list/').success(function(response){
-            $scope.productList = response.ProductList;
+    var productType = "{{ producttype }}";
+    app.controller('listCtrl', ['$http', '$rootScope', function($http, $rootScope){
+        $http.get('/api/v2.0/product/list?type=' + productType).success(function(response){
+            $rootScope.productList = response.ProductList;
+            $rootScope.productsLength = response.ProductList.length;
         });
     }]);
-    app.controller('selectCtrl', ['$http', '$scope', function($http, $scope){
-        $http.get('/api/v2.0/product/filter/list?type=7&filtername=item').success(function(response){
+    app.controller('selectCtrl', ['$http', '$scope', '$element', function($http, $scope, $element){
+        $http.get('/api/v2.0/product/filter/list?type=' + productType + '&filtername=item').success(function(response){
             $scope.itemList = response.FilterItems;
         });
-        $http.get('/api/v2.0/product/filter/list?type=7&filtername=location').success(function(response){
+        $http.get('/api/v2.0/product/filter/list?type=' + productType + '&filtername=location').success(function(response){
             $scope.locationList = response.FilterItems;
-        });
-        //filter productlist by conditions
-        $scope.term = "所有项目";
-        $scope.area = "所有区域";
-        $scope.sortby = "推荐排序";
-        $scope.termClick = function($element){
-            console.log($element);
-            // $scope.term = e.item.category_name;
-            // console.log($scope.term);
-        };
-        $scope.$watchGroup(['term', 'area', 'sortby'], function(newValue, oldValue){
-            if (newValue != oldValue){
-                $http({
-                    method: "get",
-                    url: "/api/v2.0/product/list",
-                    data: {
-                        startposition: 0,
-                        count: 10,
-
-                    }
-                });
-            }
         });
     }]);
     </script>
