@@ -6,7 +6,8 @@
 # @Last Modified time: 2015-12-06 10:43:12
 import requests
 from scrapy.selector import Selector
-import os, sys
+import os
+import sys
 url = 'http://www.feixunvpn.com/page/testss.html'
 body = requests.get(url).content
 _xpath = '//div[@class="testvpnitem"]'
