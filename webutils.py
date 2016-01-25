@@ -15,3 +15,18 @@ def make_response(to_response, content_type):
     else:
         return to_response
 # 
+
+def getvariance(s):
+    """
+    s: str
+    """
+    ls = map(ord,s)
+    _average = sum(ls)/float(ls.__len__())
+    def fx(e):
+        return (e - _average)**2
+    return sum(map(fx, ls))/float(ls.__len__())
+
+def main():
+    print getvariance('ajax')
+if __name__ == '__main__':
+    main()

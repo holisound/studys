@@ -6,7 +6,7 @@
 # @Last Modified time: 2015-12-06 10:43:12
 import requests
 from scrapy.selector import Selector
-import os
+import os, sys
 url = 'http://www.feixunvpn.com/page/testss.html'
 body = requests.get(url).content
 _xpath = '//div[@class="testvpnitem"]'
@@ -24,6 +24,6 @@ ip, encrpyt = Selector(text=vpndetials).xpath('//span/text()').extract()
 local_port = 1987
 timeout = 600
 # 
-params = (ip, port, passwd, encrpyt, local_port, timeout)
-launch = 'sslocal -s %s -p %s -k %s -m %s -l %s -d restart -t %s' % params
+params = (ip, port, passwd, encrpyt, local_port, sys.argv[1], timeout)
+launch = 'sslocal -s %s -p %s -k %s -m %s -l %s -d %s -t %s' % params
 os.system(launch)
