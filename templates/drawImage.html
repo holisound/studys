@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+</head>
+<body>
+  <draw:image  ng-repeat="x in [1,2,3]" url="'img/' + ($index + 1) + '.png'"></draw:image>
+  <script src="./angular/angular.js"></script>
+  <script>
+    angular.module('drawImageModule', [])
+    .directive('drawImage', [function(){
+      // Runs during compile
+      return {
+        // name: '',
+        // priority: 1,
+        // terminal: true,
+        scope: {
+          url: '=url'
+        }, // {} = isolate, true = child, false/undefined = no change
+        // controller: function($scope, $element, $attrs, $transclude) {},
+        // require: 'ngModel', // Array = multiple requires, ? = optional, ^ = check parent elements
+        // restrict: 'A', // E = Element, A = Attribute, C = Class, M = Comment
+        template: '<canvas/>',
+        // templateUrl: '',
+        // replace: true,
+        // transclude: true,
+        // compile: function(tElement, tAttrs, function transclude(function(scope, cloneLinkingFn){ return function linking(scope, elm, attrs){}})),
+        link: function($scope, iElm, iAttrs, controller) {
+          var imgObj = new Image();
+          imgObj.src = $scope.url;
+          imgObj.onload = function(){
+            var canvas = iElm.find('canvas')[0];
+            var ctx = canvas.getContext('2d');
+            ctx.canvas.width = this.width;
+            ctx.canvas.height = this.height;
+            ctx.drawImage(imgObj, 0, 0);
+          };
+        }
+      };
+    }]);
+    angular.bootstrap(document.querySelector('body'), ['drawImageModule']);
+  </script>
+</body>
+</html>
