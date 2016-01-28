@@ -3,33 +3,11 @@
 import os
 import web
 import json
-from jinja2 import Environment, FileSystemLoader
 from itertools import islice
-from webutils import make_response
+from webutils import make_response, render_template
 
-urls = (r"/?", "hello",
-        r'/register/?', 'Register',
-        r'/upload/?', 'Upload',
-        r'/data/?' , 'Data',
-        r'/home/?', 'Home',
-        r'/directive/01/?', 'Directive01',
-        )
-app = web.application(urls, globals(), autoreload=True)
+
 # ==========
-def render_template(template_name, **context):
-    extensions = context.pop('extensions', [])
-    globals = context.pop('globals', {})
-
-    jinja_env = Environment(
-        loader=FileSystemLoader(
-            os.path.join(os.path.dirname(__file__), 'templates')),
-        extensions=extensions,
-    )
-    jinja_env.globals.update(globals)
-
-    # jinja_env.update_template_context(context)
-    return jinja_env.get_template(template_name).render(context)
-
 class hello:
 
     def GET(self):
@@ -90,6 +68,23 @@ class Directive01:
     def GET(self):
         return make_response('directive01.html', 'text/html')
 
+class Canvas01:
+    def GET(self, mid):
+        return render_template('canvas01.html', image_id=mid)
+
+class Ionic01:
+    def GET(self, theid):
+        return render_template('ionic01.html')
 if __name__ == '__main__':
-    app.run()
+    web.application(
+        (r"/?", "hello",
+         r'/register/?', 'Register',
+         r'/upload/?', 'Upload',
+         r'/data/?' , 'Data',
+         r'/home/?', 'Home',
+         r'/directive/01/?', 'Directive01',
+         r'/canvas/(\d+)/?', 'Canvas01',
+         r'/ionic/(\d+)/?', 'Ionic01',
+        ),
+        globals(), autoreload=True).run()
     # application = app.wsgifunc()
