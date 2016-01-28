@@ -1,5 +1,5 @@
 import web
-import os
+import os, json
 from jinja2 import Environment, FileSystemLoader
 
 # 
@@ -17,7 +17,7 @@ def render_template(template_name, **context):
     # jinja_env.update_template_context(context)
     return jinja_env.get_template(template_name).render(context)
 
-def make_response(to_response, content_type):
+def make_response(to_response, content_type='text/html'):
     _filename = to_response;
     web.header('Content-Type', content_type)
     # 
@@ -30,7 +30,9 @@ def make_response(to_response, content_type):
     else:
         return to_response
 # 
-
+def response_json(to_response):
+    web.header('Content-Type', 'application/json')
+    return json.dumps(to_response)
 def getvariance(s):
     """
     s: str
