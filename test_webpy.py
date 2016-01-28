@@ -8,6 +8,10 @@ from webutils import make_response, render_template
 
 
 # ==========
+class Amaze:
+    def GET(self):
+        return render_template('amaze01.html')
+
 class hello:
 
     def GET(self):
@@ -85,6 +89,7 @@ if __name__ == '__main__':
          r'/directive/01/?', 'Directive01',
          r'/canvas/(\d+)/?', 'Canvas01',
          r'/ionic/(\d+)/?', 'Ionic01',
+         r'/amaze/?', 'Amaze',
         ),
         globals(), autoreload=True).run()
     # application = app.wsgifunc()
