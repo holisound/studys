@@ -36,7 +36,7 @@ def response_json(to_response):
 
 def resp_as_json(method):
     def fn(self, *args, **kw):
-        web.header('Content-Type', 'application/json')
+        web.header('Content-Type', 'application/json; charset=UTF-8')
         return json.dumps(method(self, *args, **kw))
     return fn
     
