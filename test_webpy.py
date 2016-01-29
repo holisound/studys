@@ -12,7 +12,7 @@ from webutils import (
 class Json:
     @resp_as_json
     def GET(self):
-        return {'result': 123}
+        return {'result': 1223}
 class Amaze:
     def GET(self):
         return render_template('amaze01.html')
