@@ -33,6 +33,12 @@ def make_response(to_response, content_type='text/html'):
 def response_json(to_response):
     web.header('Content-Type', 'application/json')
     return json.dumps(to_response)
+
+def resp_as_json(method):
+    def fn(self, *args, **kw):
+        return json.dumps(method(self, *args, **kw))
+    return fn
+    
 def getvariance(s):
     """
     s: str

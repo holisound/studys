@@ -2,6 +2,7 @@
 # coding=utf-8
 import web
 from webutils import (
+    resp_as_json,
     make_response,
     render_template,
     response_json)
@@ -9,8 +10,9 @@ from webutils import (
 
 # ==========
 class Json:
+    @resp_as_json
     def GET(self):
-        return response_json(dict(json="test is json..."))
+        return {'result': 123}
 class Amaze:
     def GET(self):
         return render_template('amaze01.html')
