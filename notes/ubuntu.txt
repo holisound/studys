@@ -127,3 +127,13 @@ sudo update-alternatives --install /usr/bin/java java /usr/lib/java/jre1.7.0_25/
 
 sudo update-alternatives --config java
  
+ ENVIROMENT VARAIABLE
+　例如：编辑guok用户目录(/home/guok)下的.bash_profile
+
+　　$ vi /home/guok/.bash.profile
+
+　　添加如下内容：
+
+　　export CLASSPATH=./JAVA_HOME/lib;$JAVA_HOME/jre/lib
+
+　　注：修改文件后要想马上生效还要运行$ source /home/guok/.bash_profile不然只能在下次重进此用户时生效。

@@ -2,19 +2,45 @@
 <html lang="en" ng-app="Directive01">
     <head>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
         <title>Directive01</title>
     </head>
     <body>
+<!--     <div ng-include src="'index.html'" scope="" onload=""></div> -->
+    <twinbutton count="1"/>
     <script src="/static/js/angular.min.js"></script>
     <script>
-        /**
-        * Directive01 Module
-        *
-        * Description
-        */
-        angular.module('Directive01', []).controller('theCtrl', ['$http', '$scope', function($http, $scope){
-            
-        }]);
+    /**
+    * Directive01 Module
+    *
+    * Description
+    */
+    angular.module('Directive01', [])
+    .directive('twinbutton', [function(){
+        return {
+            scope:{
+                count: "="
+            },
+            replace: true,
+            restrict: 'E',
+            template: '<div><button ng-click="counter(1)">addbutton</button>' + 
+                      '<p ng-bind="count"></p>' +
+                      '<button ng-click="counter(-1)">reducebutton</button></div>',
+            link: function($scope, iElm, iAttrs, controller) {
+                $scope.counter = function(n){
+                    $scope.count += n;
+                };
+                $scope.max = 5;
+                $scope.$watch('count', function(newValue, oldValue){
+                    if (newValue > $scope.max){
+                        $scope.count = $scope.max;
+                    } else if (newValue < 1){
+                        $scope.count = 1;
+                    }
+                });
+            }   
+        };
+    }]);
     </script>
     </body>
 </html>

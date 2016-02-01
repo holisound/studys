@@ -2,6 +2,7 @@
 <html lang="zh-cn">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>angular</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link rel="stylesheet" href="/static/css/bootstrap.min.css">
@@ -75,14 +76,14 @@
  -->
             </tr>
         </table>
-        <h1>why only one6666666666?</h1>
-        <hello:world></hello:world>
-        <hello:world></hello:world>
+        <qrcode version="2" error-correction-level="M" size="100" data="http://17dong.com.cn"></qrcode>
+        <hello:world/>
     </div>
     <script src="/static/js/angular.min.js"></script>
-    <script src="/static/js/service.js"></script>
+    <script src="/static/js/qrcode.js"></script>
+    <script src="/static/js/angular-qrcode.js"></script>
     <script>
-       app = angular.module("myapp", ['Service']);
+        app = angular.module("myapp", ['monospaced.qrcode']);
        app.directive('helloWorld', function() {
          return {
              restrict: 'AE',

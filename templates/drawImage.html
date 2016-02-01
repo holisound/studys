@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+</head>
+<body>
+  <draw:image  ng-repeat="x in [1,2,3]" url="'img/' + ($index + 1) + '.png'"></draw:image>
+  <script src="./angular/angular.js"></script>
+  <script>
+    angular.module('drawImageModule', [])
+    .directive('drawImage', [function(){
+      return {
+          scope: {
+            url: '=url',
+          },
+          template: '<canvas/>',
+          link: function($scope, iElm, iAttrs, controller) {
+              // context.drawImage(img,sx,sy,swidth,sheight,x,y,width,height);
+            var img = new Image();
+            img.src = $scope.url;
+            img.onload = function(){
+              var canvas = iElm.find('canvas')[0];
+              var parent = iElm.parent(),
+                  w = parent.width(),
+                  h = parent.height();
+              var ctx = canvas.getContext('2d');
+              // method03====================
+              canvas.width = this.width;
+              canvas.height = this.height;
+              ctx.drawImage(img,0,0);
+              canvas.style.width = w + 'px';
+              canvas.style.height = h + 'px';
+
+            };
+          }
+        };
+    }]);
+    angular.bootstrap(document.querySelector('body'), ['drawImageModule']);
+  </script>
+</body>
+</html>
