@@ -6,7 +6,7 @@ from webutils import (
     make_response,
     response_json)
 from settings import render_template
-
+web.config.debug = True
 
 # ==========
 class Json:
@@ -20,7 +20,7 @@ class Amaze:
 class hello:
 
     def GET(self):
-        return "Hello, world!"
+        return render_template('base.html', title="Title1234", body="Bodyyyyyyyyyyyyyyyyyyy")
 # ==========
 class Directive01:
     def GET(self):
