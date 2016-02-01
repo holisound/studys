@@ -2,7 +2,7 @@
 # coding=utf-8
 import web
 from webutils import (
-    resp_as_json,
+    resp_with_json,
     make_response,
     get_template_render,
     response_json)
@@ -12,16 +12,19 @@ from webutils import (
 render_template = get_template_render('../templates/')
 # ==========
 class Json:
-    @resp_as_json
+    @resp_with_json
     def GET(self):
         return {'result': 'hello,yes'}
+    @resp_with_json
+    def POST(self):
+        return {'result': 'greet via post'}
 class Amaze:
     def GET(self):
         return render_template('amaze01.html')
 
 class hello:
     def GET(self):
-		return render_template('base.html', title="Titleeeeeeeeeeeeeee", body="<h1>Hello, world!</h1>")
+		return render_template('base.html', title="mytitle", body="<h1>Hello, world!</h1>")
 # ==========
 class Directive01:
     def GET(self):
