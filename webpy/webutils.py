@@ -1,8 +1,34 @@
 import web
 import os, json
 from jinja2 import Environment, FileSystemLoader
-
+import datetime
 # 
+class EnhancedJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            ARGS = ('year', 'month', 'day', 'hour', 'minute',
+                     'second', 'microsecond')
+            return {'__type__': 'datetime.datetime',
+                    'args': [getattr(obj, a) for a in ARGS]}
+        elif isinstance(obj, datetime.date):
+            ARGS = ('year', 'month', 'day')
+            return {'__type__': 'datetime.date',
+                    'args': [getattr(obj, a) for a in ARGS]}
+        elif isinstance(obj, datetime.time):
+            ARGS = ('hour', 'minute', 'second', 'microsecond')
+            return {'__type__': 'datetime.time',
+                    'args': [getattr(obj, a) for a in ARGS]}
+        elif isinstance(obj, datetime.timedelta):
+            ARGS = ('days', 'seconds', 'microseconds')
+            return {'__type__': 'datetime.timedelta',
+                    'args': [getattr(obj, a) for a in ARGS]}
+        elif isinstance(obj, decimal.Decimal):
+            return {'__type__': 'decimal.Decimal',
+                    'args': [str(obj),]}
+        else:
+            return super().default(obj)
+
+
 def get_template_render(templates_dir="templates"):
     def render(template_name, **context):
         extensions = context.pop('extensions', [])
@@ -31,14 +57,10 @@ def make_response(to_response, content_type='text/html'):
     else:
         return to_response
 # 
-def response_json(to_response):
-    web.header('Content-Type', 'application/json')
-    return json.dumps(to_response)
-
 def resp_with_json(method):
     def fn(self, *args, **kw):
         web.header('Content-Type', 'application/json; charset=UTF-8')
-        return json.dumps(method(self, *args, **kw))
+        return json.dumps(method(self, *args, **kw), cls=EnhancedJSONEncoder)
     return fn
     
 def getvariance(s):

@@ -6,7 +6,6 @@ from webutils import (
     make_response,
     get_template_render,
     response_json)
-
 # ==========
 # ==========
 render_template = get_template_render('../templates/')
@@ -17,7 +16,7 @@ class Json:
         return {'result': 'hello,yes'}
     @resp_with_json
     def POST(self):
-        return {'result': 'greet via post'}
+        return {'result': '2012-12-12 12:12'}
 class Amaze:
     def GET(self):
         return render_template('amaze01.html')
