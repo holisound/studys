@@ -1,10 +1,9 @@
 {
-  "server_addr": "192.155.95.188",
-  "server": "192.155.95.188",
-  "server_port": 8959,
-  "local_addr": "127.0.0.1",
-  "local_port": 1080,
-  "password": "123123",
-  "timeout": 600,
-  "method": "aes-256-cfb"
+    "server": "192.155.95.188",
+    "server_port": 8959,
+    "local_port": 1987,
+    "password": "incoolwangwenhua",
+    "timeout": 600,
+    "method": "aes-256-cfb"
 }
+
