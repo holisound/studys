@@ -4,10 +4,12 @@ import web
 from webutils import (
     resp_as_json,
     make_response,
+    get_template_render,
     response_json)
-from settings import render_template
-web.config.debug = True
 
+# ==========
+# ==========
+render_template = get_template_render('../templates/')
 # ==========
 class Json:
     @resp_as_json
@@ -18,9 +20,8 @@ class Amaze:
         return render_template('amaze01.html')
 
 class hello:
-
     def GET(self):
-        return render_template('base.html', title="Title1234", body="Bodyyyyyyyyyyyyyyyyyyy")
+		return render_template('base.html', title="Titleeeeeeeeeeeeeee", body="<h1>Hello, world!</h1>")
 # ==========
 class Directive01:
     def GET(self):
@@ -33,14 +34,15 @@ class Canvas01:
 class Ionic01:
     def GET(self, theid):
         return render_template('ionic01.html')
-if __name__ == '__main__':
-    web.application(
-        (r"/?", "hello",
-         r'/directive/01/?', 'Directive01',
-         r'/canvas/(\d+)/?', 'Canvas01',
-         r'/ionic/(\d+)/?', 'Ionic01',
-         r'/amaze/?', 'Amaze',
-         r'/json/?', 'Json',
-        ),
-        globals(), autoreload=True).run()
-    # application = app.wsgifunc()
+# ====================
+urls = (
+        r"/?", "hello",
+        r'/directive/01/?', 'Directive01',
+        r'/canvas/(\d+)/?', 'Canvas01',
+        r'/ionic/(\d+)/?', 'Ionic01',
+        r'/amaze/?', 'Amaze',
+        r'/json/?', 'Json',
+    )
+app = web.application(urls, globals())
+application = app.wsgifunc()
+# app.run()
