@@ -4,12 +4,10 @@ import web
 from webutils import (
     resp_as_json,
     make_response,
-    get_template_render,
     response_json)
+from settings import render_template
 
 
-# ==========
-render_template = get_template_render('../templates/')
 # ==========
 class Json:
     @resp_as_json
