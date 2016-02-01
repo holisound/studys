@@ -4,10 +4,12 @@ import web
 from webutils import (
     resp_as_json,
     make_response,
-    render_template,
+    get_template_render,
     response_json)
 
 
+# ==========
+render_template = get_template_render('../templates/')
 # ==========
 class Json:
     @resp_as_json
@@ -20,7 +22,7 @@ class Amaze:
 class hello:
 
     def GET(self):
-        return open("templates/ng01.html")
+        return "Hello, world!"
 # ==========
 class Directive01:
     def GET(self):

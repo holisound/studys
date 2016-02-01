@@ -3,19 +3,20 @@ import os, json
 from jinja2 import Environment, FileSystemLoader
 
 # 
-def render_template(template_name, **context):
-    extensions = context.pop('extensions', [])
-    globals = context.pop('globals', {})
+def get_template_render(templates_dir="templates"):
+    def render(template_name, **context):
+        extensions = context.pop('extensions', [])
+        globals = context.pop('globals', {})
+        jinja_env = Environment(
+            loader=FileSystemLoader(
+                os.path.join(os.path.dirname(__file__), templates_dir)),
+            extensions=extensions,
+        )
+        jinja_env.globals.update(globals)
 
-    jinja_env = Environment(
-        loader=FileSystemLoader(
-            os.path.join(os.path.dirname(__file__), 'templates')),
-        extensions=extensions,
-    )
-    jinja_env.globals.update(globals)
-
-    # jinja_env.update_template_context(context)
-    return jinja_env.get_template(template_name).render(context)
+        # jinja_env.update_template_context(context)
+        return jinja_env.get_template(template_name).render(context)
+    return render
 
 def make_response(to_response, content_type='text/html'):
     _filename = to_response;
