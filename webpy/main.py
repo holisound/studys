@@ -4,8 +4,7 @@ import web
 from webutils import (
     resp_with_json,
     make_response,
-    get_template_render,
-    response_json)
+    get_template_render)
 # ==========
 # ==========
 render_template = get_template_render('../templates/')
