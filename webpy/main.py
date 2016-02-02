@@ -44,6 +44,5 @@ urls = (
         r'/amaze/?', 'Amaze',
         r'/json/?', 'Json',
     )
-app = web.application(urls, globals())
-application = app.wsgifunc()
+myApp = web.application(urls, globals()).wsgifunc()
 # app.run()
