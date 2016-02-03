@@ -3,6 +3,10 @@ import os, json
 from jinja2 import Environment, FileSystemLoader
 import datetime
 # 
+class Handler:
+    def __init__(self):
+        web.header('Content-Type', 'text/html')
+        
 class EnhancedJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime.datetime):
@@ -62,7 +66,7 @@ def resp_with_json(method):
         web.header('Content-Type', 'application/json; charset=UTF-8')
         return json.dumps(method(self, *args, **kw), cls=EnhancedJSONEncoder)
     return fn
-    
+
 def getvariance(s):
     """
     s: str

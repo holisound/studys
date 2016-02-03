@@ -4,7 +4,9 @@ import web
 from webutils import (
     resp_with_json,
     make_response,
-    get_template_render)
+    get_template_render,
+    Handler
+    )
 # ==========
 # ==========
 render_template = get_template_render('../templates/')
@@ -20,7 +22,7 @@ class Amaze:
     def GET(self):
         return render_template('amaze01.html')
 
-class hello:
+class hello(Handler):
     def GET(self):
 		return render_template('base.html', title="mytitle", body="<h1>Hello, world!</h1>")
 # ==========
@@ -35,6 +37,9 @@ class Canvas01:
 class Ionic01:
     def GET(self, theid):
         return render_template('ionic01.html')
+class TestPost:
+    def POST(self):
+        raise Exception(web.input())
 # ====================
 urls = (
         r"/?", "hello",
@@ -43,6 +48,7 @@ urls = (
         r'/ionic/(\d+)/?', 'Ionic01',
         r'/amaze/?', 'Amaze',
         r'/json/?', 'Json',
+        r'/post/?', 'TestPost',
     )
 myApp = web.application(urls, globals()).wsgifunc()
 # app.run()
