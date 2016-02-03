@@ -37,12 +37,19 @@ class Canvas01:
 class Ionic01:
     def GET(self, theid):
         return render_template('ionic01.html')
-class TestPost:
+class TestPost(Handler):
+    def GET(self):
+        return '<h1>test get</h1>'
     def POST(self):
-        raise Exception(web.input())
+        return '<h1>test post</h1>'
+
+class Index(Handler):
+    def GET(self):
+        return render_template('index.html')
 # ====================
 urls = (
-        r"/?", "hello",
+        # r"/?", "hello",
+        r"/?", Index,
         r'/directive/01/?', 'Directive01',
         r'/canvas/(\d+)/?', 'Canvas01',
         r'/ionic/(\d+)/?', 'Ionic01',
