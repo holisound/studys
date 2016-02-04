@@ -11,7 +11,7 @@ from webutils import (
 # ==========
 render_template = get_template_render('../templates/')
 # ==========
-class Json:
+class Json(Handler):
     @resp_with_json
     def GET(self):
         return {'result': 'hello,yes'}
@@ -48,7 +48,7 @@ class Index(Handler):
         return render_template('index.html')
 # ====================
 urls = (
-        # r"/?", "hello",
+        r"/hello/?", "hello",
         r"/?", Index,
         r'/directive/01/?', 'Directive01',
         r'/canvas/(\d+)/?', 'Canvas01',

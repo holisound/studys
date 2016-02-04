@@ -1,13 +1,23 @@
 {% extends 'base.html' %}
 {% block head %}
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/swiper.min.css">
     <style>
-        .media img{
-            width: 80%;
+        .media img, .swiper-slide img{
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .swiper-container {
+            width: 100%;
+        }
+        .swiper-container span{
+          background: #ccc;
         }
     </style>
 {% endblock %}
 {% block body %}
-    <nav class="navbar navbar-inverse navbar-fixed-top">
+    <nav class="navbar navbar-inverse navbar-fixed-top" style="opacity:.9;">
       <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
@@ -17,7 +27,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Nomad</a>
+          <a class="navbar-brand" href="">Nomads</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -60,29 +70,65 @@
         </div><!-- /.navbar-collapse -->
       </div><!-- /.container-fluid -->
     </nav>
-    {% for i in range(5) %}
+    <nav class="navbar" style="margin-bottom:0;"></nav>
+    <div class="container-fluid">
+{#       {% for i in range(5) %}
+       <div class="media">
+           <a href="/canvas/{{loop.index}}">
+             <img class="media-object lazy" data-original="/static/images/{{i+1}}.jpg" alt="...">
+           </a>
+        </div>
+      {% endfor %} #}
+    </div>
+    <!-- Slider main container -->
+    <div class="swiper-container">
+        <!-- Additional required wrapper -->
+        <div class="swiper-wrapper">
+            <!-- Slides -->
+            {% for i in range(5) %}
+              
+            <div class="swiper-slide">
+              <img src="/static/images/{{i+1}}.jpg" alt="...">
+            </div>
+            {% endfor %}
+        </div>
+        <!-- If we need pagination -->
+        <div class="swiper-pagination "></div>
         
-   <div class="media">
-     <div class="media-left">
-       <a href="#">
-         <img class="media-object lazy" data-original="/static/images/{{i+1}}.jpg" alt="...">
-       </a>
-     </div>
-     <div class="media-body">
-       <h4 class="media-heading">Media heading</h4>
-       ...
-     </div>
-   </div>
-    {% endfor %}
-
-   </div>
+        <!-- If we need navigation buttons -->
+{#         <div class="swiper-button-prev swiper-button-white"></div>
+        <div class="swiper-button-next swiper-button-white"></div>
+ #}        
+        <!-- If we need scrollbar -->
+        {# <div class="swiper-scrollbar"></div> #}
+    </div>
 {% endblock %}
 {% block script %}
     <script src="/static/js/jquery.min.js"></script>
-    <script src="/static/js/jquery.lazyload.js"></script>
+    <script src="/static/js/jquery.lazyload.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/swiper.min.js"></script>
     <script>
     $("img.lazy").lazyload({
         effect: 'fadeIn'
     })
+    </script>
+    <script>
+      var mySwiper = new Swiper ('.swiper-container', {
+        // Optional parameters
+        direction: 'horizontal',
+        loop: true,
+        autoplay: 1800,
+        autoplayDisableOnInteraction: false,
+        // If we need pagination
+        pagination: '.swiper-pagination',
+        
+        // Navigation arrows
+        nextButton: '.swiper-button-next',
+        prevButton: '.swiper-button-prev',
+        
+        // And if we need scrollbar
+        // scrollbar: '.swiper-scrollbar',
+      })        
     </script>
 {% endblock %}
