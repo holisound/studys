@@ -14,6 +14,7 @@
         .swiper-container span{
           background: #ccc;
         }
+
     </style>
 {% endblock %}
 {% block body %}
@@ -88,7 +89,8 @@
             {% for i in range(5) %}
               
             <div class="swiper-slide">
-              <img src="/static/images/{{i+1}}.jpg" alt="...">
+              <img class="swiper-lazy" data-src="/static/images/{{i+1}}.jpg" alt="">
+              <div class="swiper-lazy-preloader swiper-lazy-preloader-white"></div>
             </div>
             {% endfor %}
         </div>
@@ -105,17 +107,20 @@
 {% endblock %}
 {% block script %}
     <script src="/static/js/jquery.min.js"></script>
-    <script src="/static/js/jquery.lazyload.min.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
     <script src="/static/js/swiper.min.js"></script>
     <script>
-    $("img.lazy").lazyload({
-        effect: 'fadeIn'
-    })
+    // $("img.lazy").lazyload({
+    //     effect: 'fadeIn',
+    //     event: 'sporty'
+    // });
     </script>
     <script>
       var mySwiper = new Swiper ('.swiper-container', {
         // Optional parameters
+        preloadImages: false,
+        lazyLoading: true,
+        // lazyLoadingInPrevNext: true,
         direction: 'horizontal',
         loop: true,
         autoplay: 1800,
@@ -126,9 +131,22 @@
         // Navigation arrows
         nextButton: '.swiper-button-next',
         prevButton: '.swiper-button-prev',
-        
+        // effect: 'flip',
+        //  flip: {
+        //    slideShadows : true,
+        //    limitRotation: true
+        //  }
         // And if we need scrollbar
-        // scrollbar: '.swiper-scrollbar',
-      })        
+        // scrollbar: '.swiper-scrollbar'
+      });
+      $(function(){
+        // 
+        $('.swiper-container').css({
+          height: $(window).width()*3/4 + 'px',
+        });
+        $('img').on('load', function(){
+          $(this).hide().fadeIn();
+        });
+      });
     </script>
 {% endblock %}
