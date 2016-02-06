@@ -5,11 +5,12 @@
     <style>
         .media img, .swiper-slide img{
             width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
         }
+        
         .swiper-container {
             width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
         }
         .swiper-container span{
           background: #ccc;
@@ -90,7 +91,6 @@
               
             <div class="swiper-slide">
               <img class="swiper-lazy" data-src="/static/images/{{i+1}}.jpg" alt="">
-              <div class="swiper-lazy-preloader swiper-lazy-preloader-white"></div>
             </div>
             {% endfor %}
         </div>
@@ -118,12 +118,16 @@
     <script>
       var mySwiper = new Swiper ('.swiper-container', {
         // Optional parameters
+        // speed: 500,
         preloadImages: false,
+        //====================
         lazyLoading: true,
         // lazyLoadingInPrevNext: true,
+        lazyLoadingOnTransitionStart: true,
+        //====================
         direction: 'horizontal',
         loop: true,
-        autoplay: 1800,
+        autoplay: 2500,
         autoplayDisableOnInteraction: false,
         // If we need pagination
         pagination: '.swiper-pagination',
@@ -138,15 +142,9 @@
         //  }
         // And if we need scrollbar
         // scrollbar: '.swiper-scrollbar'
-      });
-      $(function(){
-        // 
-        $('.swiper-container').css({
-          height: $(window).width()*3/4 + 'px',
-        });
-        $('img').on('load', function(){
-          $(this).hide().fadeIn();
-        });
+        onLazyImageReady: function(swiper, slide, image){
+          $(image).hide().fadeIn();
+        }
       });
     </script>
 {% endblock %}
