@@ -145,8 +145,11 @@
         onLazyImageReady: function(swiper, slide, image){
           $(image).hide().fadeIn();
         },
-        onTransitionStart: function(){
+        onSlideNextStart: function(){
           $('.swiper-slide-prev').fadeOut().fadeIn('fast');
+        },
+        onTransitionEnd: function(){
+
         }
       });
     </script>
