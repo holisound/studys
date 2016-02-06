@@ -9,7 +9,7 @@
         
         .swiper-container {
             width: 100%;
-            max-width: 800px;
+            max-width: 600px;
             margin: 0 auto;
         }
         .swiper-container span{
@@ -144,6 +144,9 @@
         // scrollbar: '.swiper-scrollbar'
         onLazyImageReady: function(swiper, slide, image){
           $(image).hide().fadeIn();
+        },
+        onTransitionStart: function(){
+          $('.swiper-slide-prev').fadeOut().fadeIn();
         }
       });
     </script>
