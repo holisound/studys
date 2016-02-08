@@ -2,6 +2,8 @@ import web
 import os, json
 from jinja2 import Environment, FileSystemLoader
 import datetime
+from PIL import Image
+from io import StringIO, BytesIO
 # 
 class Handler:
     def __init__(self):
@@ -67,15 +69,28 @@ def resp_with_json(method):
         return json.dumps(method(self, *args, **kw), cls=EnhancedJSONEncoder)
     return fn
 
+def make_thumbnail(save_as, imgObj, width=640):
+    # try:
+    im = Image.open(imgObj)
+    # im = Image.open(fileObj)
+    w, h = im.size
+    tw = width if w > width else w
+    th = width/float(w)*h if w > width else h
+    tsize = tw, th
+    im.thumbnail(tsize, Image.ANTIALIAS)
+    im.save(save_as, "JPEG")
+    # except IOError:
+    #     print("cannot create thumbnail for", save_as)
+
 def getvariance(s):
     """
     s: str
     """
     ls = map(ord,s)
-    _average = sum(ls)/float(ls.__len__())
+    _average = sum(ls)/float(len(ls))
     def fx(e):
         return (e - _average)**2
-    return sum(map(fx, ls))/float(ls.__len__())
+    return sum(map(fx, ls))/float(len(ls))
 
 def main():
     print getvariance('ajax')

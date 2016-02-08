@@ -1,23 +1,18 @@
 #!/usr/bin/env python
-from PIL import Image
-im = Image.open('1.jpg')
-# size = (400,300)
 # im.thumbnail(size)
 # im.save('thumbnail_1.jpg', 'JPEG')
-def roll(image, delta):
-    "Roll an image sideways"
+from __future__ import print_function
+import os, sys
+from PIL import Image
 
-    xsize, ysize = image.size
+size = (256, 256)
 
-    delta = delta % xsize
-    if delta == 0: return image
-
-    part1 = image.crop((0, 0, delta, ysize))
-    part2 = image.crop((delta, 0, xsize, ysize))
-    image.paste(part2, (0, 0, xsize-delta, ysize))
-    image.paste(part1, (xsize-delta, 0, xsize, ysize))
-
-    return image
-if __name__ == '__main__':
-	t_im = roll(im,400)
-	t_im.save('roll_1.jpg','JPEG')
+for infile in sys.argv[1:]:
+    outfile = os.path.splitext(infile)[0] + ".thumbnail"
+    if infile != outfile:
+        try:
+            im = Image.open(infile)
+            im.thumbnail(size, Image.ANTIALIAS)
+            im.save(outfile, "JPEG")
+        except IOError:
+            print("cannot create thumbnail for", infile)
