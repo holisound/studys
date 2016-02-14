@@ -13,7 +13,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="">Nomads</a>
+          <a class="navbar-brand" href="javascript:;">Nomads</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -99,7 +99,9 @@
     <script src="/static/js/filter.js"></script>
     <script>
         $(function(){
-            $('[href="{{ path }}"]').parent().addClass('active');
+            var $path = $('[href="{{ path }}"]');
+            $('.navbar-brand').html($path.text());
+            $path.parent().addClass('active');
         });
     </script>
 {% endblock %}
