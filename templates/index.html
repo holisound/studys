@@ -6,12 +6,17 @@
         body.modal-open {
           width: 100%;
         }
+        
         .media img, .swiper-slide img{
-            width: 100%;
+            display: block;
+            margin: 0 auto;
+            /*width: 100%;*/
+            /*height: 100%;*/
         }
         
         .swiper-container {
-            max-width: 800px;
+            /*max-width: 640px;*/
+            background: rgba(0,0,0,1);
         }
         .swiper-container span{
           background: #ccc;
@@ -23,7 +28,7 @@
     </style>
 {% endblock %}
 {% block body %}
-    <nav class="navbar navbar-inverse navbar-fixed-top" style="opacity:.9;width:100%;">
+    <nav class="navbar navbar-inverse navbar-fixed-top" style="opacity:1;width:100%;">
       <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
@@ -61,15 +66,20 @@
             <button type="submit" class="btn btn-default">Submit</button>
           </form>
           <ul class="nav navbar-nav navbar-right">
+            <!-- 
             <li><a href="#">Link</a></li>
+             -->
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <li><a href="#">Action</a></li>
+<!--                 <li><a href="#">Action</a></li>
                 <li><a href="#">Another action</a></li>
                 <li><a href="#">Something else here</a></li>
-                <li role="separator" class="divider"></li>
-                <li><a href="#">Separated link</a></li>
+ -->
+<!-- 
+                 <li role="separator" class="divider"></li>
+ -->
+                <li><a href="/signout">Signout</a></li>
               </ul>
             </li>
           </ul>
@@ -94,7 +104,7 @@
             {% for i in slide_image_list %}
               
             <div class="swiper-slide">
-              <img class="swiper-lazy" data-src="/static/uploads/slide/{{i}}" alt="">
+              <img class="swiper-lazy" data-src="/static/uploads/slide/{{i}}" alt="" data-index="{{ loop.index }}">
             </div>
             {% endfor %}
         </div>
@@ -140,6 +150,13 @@
         </div>
       </div>
     </div>
+    <div id="alert-modal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          ...
+        </div>
+      </div>
+    </div>
 {% endblock %}
 {% block script %}
     <script src="/static/js/jquery.min.js"></script>
@@ -178,6 +195,33 @@
         // And if we need scrollbar
         // scrollbar: '.swiper-scrollbar'
         onLazyImageReady: function(swiper, slide, image){
+            var $image = $(image),
+              img_w = $image.width(),
+              img_h = $image.height();
+            var tw = $(window).width();
+            var th = tw * 3 / 4;
+            // tw = tw < 640 ? tw : 640;
+            th = th < 480 ? th : 480;
+            if ($image.attr('data-index') == 1) {
+
+              $('.swiper-container').css({
+                height:  th + 'px',
+                width: tw + 'px'
+              });
+            }
+            if (img_h/img_w > 3/4){
+
+              $image.css({
+                width: img_w * th / img_h + 'px',
+              });
+            } else {
+              th2 = img_h * tw / img_w;
+              th = th > th2 ? th2 : th;
+              $image.css({
+                height:  th + 'px'
+              });
+            }
+          
           $(image).hide().fadeIn();
         },
         onSlideNextStart: function(){
@@ -202,8 +246,13 @@
     <script>
      (function(){
        if ("{{ alert_msg }}" == 1){
-          alert("上传成功!");
+          var $alert = $('#alert-modal');
+          $alert.find('.modal-content').html('上传成功!');
+          $alert.modal();
+          setTimeout(function(){
           window.location.href="/";
+            
+          },2000);
        } else if ("{{ alert_msg}}" == "0"){
           alert("上传失败!");
           window.location.href="/";

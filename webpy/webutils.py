@@ -6,9 +6,37 @@ from PIL import Image
 from io import StringIO, BytesIO
 # 
 class Handler:
+    templates_path = 'templates'
     def __init__(self):
         web.header('Content-Type', 'text/html')
-        
+        self.input = None
+        self.response = None
+
+    def render(self, tpl, **kw):
+        _render = get_template_render(self.templates_path)
+        self.response =  _render(tpl, **kw)
+        return self.response
+
+    def get_input(self, **kw):
+        self.input = web.input(**kw)
+        return self.input
+
+    def _dispatch(self, method, *args):
+        tocall = getattr(self, method, None)
+        if hasattr(tocall, '__call__'):
+            tocall(*args)
+            return self.response
+        else:
+            raise web.nomethod()
+
+    def GET(self, *args):
+        return self._dispatch('get', *args)
+    def POST(self, *args):
+        return self._dispatch('post', *args)
+
+    def write(self, resp):
+        self.response = resp
+        return self.response
 class EnhancedJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime.datetime):

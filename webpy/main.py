@@ -6,14 +6,28 @@ from webutils import (
     resp_with_json,
     make_response,
     make_thumbnail,
-    get_template_render,
-    Handler
+    Handler as _Handler,
     )
+# ==========
 web.config.debug = True
 # ==========
+class Handler(_Handler):
+    templates_path = '../templates/'
 # ==========
-render_template = get_template_render('../templates/')
-# ==========
+class Register(Handler):
+    def GET(self):
+        return self.render('signin.html')
+    @resp_with_json
+    def POST(self):
+        params = self.get_input(
+            username='',
+            password=''
+        )
+        if params.username and params.password:
+            return params
+        else:
+            return 0
+
 class Json(Handler):
     @resp_with_json
     def GET(self):
@@ -21,25 +35,24 @@ class Json(Handler):
     @resp_with_json
     def POST(self):
         return {'result': '2012-12-12 12:12'}
-class Amaze:
-    def GET(self):
-        return render_template('amaze01.html')
 
 class hello(Handler):
+
     def GET(self):
-		return render_template('base.html', title="mytitle", body="<h1>Hello, world!</h1>")
+	   return self.render('base.html', title="mytitle", body="<h1>Hello, world!</h1>")
+
 # ==========
-class Directive01:
+class Directive01(Handler):
     def GET(self):
         return make_response('directive01.html', 'text/html')
 
-class Canvas01:
+class Canvas01(Handler):
     def GET(self, mid):
-        return render_template('canvas01.html', image_id=int(mid))
+        return self.render('canvas01.html', image_id=int(mid))
 
-class Ionic01:
+class Ionic01(Handler):
     def GET(self, theid):
-        return render_template('ionic01.html')
+        return self.render('ionic01.html')
 class TestPost(Handler):
     def GET(self):
         return '<h1>test get</h1>'
@@ -51,11 +64,11 @@ class Index(Handler):
         def glob_slide_image(slide_dir='/home/edward/data/www/static/uploads/slide/'):
             imgl = [e.split('/')[-1] for e in glob.glob(slide_dir + '*.jpg')]
             return imgl
-        return render_template('index.html', slide_image_list=glob_slide_image())
+        return self.render('index.html', slide_image_list=glob_slide_image())
 
 class Upload(Handler):
     def GET(self):
-        return render_template(
+        return self.render(
             'base.html',
             body='''
                 <form method="post" action="/upload" enctype="multipart/form-data">
@@ -76,14 +89,14 @@ class Upload(Handler):
         data = web.input(myfile={})
         fp = data.myfile
         if save(fp) == 0: # fp.filename, fp.read() gives name and contents of the file
-            return render_template('index.html', alert_msg="1")
+            return self.render('index.html', alert_msg="1")
         else:
-            return render_template('index.html', alert_msg="0")
+            return self.render('index.html', alert_msg="0")
 
 
 class Signin(Handler):
     def GET(self):
-        return render_template('signin.html')
+        return self.render('signin.html')
     def POST(self):
         pass
 # ====================
@@ -98,6 +111,7 @@ urls = (
         r'/json/?', 'Json',
         r'/post/?', 'TestPost',
         r'/signin/?', 'Signin',
+        r'/reg/?', Register,
     )
 myApp = web.application(urls, globals()).wsgifunc()
 # app.run()
