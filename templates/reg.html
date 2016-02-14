@@ -1,28 +1,14 @@
-{% extends "base.html" %}
+{% extends "layout.html" %}
 {% block head %}
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
-    <style>
-        html{
-            height: 100%;
-        }
-        form{
-            height: 100%;
-            /*width: 100%;*/
-        }
-        body{
-            height: 100%;
-        }
-        .reg-bgc {
-            background-color: #eee;
-        }
+    {{ super() }}
 
-    </style>
 {% endblock %}
 {% block body %}
-<div class="container reg-bgc" >
-    <div class="page-header">
-      <h1>注册一个帐号<p><small>register for an account</small></p></h1>
-    </div>
+{{ super() }}
+<div class="container" style="background-color:#eee; height:100%;">
+    <nav class="navbar"></nav>
+
+    <h3>Register for an account.</h3>
     <form class="form-horizontal" action="/reg" method="post">
         <div class="form-group">
             <label for="uname" class="col-sm-2 control-label">用户名</label>
@@ -48,8 +34,11 @@
                 <input class="form-control input-lg" id="confirm" type="password" name="confirm" placeholder="confirm password">
             </div>
         </div>
-        <input class="form-control btn btn-primary input-lg" type="submit" value="注册">
+        <input class="form-control btn btn-primary input-lg" type="submit" value="注册" style="margin-top:15px;">
     </form>
 </div>
 
+{% endblock %}
+{% block script %}
+    {{ super() }}
 {% endblock %}
