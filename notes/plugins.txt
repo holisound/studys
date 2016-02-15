@@ -1,7 +1,15 @@
 AdvancedNewFile
+Angularjs
+AutofileName
+BracketHighlighter
 Anaconda
 django command
 emmet
+colorpicker
+fileheader
+jinja2
+livereload
+linter
 side bar
 spacegray
 sodareloaded

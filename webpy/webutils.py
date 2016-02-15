@@ -3,12 +3,11 @@ import os, json
 from jinja2 import Environment, FileSystemLoader
 import datetime
 from PIL import Image
-from io import StringIO, BytesIO
 # 
 class Handler:
     templates_path = 'templates'
     def __init__(self):
-        web.header('Content-Type', 'text/html')
+        web.header('Content-Type', 'text/html; charset=UTF-8')
         self.input = None
         self.response = None
 
@@ -24,8 +23,7 @@ class Handler:
     def _dispatch(self, method, *args):
         tocall = getattr(self, method, None)
         if hasattr(tocall, '__call__'):
-            tocall(*args)
-            return self.response
+            return tocall(*args) or self.response
         else:
             raise web.nomethod()
 
@@ -34,9 +32,6 @@ class Handler:
     def POST(self, *args):
         return self._dispatch('post', *args)
 
-    def write(self, resp):
-        self.response = resp
-        return self.response
 class EnhancedJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime.datetime):
@@ -62,7 +57,6 @@ class EnhancedJSONEncoder(json.JSONEncoder):
         else:
             return super().default(obj)
 
-
 def get_template_render(templates_dir="templates"):
     def render(template_name, **context):
         extensions = context.pop('extensions', [])
@@ -77,19 +71,6 @@ def get_template_render(templates_dir="templates"):
         # jinja_env.update_template_context(context)
         return jinja_env.get_template(template_name).render(context)
     return render
-
-def make_response(to_response, content_type='text/html'):
-    _filename = to_response;
-    web.header('Content-Type', content_type)
-    # 
-    templates_dir = os.path.join(os.path.dirname(__file__), 'templates')
-    # 
-    filepath = os.path.join(templates_dir, _filename)
-    if os.path.isfile(filepath):
-        with open(filepath) as f:
-            return f.read()
-    else:
-        return to_response
 # 
 def resp_with_json(method):
     def fn(self, *args, **kw):
@@ -107,6 +88,18 @@ def make_thumbnail(save_as, imgObj, width=640):
     tsize = tw, th
     im.thumbnail(tsize, Image.ANTIALIAS)
     im.save(save_as, "JPEG")
+    # 
+    if w > h:
+        thumbnail_w = 128;
+        thumbnail_h = 128/float(w)*h
+    else:
+        thumbnail_h = 128;
+        thumbnail_w = 128/float(h)*w
+
+    save_as_thumbnail = '.thumbnail.'.join(save_as.split('.'))
+    tsize = thumbnail_w, thumbnail_h
+    im.thumbnail(tsize, Image.ANTIALIAS)
+    im.save(save_as_thumbnail, "JPEG")
     # except IOError:
     #     print("cannot create thumbnail for", save_as)
 

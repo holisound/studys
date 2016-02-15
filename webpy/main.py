@@ -2,9 +2,9 @@
 # coding=utf-8
 import web
 import glob
+import config
 from webutils import (
     resp_with_json,
-    make_response,
     make_thumbnail,
     Handler as _Handler,
     )
@@ -16,7 +16,7 @@ class Handler(_Handler):
 # ==========
 class Register(Handler):
     def GET(self):
-        return self.render('signin.html')
+        return self.render('reg.html', path=web.ctx.path)
     @resp_with_json
     def POST(self):
         params = self.get_input(
@@ -44,7 +44,7 @@ class hello(Handler):
 # ==========
 class Directive01(Handler):
     def GET(self):
-        return make_response('directive01.html', 'text/html')
+        return self.render('directive01.html')
 
 class Canvas01(Handler):
     def GET(self, mid):
@@ -62,33 +62,22 @@ class TestPost(Handler):
 class Index(Handler):
     def GET(self):
         def glob_slide_image(slide_dir='/home/edward/data/www/static/uploads/slide/'):
-            imgl = [e.split('/')[-1] for e in glob.glob(slide_dir + '*.jpg')]
+            imgl = [e.split('/')[-1] for e in glob.glob(slide_dir + '*.jpg') if 'thumbnail' not in e]
             return imgl
         return self.render('index.html', slide_image_list=glob_slide_image())
 
 class Upload(Handler):
-    def GET(self):
-        return self.render(
-            'base.html',
-            body='''
-                <form method="post" action="/upload" enctype="multipart/form-data">
-                    <input type="file" name="myfile"/>
-                    <input type="submit" value="upload to server"/>
-                <form/>
-            ''')
-
     def POST(self):
-        def save(fp, save_dir="/home/edward/data/www/static/uploads/slide/"):
-
+        def save(fp):
             try:
-                make_thumbnail(save_dir + fp.filename, fp.file)
+                make_thumbnail(config.UPLOAD_DIR + fp.filename, fp.file)
             except Exception as e:
                 return e
             else:
                 return 0
         data = web.input(myfile={})
         fp = data.myfile
-        if save(fp) == 0: # fp.filename, fp.read() gives name and contents of the file
+        if save(fp) == 0: 
             return self.render('index.html', alert_msg="1")
         else:
             return self.render('index.html', alert_msg="0")
@@ -103,7 +92,7 @@ class Signin(Handler):
 urls = (
         r'/upload/?', 'Upload',
         r"/hello/?", "hello",
-        r"/?", Index,
+        r"/?", 'Index',
         r'/directive/01/?', 'Directive01',
         r'/canvas/(\d+)/?', 'Canvas01',
         r'/ionic/(\d+)/?', 'Ionic01',
@@ -111,7 +100,8 @@ urls = (
         r'/json/?', 'Json',
         r'/post/?', 'TestPost',
         r'/signin/?', 'Signin',
-        r'/reg/?', Register,
+        r'/reg/?', 'Register',
     )
-myApp = web.application(urls, globals()).wsgifunc()
+myApp = web.application(urls, globals())
+wsgi_entry = myApp.wsgifunc()
 # app.run()
