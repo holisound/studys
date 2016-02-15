@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block head %}
+    {{ super() }}
+    <style>
+        html, body{
+            overflow: hidden;
+        }
+    </style>
+{% endblock %}
+{% block body %}
+    {{ super() }}
+    <div class="container-fluid" style="height: 100%;overflow: hidden;">
+    <div class="" style="height: 100%;background: #eee;overflow: hidden;">
+        <p style="color:#f45;text-align: center;margin-top: 50%;">{{ status_code }} {{ desc }}</p>
+    </div>
+    </div>
+{% endblock %}

@@ -120,6 +120,10 @@ class Angular(Handler):
     def GET(self, id):
         tplname = 'ng-test-%02d.html' % int(id)
         return self.render(tplname)
+
+class NotFound(Handler):
+    def GET(self):
+        return self.render('error.html', status_code=404, desc="NOT FOUND")
 # ====================
 urls = (
         r'/upload/?', 'Upload',
@@ -134,6 +138,7 @@ urls = (
         r'/signin/?', 'Signin',
         r'/reg/?', 'Register',
         r'/ng/(\d+)/?', 'Angular',
+        r'/notfound/?', 'NotFound',
     )
 myApp = web.application(urls, globals()).wsgifunc()
 # app.run()
