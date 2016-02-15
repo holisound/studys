@@ -101,7 +101,7 @@ class Signin(Handler):
         pass
 class Register(Handler):
     def GET(self):
-        return render_template('reg.html', path=web.ctx.path)
+        return self.render('reg.html', path=web.ctx.path)
     def POST(self):
         params = p = web.input(
             username="",
@@ -115,6 +115,11 @@ class Register(Handler):
             password: %s
             confirm: %s
             ''' % (p.username, p.email, p.password, p.confirm)
+
+class Angular(Handler):
+    def GET(self, id):
+        tplname = 'ng-test-%02d.html' % int(id)
+        return self.render(tplname)
 # ====================
 urls = (
         r'/upload/?', 'Upload',
@@ -128,6 +133,7 @@ urls = (
         r'/post/?', 'TestPost',
         r'/signin/?', 'Signin',
         r'/reg/?', 'Register',
+        r'/ng/(\d+)/?', 'Angular',
     )
 myApp = web.application(urls, globals()).wsgifunc()
 # app.run()

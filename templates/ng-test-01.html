@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}
+    ng-test-01
+{% endblock %}
+{% block body %}    
+    <h3>
+        测试angluar路由和指令的使用<br>
+        重点：
+    </h3>
+        <p>
+            
+        1.指令模板和路由视图模板的复合使用
+        </p>
+    <a href="#/change">change</a><br>
+    <a href="#/">index</a>
+    <div ng-view=""></div>
+    <script type="text/ng-template" id="greet.html">
+        <p>We are KINU team</p>
+    </script>
+{% endblock %}
+{% block script %}
+    <script src="/static/js/angular.js"></script>
+    <script src="/static/js/angular-route.js"></script>
+    <script>
+        angular.module('ngTest01', ['ngRoute'])
+        .directive('goat', [function(){
+            return {
+                // access template via templateCache
+                templateUrl: 'greet.html',
+                // template: '<p>hello, test</p>',
+            };
+        }]).config(['$routeProvider',function($routeProvider) {
+            $routeProvider
+            .when('/',{
+                template: '<p>I am at home.</p>'
+            })
+            .when('/change', {
+                template: '<goat></goat>'
+
+            })
+            .otherwise({
+                redirectTo: '/'
+            });
+        }]);
+        angular.bootstrap(document.querySelector('body'), ['ngTest01']);
+    </script>
+{% endblock %}
+
