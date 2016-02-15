@@ -9,8 +9,6 @@ from webutils import (
     Handler as _Handler,
     )
 # ==========
-web.config.debug = True
-# ==========
 class Handler(_Handler):
     templates_path = '../templates/'
 # ==========
@@ -61,7 +59,7 @@ class TestPost(Handler):
 
 class Index(Handler):
     def GET(self):
-        def glob_slide_image(slide_dir='/home/edward/data/www/static/uploads/slide/'):
+        def glob_slide_image(slide_dir=config.UPLOAD_DIR):
             imgl = [e.split('/')[-1] for e in glob.glob(slide_dir + '*.jpg') if 'thumbnail' not in e]
             return imgl
         return self.render('index.html', slide_image_list=glob_slide_image())
@@ -88,6 +86,31 @@ class Signin(Handler):
         return self.render('signin.html')
     def POST(self):
         pass
+class Register(Handler):
+    def GET(self):
+        return self.render('reg.html', path=web.ctx.path)
+    def POST(self):
+        params = p = web.input(
+            username="",
+            email="",
+            password="",
+            confirm=""
+        )
+        return '''
+            username: %s
+            email: %s
+            password: %s
+            confirm: %s
+            ''' % (p.username, p.email, p.password, p.confirm)
+
+class Angular(Handler):
+    def GET(self, id):
+        tplname = 'ng-test-%02d.html' % int(id)
+        return self.render(tplname)
+
+class NotFound(Handler):
+    def GET(self):
+        return self.render('error.html', status_code=404, desc="NOT FOUND")
 # ====================
 urls = (
         r'/upload/?', 'Upload',
@@ -101,6 +124,8 @@ urls = (
         r'/post/?', 'TestPost',
         r'/signin/?', 'Signin',
         r'/reg/?', 'Register',
+        r'/ng/(\d+)/?', 'Angular',
+        r'/notfound/?', 'NotFound',
     )
 myApp = web.application(urls, globals())
 wsgi_entry = myApp.wsgifunc()
