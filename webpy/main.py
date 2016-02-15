@@ -45,10 +45,10 @@ class TestPost(Handler):
         return '<h1>test get</h1>'
     def POST(self):
         return '<h1>test post</h1>'
-
+UPLOAD_DIR = '/home/python/nginx/static/uploads/slide/'
 class Index(Handler):
     def GET(self):
-        def glob_slide_image(slide_dir='/home/edward/data/www/static/uploads/slide/'):
+        def glob_slide_image(slide_dir=UPLOAD_DIR):
             imgl = [e.split('/')[-1] for e in glob.glob(slide_dir + '*.jpg')]
             return imgl
         return render_template('index.html', slide_image_list=glob_slide_image())
@@ -65,7 +65,7 @@ class Upload(Handler):
             ''')
 
     def POST(self):
-        def save(fp, save_dir="/home/edward/data/www/static/uploads/slide/"):
+        def save(fp, save_dir=UPLOAD_DIR):
 
             try:
                 make_thumbnail(save_dir + fp.filename, fp.file)
@@ -86,6 +86,22 @@ class Signin(Handler):
         return render_template('signin.html')
     def POST(self):
         pass
+class Register(Handler):
+    def GET(self):
+        return render_template('reg.html', path=web.ctx.path)
+    def POST(self):
+        params = p = web.input(
+            username="",
+            email="",
+            password="",
+            confirm=""
+        )
+        return '''
+            username: %s
+            email: %s
+            password: %s
+            confirm: %s
+            ''' % (p.username, p.email, p.password, p.confirm)
 # ====================
 urls = (
         r'/upload/?', 'Upload',
@@ -98,6 +114,7 @@ urls = (
         r'/json/?', 'Json',
         r'/post/?', 'TestPost',
         r'/signin/?', 'Signin',
+        r'/reg/?', 'Register',
     )
 myApp = web.application(urls, globals()).wsgifunc()
 # app.run()
