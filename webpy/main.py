@@ -129,4 +129,6 @@ urls = (
     )
 myApp = web.application(urls, globals())
 wsgi_entry = myApp.wsgifunc()
-# app.run()
+# if __name__ == '__main__':
+    
+#     myApp.run()

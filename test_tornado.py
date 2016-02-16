@@ -16,7 +16,7 @@ from tornado.ioloop import IOLoop
 from tornado.options import define
 import tornado
 import os
-from db import mydql
+# from db import mydql
 
 class Handler(RequestHandler):
     def get_argument_into(self, *args, **kwargs):
