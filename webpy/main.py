@@ -65,6 +65,8 @@ class Index(Handler):
         return self.render('index.html', slide_image_list=glob_slide_image())
 
 class Upload(Handler):
+    def GET(self):
+        return self.render('upload.html')
     def POST(self):
         def save(fp):
             try:

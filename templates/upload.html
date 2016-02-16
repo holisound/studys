@@ -1,0 +1,81 @@
+{% extends "layout.html" %}
+{% block body %}
+  {{ super() }}
+  <div class="container">
+
+              <div class="modal-header">
+                <h4 class="modal-title" id="exampleModalLabel">Upload Image</h4>
+              </div>
+                <div id="img1" style="overflow:hidden;position:relative; width: 120px;height: 120px;margin:20px auto 0; background-color: #eee; ">
+                    <p style="margin-top: 35%; text-align: center;">120 X 120</p>
+                </div>
+                <form method="post" action="/upload" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <div style="position: relative; margin-bottom: 25px;">                  
+                          <label style="position: absolute; width: 100%;" class="btn btn-primary" for="exampleInputFile">select image</label>
+                          <input style="width: 100%; height: 100%;" type="file" id="exampleInputFile" name="myfile">
+                        </div>
+                        
+                        <div style="position: relative;">                  
+                          <p class="help-block">To upload images file size &lt; 20m.</p>
+                          <p style="position:absolute; width:100%;font-weight: bold; text-align: center;" id="image-file-name"></p>
+                        </div>
+                      </div>
+      <!--               <div class="form-group">
+                      <label for="recipient-name" class="control-label">Recipient:</label>
+                      <input type="text" class="form-control" id="recipient-name">
+                    </div>
+                    <div class="form-group">
+                      <label for="message-text" class="control-label">Message:</label>
+                      <textarea class="form-control" id="message-text"></textarea>
+                    </div> -->
+                </div>
+              
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary" onclick="javascript:$('.modal').slideUp();">Upload</button>
+                </div>
+                </form>
+
+  </div>
+{% endblock %}
+{% block script %}
+    {{ super() }}
+    <script>
+        $(function(){
+           $('#exampleInputFile').on({
+             change: function(){
+               var fullpath = $(this).val();
+               var filename = fullpath.split('path\\')[1],
+                   fractions = filename.split('.'),
+                   prefix = fractions[0],
+                   postfix = fractions[1];
+               var tfilename;
+               if (prefix.length > 15){
+                 tfilename = [prefix.slice(0,5) + '*****' + prefix.slice(-6,-1), postfix].join('.');
+               }else{
+                 tfilename = [prefix, postfix].join('.');
+               }
+               $('#image-file-name').text(tfilename);
+               // ==========
+               var files = this.files ? this.files : [];
+               if (!files.length || !window.FileReader) return;
+               if (/^image/.test(files[0].type)){
+                var reader = new FileReader();
+                reader.readAsDataURL(files[0]);
+                reader.onloadend = function(){
+                    var img =  new Image();
+                    img.src = this.result;
+                  $('#img1').html(
+                    '<img width="120" height="120" src="' + 
+                    this.result +
+                    '">' 
+                  );
+                };
+               }
+             }
+           });
+        });
+    </script>
+{% endblock %}
