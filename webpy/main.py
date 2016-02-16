@@ -129,8 +129,8 @@ urls = (
         r'/ng/(\d+)/?', 'Angular',
         r'/notfound/?', 'NotFound',
     )
-myApp = web.application(urls, globals())
-wsgi_entry = myApp.wsgifunc()
+myApp = web.application(urls, globals()).wsgifunc()
+# myApp = web.application(urls, globals())
 # if __name__ == '__main__':
     
 #     myApp.run()
