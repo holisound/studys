@@ -12,15 +12,15 @@
                 <form method="post" action="/upload" enctype="multipart/form-data">
                 <div class="modal-body">
                     <div class="form-group">
-                        <div style="position: relative; margin-bottom: 25px; max-width: 240px; margin:0 auto;">                  
+                        <div style="position: relative; max-width: 240px; margin:20px auto;">                  
                           <label style="position: absolute; width: 100%;" class="btn btn-primary" for="exampleInputFile">select image</label>
                           <input style="width: 100%; height: 100%;" type="file" id="exampleInputFile" name="myfile">
                         </div>
                         
-                        <div style="position: relative;">                  
-                          <p class="help-block">To upload images file size &lt; 20m.</p>
-                          <p style="position:absolute; width:100%;font-weight: bold; text-align: center;" id="image-file-name"></p>
-                        </div>
+           
+                          <!-- <p class="help-block">To upload images file size &lt; 20m.</p> -->
+                          <p style="width:100%;font-weight: bold; text-align: center;" id="image-file-name"> &nbsp;</p>
+  
                       </div>
       <!--               <div class="form-group">
                       <label for="recipient-name" class="control-label">Recipient:</label>
@@ -33,8 +33,8 @@
                 </div>
               
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary" onclick="javascript:$('.modal').slideUp();">Upload</button>
+<!--                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+ -->                  <button type="submit" class="btn btn-primary" onclick="javascript:$('.modal').slideUp();">Upload</button>
                 </div>
                 </form>
 
