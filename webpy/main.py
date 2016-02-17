@@ -70,7 +70,7 @@ class Upload(Handler):
     def POST(self):
         def save(fp):
             try:
-                make_thumbnail(config.UPLOAD_DIR + fp.filename, fp.file)
+                make_thumbnail(config.UPLOAD_DIR, fp.filename, fp.file)
             except Exception as e:
                 return e
             else:

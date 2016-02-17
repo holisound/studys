@@ -1,5 +1,5 @@
 import web
-import os, json
+import os, json, uuid
 from jinja2 import Environment, FileSystemLoader
 import datetime
 from PIL import Image
@@ -78,7 +78,7 @@ def resp_with_json(method):
         return json.dumps(method(self, *args, **kw), cls=EnhancedJSONEncoder)
     return fn
 
-def make_thumbnail(save_as, imgObj, width=640):
+def make_thumbnail(save_dir, rname, imgObj, width=640):
     # try:
     im = Image.open(imgObj)
     # im = Image.open(fileObj)
@@ -86,8 +86,10 @@ def make_thumbnail(save_as, imgObj, width=640):
     tw = width if w > width else w
     th = width/float(w)*h if w > width else h
     tsize = tw, th
+    _, tail = rname.split('.')
+    save_as = ''.join([save_dir, uuid.uuid4().hex, '.', tail])
     im.thumbnail(tsize, Image.ANTIALIAS)
-    im.save(save_as, "JPEG")
+    im.save(save_as, im.format) 
     # 
     if w > h:
         thumbnail_w = 128;
@@ -99,7 +101,7 @@ def make_thumbnail(save_as, imgObj, width=640):
     save_as_thumbnail = '.thumbnail.'.join(save_as.split('.'))
     tsize = thumbnail_w, thumbnail_h
     im.thumbnail(tsize, Image.ANTIALIAS)
-    im.save(save_as_thumbnail, "JPEG")
+    im.save(save_as_thumbnail, im.format)
     # except IOError:
     #     print("cannot create thumbnail for", save_as)
 
