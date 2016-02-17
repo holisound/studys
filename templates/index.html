@@ -192,20 +192,7 @@
       })
     </script>
     <script>
-     (function(){
-       if ("{{ alert_msg }}" == 1){
-          var $alert = $('#alert-modal');
-          $alert.find('.modal-content').html('上传成功!');
-          $alert.modal();
-          setTimeout(function(){
-          window.location.href="/";
-            
-          },2000);
-       } else if ("{{ alert_msg}}" == "0"){
-          alert("上传失败!");
-          window.location.href="/";
-       }
-     })();
+
      $(function(){
         $('#exampleInputFile').on({
           change: function(){

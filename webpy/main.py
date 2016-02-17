@@ -78,9 +78,9 @@ class Upload(Handler):
         data = web.input(myfile={})
         fp = data.myfile
         if save(fp) == 0: 
-            return self.render('index.html', alert_msg="1")
+            return self.render('upload.html', alert_msg="1")
         else:
-            return self.render('index.html', alert_msg="0")
+            return self.render('upload.html', alert_msg="0")
 
 
 class Signin(Handler):
