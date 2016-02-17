@@ -91,10 +91,10 @@ def make_thumbnail(save_as, imgObj, width=640):
     # 
     if w > h:
         thumbnail_w = 128;
-        thumbnail_h = 128/float(w)*h
+        thumbnail_h = int(128/float(w)*h)
     else:
         thumbnail_h = 128;
-        thumbnail_w = 128/float(h)*w
+        thumbnail_w = int(128/float(h)*w)
 
     save_as_thumbnail = '.thumbnail.'.join(save_as.split('.'))
     tsize = thumbnail_w, thumbnail_h
