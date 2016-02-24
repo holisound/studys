@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
   {{ super() }}
-  <div class="container">
+  <div class="container" ng-controller="uploadCtrl">
     <div class="page-header">
       <h3>Upload Image</h3>
     </div>
@@ -32,27 +32,19 @@
 
   </div>
   <footer class="footer">
-  <form method="post" action="/upload" enctype="multipart/form-data">
-    <div class="container hidden" id="upload-box">
+  [[ ng.getStyle() ]]
+  <form method="post" action="/upload" enctype="multipart/form-data" ng-controller="formCtrl" >
+    <div class="container" id="upload-box">
       <div class="footer-left">
-        <button type="button" class="close pull-left"><span aria-hidden="true">&times;</span></button>
+        <button ng-hide="ng.hideCloseButton" type="button" class="close pull-left"><span aria-hidden="true">&times;</span></button>
         <p class="text-muted center-line">To upload images file size &lt; 20m.</p>
       </div>
-      <div class="footer-right">
-        <input type="submit" class="btn btn-success" value="确认上传">
-      </div>
-    </div>
-    <div class="container hidden" id="add-box">
-      <div class="footer-left">
-        <button type="button" class="close pull-left"><span aria-hidden="true">&times;</span></button>
-        <p class="text-muted center-line">To upload images file size &lt; 20m.</p>
-      </div>
-      <div class="footer-right">
-        <button type="button" class="btn btn-info file-upload-btn">
-          选择图片
-          <input id="upload" type="file" name="myfile">
-
-        </button>
+        <input type="checkbox" ng-model="loaded" id="check">
+      <div class="footer-right file-upload-btn">
+      [[ getText() ]]
+      <button class="btn" ng-class="{'btn-success': loaded, 'btn-info': !loaded}">upload</button>
+      
+        <input ng-model="abc" type="file"  value="确认上传" onchange="javascript:angular.element(this).scope().ng.test();">
       </div>
     </div>
     </form>
@@ -62,119 +54,43 @@
 {% block script %}
     {{ super() }}
     <script>
-        (function(){
-          if ("{{ alert_msg }}" == 1){
-             alert('上传成功');
-             window.location.href="/";
-          } else if ("{{ alert_msg}}" == "0"){
-             alert("上传失败!");
-             window.location.href="/";
-          }
-        })();
-        $(function(){
-           var EVENTS = {
-            e: {
-              $addButton: $("#add"),
-              $closeButton: $("button.close"),
-              $footer: $(".footer"),
-              $upload: $("#upload"),
+      /**
+      * upload Module
+      *
+      * Description
+      */
+      angular.module('upload', [
+        'commonConfig',
+        'commonFilter'
+      ])
+      .controller('uploadCtrl', [
+        '$scope',
+        function($scope){
+        
+      }])
+      .controller('formCtrl', [
+        '$scope',
+        function($scope){
+          $scope.loaded = false;
+          $scope.getText = function(){
+            return $scope.ttt;
+          };
+          $scope.ng = {
+            getText: function(){
+              return this.loaded;
             },
-            listen: function(e){
-              this[e]();
+            loaded: false,
+            hideCloseButton: true,
+            test: function(){
+              console.log($scope.loaded)
+              console.log($scope.abc)
+              $scope.loaded = true;
+              console.log($scope.loaded)
+              console.log($scope.abc)
             },
-            removeClassAsync: function(callback){
-              var self = this;
-              setTimeout(function(){
-                self.e.$footer.removeClass('footer-hide');
-                self.e.$footer.removeClass('footer-show');
-                if (callback) return callback();
-              }, 500);
-            },
-            showBox: function(selector){
-              var self = this,
-                  $footer = self.e.$footer;
-              $footer.find(selector).removeClass('hidden').siblings().addClass('hidden');
-              $footer.addClass('footer-show');              
-            },
-            $addButton: function(){
-              var self = this;
-              this.e.$addButton.on({
-                click:function(){
-                  self.resetFooter();
-                  self.showBox('#add-box');
-                }
-              });
-            },
-            $closeButton: function(){
-              var self = this;
-              this.e.$closeButton.on({
-                click: function(){
-                  self.e.$footer.addClass('footer-hide');
-                  self.removeClassAsync();
-                } 
-              });
-            },
-            $upload: function(){
-              var self = this;
-              self.e.$upload.on({
-                change: function(){
-                  var fullpath = $(this).val();
-                  var filename = fullpath.split('path\\')[1],
-                      fractions = filename.split('.'),
-                      prefix = fractions[0],
-                      postfix = fractions[1];
-                  var tfilename;
-                  if (prefix.length > 15){
-                    tfilename = [prefix.slice(0,5) + '*****' + prefix.slice(-6,-1), postfix].join('.');
-                  }else{
-                    tfilename = [prefix, postfix].join('.');
-                  }
-                  $('#image-file-name').text(tfilename);
-                  // ==========
-                  var files = this.files ? this.files : [];
-                  if (!files.length || !window.FileReader) return;
-                  if (/^image/.test(files[0].type)){
-                   var reader = new FileReader();
-                   reader.readAsDataURL(files[0]);
-                   reader.onloadend = function(){
-                     var img =  new Image();
-                     img.src = this.result;
-                     $('.image-container').html(
-                       '<img width="120" height="120" src="' + 
-                       this.result +
-                       '">' 
-                     );
-                     // ==========
-                     self.e.$footer.addClass('footer-hide');
-                     self.removeClassAsync(function(){
-                      self.resetFooter();
-                      self.showBox('#upload-box');
+          };
 
-                     });
-                     
-                   };
-                  }
-                }
-              });
-            },
-            resetFooter: function(){
-              this.e.$footer.children('.container').addClass('hidden');
-            },
-            listenAll: function(){
-              var self = this;
-              for (var key in self){
-                if (key[0] == '$'){
-                  self.listen(key);
-                }  
-              }
-            }
-
-
-           };
-           EVENTS.listenAll();
-           // EVENTS.listen('$test');
-           // EVENTS.listen('$closeButton');
-
-        });
+      }]);
+      angular.bootstrap(document.querySelector('body'), ['upload']);
     </script>
 {% endblock %}
