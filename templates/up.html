@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta id="viewport" name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/gallery.css">
+    <style>
+        html, body{
+            height: 100%;
+        }
+    </style>
+    <title>upload</title>
+</head>
+<body>
+    <nav style="opacity:.9;width: 100%;margin-bottom: 0;" class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="javascript:;">Nomads</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li class=""><a href="/">Home<span class="sr-only">(current)</span></a></li>
+            <!-- <li><a href="#exampleModal" data-toggle="modal" data-target="#exampleModal" data-whatever="@localhost">文件上传</a></li> -->
+            <li><a href="/upload" >文件上传</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="#">Separated link</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+          </ul>
+          <form class="navbar-form navbar-left" role="search">
+            <div class="form-group">
+              <input type="text" class="form-control" placeholder="Search">
+            </div>
+            <button type="submit" class="btn btn-default">Submit</button>
+          </form>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="/reg">Register</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="#">Separated link</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container-fluid -->
+    </nav>
+    <nav class="navbar" style="margin-bottom: 0;"></nav>
+    <div class="container">
+      <div class="page-header">
+        <h3>Upload Image</h3>
+      </div>
+      <div class="image-frame" id="add">
+        <div class="image-container">
+        </div>
+        <p id="image-file-name">&nbsp;</p>
+      </div>
+
+
+    </div>
+    <footer class="footer">
+    <form method="post" action="/upload" enctype="multipart/form-data">
+      <div class="container hidden" id="upload-box">
+        <div class="footer-left">
+          <button type="button" class="close pull-left"><span aria-hidden="true">&times;</span></button>
+          <p class="text-muted center-line">To upload images file size &lt; 20m.</p>
+        </div>
+        <div class="footer-right">
+          <input type="submit" class="btn btn-success" value="确认上传">
+        </div>
+      </div>
+      <div class="container hidden" id="add-box">
+        <div class="footer-left">
+          <button type="button" class="close pull-left"><span aria-hidden="true">&times;</span></button>
+          <p class="text-muted center-line">To upload images file size &lt; 20m.</p>
+        </div>
+        <div class="footer-right">
+          <button type="button" class="btn btn-info file-upload-btn">
+            选择图片
+            <input id="upload" type="file" name="myfile">
+
+          </button>
+        </div>
+      </div>
+      </form>
+    </footer>
+    <script src="../static/js/jquery.min.js"></script>
+    <script src="../static/js/bootstrap.min.js"></script>
+    <script src="../static/js/angular.min.js"></script>
+    <script>
+        (function(){
+          if ("{{ alert_msg }}" == 1){
+             alert('上传成功');
+             window.location.href="/";
+          } else if ("{{ alert_msg}}" == "0"){
+             alert("上传失败!");
+             window.location.href="/";
+          }
+        })();
+        $(function(){
+           var EVENTS = {
+            e: {
+              $frame: $('.image-frame'),
+              $addButton: $("#add"),
+              $closeButton: $("button.close"),
+              $footer: $(".footer"),
+              $upload: $("#upload"),
+            },
+            listen: function(e){
+              this[e]();
+            },
+            removeClassAsync: function(callback){
+              var self = this;
+              setTimeout(function(){
+                self.e.$footer.removeClass('footer-hide');
+                self.e.$footer.removeClass('footer-show');
+                if (callback) return callback();
+              }, 500);
+            },
+            showBox: function(selector){
+              var self = this,
+                  $footer = self.e.$footer;
+              $footer.find(selector).removeClass('hidden').siblings().addClass('hidden');
+              $footer.addClass('footer-show');              
+            },
+            $addButton: function(){
+              var self = this;
+              this.e.$addButton.on({
+                click:function(){
+                  self.resetFooter();
+                  self.showBox('#add-box');
+                }
+              });
+            },
+            $closeButton: function(){
+              var self = this;
+              this.e.$closeButton.on({
+                click: function(){
+                  self.e.$footer.addClass('footer-hide');
+                  self.removeClassAsync();
+                } 
+              });
+            },
+            $upload: function(){
+              var self = this;
+              self.e.$upload.on({
+                change: function(){
+                  var fullpath = $(this).val();
+                  var filename = fullpath.split('path\\')[1],
+                      fractions = filename.split('.'),
+                      prefix = fractions[0],
+                      postfix = fractions[1];
+                  var tfilename;
+                  if (prefix.length > 15){
+                    tfilename = [prefix.slice(0,5) + '*****' + prefix.slice(-6,-1), postfix].join('.');
+                  }else{
+                    tfilename = [prefix, postfix].join('.');
+                  }
+                  $('#image-file-name').text(tfilename);
+                  // ==========
+                  var files = this.files ? this.files : [];
+                  if (!files.length || !window.FileReader) return;
+                  if (/^image/.test(files[0].type)){
+                   var reader = new FileReader();
+                   reader.readAsDataURL(files[0]);
+                   reader.onloadend = function(){
+                     var img =  new Image();
+                     img.src = this.result;
+                     // ==========
+                     self.e.$frame.css({
+                     	height: img.height/3 + 20,
+                     	width: img.width/3 + 20
+                     })
+                     $('.image-container').css({
+                     	height: img.height/3,
+                     	width: img.width/3,
+                     }).html(
+                       '<img width="' + img.width/3 + '" height="' + img.height/3 + '" src="' + 
+                       this.result +
+                       '">' 
+                     );
+                     self.e.$footer.addClass('footer-hide');
+                     self.removeClassAsync(function(){
+                      self.resetFooter();
+                      self.showBox('#upload-box');
+
+                     });
+                     
+                   };
+                  }
+                }
+              });
+            },
+            resetFooter: function(){
+              this.e.$footer.children('.container').addClass('hidden');
+            },
+            listenAll: function(){
+              var self = this;
+              for (var key in self){
+                if (key[0] == '$'){
+                  self.listen(key);
+                }  
+              }
+            }
+
+
+           };
+           EVENTS.listenAll();
+           // EVENTS.listen('$test');
+           // EVENTS.listen('$closeButton');
+
+        });
+    </script>
+</body>
+</html>
