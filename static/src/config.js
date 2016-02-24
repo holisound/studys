@@ -1,1 +1,0 @@
-angular.module("commonConfig",[]).config(["$interpolateProvider",function(o){o.startSymbol("[["),o.endSymbol("]]")}]).config(["$compileProvider",function(o){o.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|javascript|chrome-extension):/)}]);
