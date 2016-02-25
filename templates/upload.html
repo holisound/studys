@@ -1,40 +1,22 @@
 {% extends "layout.html" %}
 {% block body %}
   {{ super() }}
-  <div class="container">
+  <div class="container" ng-controller="headerCtrl" style="height: 100%;">
     <div class="page-header">
       <h3>Upload Image</h3>
     </div>
     <div class="image-frame" id="add">
-      <div class="image-container">
+      <div class="image-container" style="position: relative;">
         Press and Add Image
+          <img ng-src="[[ image.src ]]" alt="" width="120" height="120"
+               style="position: absolute;left: 0;width: 100%;height:100%;">
       </div>
     </div>
-        <p id="image-file-name">&nbsp;</p>
-<!--       <div id="img1" style="overflow:hidden;position:relative; width: 120px;height: 120px;margin:20px auto 0; background-color: #eee; ">
-          <p style="margin-top: 35%; text-align: center;">120 X 120</p>
-      </div> -->
-      <!--
-      <form method="post" action="/upload" enctype="multipart/form-data">
-      <div class="modal-body">
-          <div class="form-group">
-              <div style="position: relative; max-width: 240px; margin:20px auto;">                  
-                <label style="position: absolute; width: 100%;" class="btn btn-primary" for="exampleInputFile">select image</label>
-                <input style="width: 100%; height: 100%;" type="file" id="exampleInputFile" name="myfile">
-              </div>
-              
-
-                 <p class="help-block">To upload images file size &lt; 20m.</p> 
-                <p style="width:100%;font-weight: bold; text-align: center;" id="image-file-name"> &nbsp;</p>
-
-            </div>
-      </form>
-    -->
-
+      <p id="image-file-name" style="text-align:center;" ng-bind="image.name ? image.name : ''"></p>
   </div>
-  <footer class="footer">
+  <footer class="footer" ng-controller="footerCtrl">
   <form method="post" action="/upload" enctype="multipart/form-data">
-    <div class="container hidden" id="upload-box">
+    <div ng-show="fileloaded" class="container" id="upload-box">
       <div class="footer-left">
         <button type="button" class="close pull-left"><span aria-hidden="true">&times;</span></button>
         <p class="text-muted center-line">To upload images file size &lt; 20m.</p>
@@ -43,7 +25,7 @@
         <input type="submit" class="btn btn-success" value="确认上传">
       </div>
     </div>
-    <div class="container hidden" id="add-box">
+    <div ng-show="!fileloaded" class="container" id="add-box">
       <div class="footer-left">
         <button type="button" class="close pull-left"><span aria-hidden="true">&times;</span></button>
         <p class="text-muted center-line">To upload images file size &lt; 20m.</p>
@@ -51,8 +33,8 @@
       <div class="footer-right">
         <button type="button" class="btn btn-info file-upload-btn">
           选择图片
-          <input id="upload" type="file" name="myfile">
-
+          <!--<input ng-model="abc" change="onfileloaded()" id="upload" type="file" name="myfile">-->
+            <fileinput/>
         </button>
       </div>
     </div>
@@ -63,119 +45,80 @@
 {% block script %}
     {{ super() }}
     <script>
-        (function(){
-          if ("{{ alert_msg }}" == 1){
-             alert('上传成功');
-             window.location.href="/";
-          } else if ("{{ alert_msg}}" == "0"){
-             alert("上传失败!");
-             window.location.href="/";
-          }
-        })();
-        $(function(){
-           var EVENTS = {
-            e: {
-              $addButton: $("#add"),
-              $closeButton: $("button.close"),
-              $footer: $(".footer"),
-              $upload: $("#upload"),
-            },
-            listen: function(e){
-              this[e]();
-            },
-            removeClassAsync: function(callback){
-              var self = this;
-              setTimeout(function(){
-                self.e.$footer.removeClass('footer-hide');
-                self.e.$footer.removeClass('footer-show');
-                if (callback) return callback();
-              }, 500);
-            },
-            showBox: function(selector){
-              var self = this,
-                  $footer = self.e.$footer;
-              $footer.find(selector).removeClass('hidden').siblings().addClass('hidden');
-              $footer.addClass('footer-show');              
-            },
-            $addButton: function(){
-              var self = this;
-              this.e.$addButton.on({
-                click:function(){
-                  self.resetFooter();
-                  self.showBox('#add-box');
-                }
-              });
-            },
-            $closeButton: function(){
-              var self = this;
-              this.e.$closeButton.on({
-                click: function(){
-                  self.e.$footer.addClass('footer-hide');
-                  self.removeClassAsync();
-                } 
-              });
-            },
-            $upload: function(){
-              var self = this;
-              self.e.$upload.on({
-                change: function(){
-                  var fullpath = $(this).val();
-                  var filename = fullpath.split('path\\')[1],
-                      fractions = filename.split('.'),
-                      prefix = fractions[0],
-                      postfix = fractions[1];
-                  var tfilename;
-                  if (prefix.length > 15){
-                    tfilename = [prefix.slice(0,5) + '*****' + prefix.slice(-6,-1), postfix].join('.');
-                  }else{
-                    tfilename = [prefix, postfix].join('.');
-                  }
-                  $('#image-file-name').text(tfilename);
-                  // ==========
-                  var files = this.files ? this.files : [];
-                  if (!files.length || !window.FileReader) return;
-                  if (/^image/.test(files[0].type)){
-                   var reader = new FileReader();
-                   reader.readAsDataURL(files[0]);
-                   reader.onloadend = function(){
-                     var img =  new Image();
-                     img.src = this.result;
-                     $('.image-container').html(
-                       '<img width="120" height="120" src="' + 
-                       this.result +
-                       '">' 
-                     );
-                     // ==========
-                     self.e.$footer.addClass('footer-hide');
-                     self.removeClassAsync(function(){
-                      self.resetFooter();
-                      self.showBox('#upload-box');
+        angular.module('upload',['commonConfig'])
+                .controller('headerCtrl', [
+                        "$scope",
+                        "$rootScope",
+                        function($scope, $rootScope){
+                            $scope.image = {
+                                src: null,
+                                name: null
+                            }
+                            $rootScope.$on("onfileloaded", function(event, data){
+                                Object.assign($scope.image, {
+                                    name: data[0],
+                                    src: data[1]
+                                })
+                            })
 
-                     });
-                     
-                   };
-                  }
-                }
-              });
-            },
-            resetFooter: function(){
-              // this.e.$footer.children('.container').addClass('footer-hide');
-            },
-            listenAll: function(){
-              var self = this;
-              for (var key in self){
-                if (key[0] == '$'){
-                  self.listen(key);
-                }  
-              }
-            }
+                        }
+                ])
+                .controller('footerCtrl', [
+                    "$scope",
+                    function($scope){
+                        $scope.fileloaded = false;
+                        $scope.$broadcast("onfileloaded")
+                }])
+                .directive('fileinput', function(){
 
+//                        reader.onloadend = function(){
+//                            var img =  new Image();
+//                            img.src = this.result;
+//                            $('.image-container').html(
+//                                    '<img width="120" height="120" src="' +
+//                                    this.result +
+//                                    '">'
+//                            );
+//                            // ==========
+//                            self.e.$footer.addClass('footer-hide');
+//                            self.removeClassAsync(function(){
+//                                self.resetFooter();
+//                                self.showBox('#upload-box');
+//
+//                            });
+//
+//                        };
+                    var readImageFile = function(elem){
+                        var files = elem.files ? elem.files : [];
+                        if (!files.length || !window.FileReader) return;
+                        if (/^image/.test(files[0].type)){
+                            var reader = new FileReader();
+                            reader.readAsDataURL(files[0]);
+                            return [reader, files[0].name];
+                        }
+                    };
 
-           };
-           EVENTS.listenAll();
-           // EVENTS.listen('$test');
-           // EVENTS.listen('$closeButton');
+                    return {
+                        replace: true,
+                        template: '<input type="file" name="myfile"/>',
+                        link: function($scope, elem, attr){
+                            elem.on('change', function(){
+                                var temp = readImageFile(this),
+                                        reader = temp[0],
+                                        name = temp[1];
+                                reader.onloadend = function(){
+                                    $scope.$emit("onfileloaded", [name, this.result]);
+                                    $scope.$apply(function () {
+                                        $scope.fileloaded = true;
 
-        });
+                                    });
+
+                                }
+
+                            });
+                        }
+                    }
+                });
+        angular.bootstrap(document.querySelector("body"), ["upload"]);
     </script>
 {% endblock %}

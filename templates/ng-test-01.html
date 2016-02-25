@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 {% set title="ng-test-01" %}
+{% block head %}
+  <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+{% endblock %}
 {% block body %}    
     <h3>
         测试angluar路由和指令的使用<br>
@@ -14,13 +17,15 @@
     <div ng-view=""></div>
     <script type="text/ng-template" id="greet.html">
         <p>We are KINU team</p>
+        <statebutton text="helloworld" init-class="btn btn-info" mute-class="btn btn-success"/>
     </script>
 {% endblock %}
 {% block script %}
     <script src="/static/js/angular.js"></script>
+    <script src="/static/js/config.js"></script>
     <script src="/static/js/angular-route.js"></script>
     <script>
-        angular.module('ngTest01', ['ngRoute'])
+        angular.module('ngTest01', ['ngRoute', 'commonConfig'])
         .directive('goat', [function(){
             return {
                 // access template via templateCache
@@ -39,6 +44,32 @@
             .otherwise({
                 redirectTo: '/'
             });
+        }]).directive('statebutton', [function(){
+            // Runs during compile
+            return {
+                // name: '',
+                // priority: 1,
+                // terminal: true,
+                scope: {
+                    text: '@text',
+                    initClass: '@initClass',
+                    muteClass: '@muteClass'
+                }, // {} = isolate, true = child, false/undefined = no change
+                // controller: function($scope, $element, $attrs, $transclude) {},
+                // require: 'ngModel', // Array = multiple requires, ? = optional, ^ = check parent elements
+                // restrict: 'A', // E = Element, A = Attribute, C = Class, M = Comment
+                template: '<button ng-model="muted" ng-click="toggle()" ng-class="{true: muteClass, false: initClass}[muted]">[[ text ]]</button>',
+                // templateUrl: '',
+                // replace: true,
+                // transclude: true,
+                // compile: function(tElement, tAttrs, function transclude(function(scope, cloneLinkingFn){ return function linking(scope, elm, attrs){}})),
+                link: function($scope, iElm, iAttrs, controller) {
+                    $scope.muted = false;
+                    $scope.toggle = function(){
+                        $scope.muted = !$scope.muted;
+                    };
+                }
+            };
         }]);
         angular.bootstrap(document.querySelector('body'), ['ngTest01']);
     </script>

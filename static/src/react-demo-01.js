@@ -2,7 +2,7 @@
 * @Author: python
 * @Date:   2016-02-24 13:29:23
 * @Last Modified by:   python
-* @Last Modified time: 2016-02-24 18:01:51
+* @Last Modified time: 2016-02-25 10:44:48
 */
 
 'use strict';
@@ -44,9 +44,20 @@ var UploadButton = React.createClass({
     },
     render () {
         let unloadedStyle = {
-                width: '100px',
+                width: '100%',
+                height: '41px',
+                display: 'block', 
+                maxWidth: '414px',
+                margin: '0 auto', // require display: block
+                position: 'fixed', // only work with left, right, top, bottom
+                bottom: 0,
+                left: '50%',
+                outline: 'none',
+                 // require display: block
                 WebkitTransition: 'background-color .3s ease-out',
                       transition: 'background-color .3s ease-out',
+                WebkitTransform: 'translate3d(-50%, 0, 0)',
+                      transform: 'translate3d(-50%, 0, 0)',
 
             };
         return (<button 
