@@ -16,7 +16,8 @@ from tornado.ioloop import IOLoop
 from tornado.options import define
 import tornado
 import os
-# from db import mydql
+import qr
+
 
 class Handler(RequestHandler):
     def get_argument_into(self, *args, **kwargs):
@@ -76,6 +77,55 @@ class TestData(Handler):
         # dql.setmain('order_table')
         results = dql.query(where={'DATE_FORMAT(sbirthday, "%Y-%m-%d")__gte':'1985-01-01'}).orderby('sbirthday', desc=True).slice(start, stop)
         self.write({'testdata': results})
+
+
+class QRCode(Handler):
+    def get(self):
+        uid = self.get_argument("uid")
+        qrtype = self.get_argument("type", 1)
+        if qrtype == 1:        
+            userInfo = [{
+                "user_name": "peter" 
+                },
+                {
+                "user_name": "edward",
+                }
+            ][int(uid)-1]
+            if userInfo is None:
+                response = {"result": 0}
+            else:
+                url = 'http://192.168.1.8:8888/df/' + qr.encrypt(userInfo["user_name"])
+                # url = "http://%s/%s" % (self.request.host, qr.encrypt(userInfo["user_name"]))
+                self.set_header("Content-type", "image/png")
+                response = qr.save_bytes(url).getvalue()
+            self.write(response)
+                
+
+class DetectFriends(Handler):
+    def get(self, secret):
+        hashed_stuff = qr.decrypt(secret)
+        # 'SELECT * FROM user_table WHERE md5(user_name) LIKE "%{}%"'.format(hashed_stuff) limit 1
+        users = [
+        {
+            "user_id":1,
+            "user_name": "peter"
+        },
+        {
+            "user_id":11,
+            "user_name": "edward"
+        },]
+        for u in users:
+            if hashed_stuff in qr.md5_hash(u["user_name"]):
+                userInfo = u
+                break
+        else:
+            userInfo = None
+        if userInfo is None:
+            response = {"result":0}
+        else:
+            response = {"result":1, "DetectFriendsInfo": userInfo}
+        self.write(response)
+
 # tornado资源配置
 settings = {
     'template_path': os.path.join(os.path.dirname(__file__), 'templates'),
@@ -92,6 +142,8 @@ Application([
     (r'/other/?', OtherHtmlHandler),
     (r'/main/?', MainHanlder),
     (r'/data/?', TestData),
+    (r'/qr/?', QRCode),
+    (r'/df/([^/]{1,})', DetectFriends),
     ], default_host="0.0.0.0", **settings).listen(8888)
 
 IOLoop.current().start()
