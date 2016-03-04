@@ -19,7 +19,8 @@ comment_userid INT UNSIGNED NOT NULL,
 comment_type INT UNSIGNED  NOT NULL,
 comment_objectid INT UNSIGNED NOT NULL,
 comment_content TEXT NOT NULL,
-comment_postedtime DATETIME NOT NULL DEFAULT NOW()
+comment_postedtime DATETIME NOT NULL DEFAULT NOW(),
+comment_parentid INT UNSIGNED
 )ENGINE=MyISAM DEFAULT CHARSET=UTF8;
 
 CREATE TABLE IF NOT EXISTS relation_table(
