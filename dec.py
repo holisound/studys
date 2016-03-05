@@ -1,4 +1,4 @@
-# to convert 'int' into 'string' (don't use 'int' function)
+# to convert 'string' into 'integer' (don't use 'int' function)
 def int1(s):
     negative = '-' in s
     s = s.replace('-', '').strip()
