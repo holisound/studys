@@ -35,7 +35,7 @@ def test():
     sample01 = u"我的python世界"
     sample02 = u"我是一个pythoner"
     word_max_length = 10
-    for i in tuple(expose(sample01, 1, forward=True, expand=True)):
+    for i in tuple(expose(sample01, 1, expand=True)):
         print i
     for i in tuple(expose(sample02, 1, expand=False)):
         print i
