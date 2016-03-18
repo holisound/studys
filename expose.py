@@ -23,7 +23,7 @@ def expose(s, initial_length=1, step=1, expand=False, forward=False, max_length=
             else:
                 yield t
         else:
-            while len(t) == initial_length:
+            while stop < _max_length + 1:
                 yield t
                 start += step
                 stop += step
@@ -37,7 +37,7 @@ def test():
     word_max_length = 10
     for i in tuple(expose(sample01, 1, expand=True)):
         print i
-    for i in tuple(expose(sample02, 1, expand=False)):
+    for i in tuple(expose(sample02, 2,2, expand=False)):
         print i
 
 if __name__ == "__main__":
