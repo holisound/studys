@@ -18,10 +18,7 @@ def expose(s, initial_length=1, step=1, expand=False, forward=False, max_length=
                 if forward:
                     start += step
                     stop = start
-            if forward:
-                yield t[-1]
-            else:
-                yield t
+            yield t[-1] if forward else t
         else:
             while stop < _max_length + 1:
                 yield t

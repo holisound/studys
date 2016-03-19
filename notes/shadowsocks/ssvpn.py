@@ -14,7 +14,7 @@ body = requests.get(url, verify=False).content
 #_xpath = '//div[@class="testvpnitem"]'
 _xpath = '//div[@class="panel-body"]'
 testvpnitems = Selector(text=body).xpath(_xpath).extract()
-vpndetials = testvpnitems[3]
+vpndetials = testvpnitems[4]
 port, = Selector(text=vpndetials).re(u'端口：(\d+)')
 #passwd, = Selector(text=vpndetials).re(u'密码：(\d+)')
 passwd, = Selector(text=vpndetials).re(u'码：(\d+)')
