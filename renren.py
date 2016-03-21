@@ -4,7 +4,7 @@ from requests import Session, Request
 import re
 import json
 
-class RenRenClient:
+class RenRenClient(Session):
     headers = {
         'Host':'www.renren.com',
         'Origin':'http://www.renren.com',
@@ -13,7 +13,7 @@ class RenRenClient:
     }
 
     def __init__(self):
-        self.session = Session()
+        super(RenRenClient, self).__init__()
         self.params = dict(
             requestToken = None,
             _rtk = None
@@ -52,7 +52,7 @@ class RenRenClient:
 
         # do something with prepped.body
         # do something with prepped.headers
-        resp = self.session.send(prepped,
+        resp = self.send(prepped,
             # stream=stream,
             # verify=verify,
             # proxies=proxies,
@@ -104,7 +104,7 @@ class RenRenClient:
         #     # cert=cert,
         #     # timeout=timeout
         # )
-        resp = self.session.post(url, data=data)
+        resp = self.post(url, data=data)
         # print '='*40 + "\n\n\n%s\n\n\n" % resp.status_code + '=' *40
         if resp.status_code == 200:
             json_resp = json.loads(resp.text)
