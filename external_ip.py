@@ -19,5 +19,5 @@ def get_external_ip():
     if matches:
         return matches.group(0)
 
-
-print get_external_ip()
+if __name__ == '__main__':
+    print get_external_ip()
