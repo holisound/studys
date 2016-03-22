@@ -26,8 +26,11 @@ class FreeSS:
 
     def get_params(self):
         _params = list(self._ext_params())
-        _params.extend([self.local_port, self.timeout])
-        return _params
+        if all(_params):
+            _params.extend([self.local_port, self.timeout])
+            return _params
+        else:
+            raise Exception('invalid parameter!')
 
     def _ext_params(self):
         pat_ip = re.compile(r'服务器地址：([\w\.]+)')
