@@ -1,0 +1,2 @@
+py2exe==0.6.9
+shadowsocks==2.8.2
