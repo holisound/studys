@@ -29,3 +29,16 @@ relation_main_userid INT UNSIGNED NOT NULL,
 relation_sub_userid INT UNSIGNED NOT NULL,
 relation_type INT UNSIGNED NOT NULL
 )ENGINE=MyISAM DEFAULT CHARSET=UTF8;
+
+DROP TABLE IF EXISTS coachauth_table;
+CREATE TABLE IF NOT EXISTS coachauth_table(
+coachauth_id    INT UNSIGNED KEY AUTO_INCREMENT,
+coachauth_userid    INT UNSIGNED NOT NULL,
+coachauth_status    INT UNSIGNED NOT NULL,
+coachauth_name  VARCHAR(64) NOT NULL,
+coachauth_idcardno  VARCHAR(64) NOT NULL,
+coachauth_org   VARCHAR(64) NOT NULL,
+coachauth_workcardno    VARCHAR(64),
+coachauth_snapshot  VARCHAR(64) NOT NULL,
+coachauth_qualifications    VARCHAR(256) NOT NULL
+)ENGINE=MyISAM DEFAULT CHARSET=UTF8;
