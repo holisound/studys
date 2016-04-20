@@ -2,7 +2,7 @@
 # @Author: edward
 # @Date:   2016-04-20 10:01:58
 # @Last Modified by:   edward
-# @Last Modified time: 2016-04-20 11:24:51
+# @Last Modified time: 2016-04-20 13:36:21
 from datetime import (
     datetime as dt,
     timedelta)
@@ -27,6 +27,14 @@ class DateScope:
     def date(self):
         return self._datetime.date()
     
+    @property
+    def year(self):
+        return self._datetime.year
+
+    @property
+    def month(self):
+        return self._datetime.month
+        
     def init_datetime(self, date_str):
         if date_str is None:
             self._datetime = dt.now()
