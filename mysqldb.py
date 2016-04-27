@@ -976,11 +976,11 @@ class DbHelper:
         1 - query user's friends refer to userid
         2 - for user which is a coach, query user's students; for user which is a student, query user's coaches
         '''
-        sql = 'SELECT * FROM user_table LEFT JOIN coachauth_table ON coachauth_userid=user_id WHERE user_role=1 AND user_id IN \
-            (SELECT relation_main_userid FROM relation_table WHERE relation_status=1 AND relation_sub_userid={userid} {relation_type}) \
-            OR user_id IN\
-            (SELECT relation_sub_userid FROM relation_table WHERE relation_status=1 AND relation_main_userid={userid} {relation_type})'\
-            .format(userid=userid, relation_type=('' if relation_type == 0 else 'AND relation_type=%s' % relation_type))
+	sql = 'SELECT * FROM user_table LEFT JOIN coachauth_table ON coachauth_userid=user_id WHERE user_role=1 AND user_id IN (\
+            SELECT relation_main_userid FROM relation_table WHERE relation_status=1 AND relation_sub_userid={userid} {relation_type}\
+            UNION\
+            SELECT relation_sub_userid FROM relation_table WHERE relation_status=1 AND relation_main_userid={userid} {relation_type}\
+            )'.format(userid=userid, relation_type=('' if relation_type == 0 else 'AND relation_type=%s' % relation_type))
         sql += " ORDER BY user_id DESC "
         if count != 0:
             sql += " LIMIT %s, %s " % (startpos, count)
