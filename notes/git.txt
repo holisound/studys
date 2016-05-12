@@ -2,4 +2,4 @@ $ ssh-keygen -t rsa -C "edwardw@qq.com"
 cd ~/.ssh && cat id_rsa.pub
 git config --global user.email "edwardw@qq.com"
 git config --global user.name "edward"
-
+git remote set-url origin git@github.com:username/repo.git
