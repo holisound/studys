@@ -2,7 +2,7 @@
 # @Author: edward
 # @Date:   2016-05-17 10:13:14
 # @Last Modified by:   edward
-# @Last Modified time: 2016-05-25 09:51:46
+# @Last Modified time: 2016-05-25 17:26:12
 
 
 import sys, os
@@ -311,13 +311,14 @@ def fetch_handlers(ctx, base_handler, url_prefix=None):
     for k, v in _handlers_array.items():
         url_pattern = getattr(v, "url_pattern", None)
         url_name = getattr(v, "name", None)
-        url_prefix = getattr(v, "url_prefix", None) or url_prefix
+        url_prefix_ = getattr(v, "url_prefix", None) or url_prefix
+        # print url_prefix
         if url_pattern is None:
             continue
         else:
             handlers.append(
                 (
-                    url_pattern if url_prefix is None else (url_prefix + url_pattern),
+                    url_pattern if url_prefix_ is None else (url_prefix_ + url_pattern),
                     v
                 )
             )
