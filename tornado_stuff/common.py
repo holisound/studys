@@ -2,7 +2,7 @@
 # @Author: edward
 # @Date:   2016-05-17 10:13:14
 # @Last Modified by:   edward
-# @Last Modified time: 2016-05-25 17:26:12
+# @Last Modified time: 2016-06-01 15:58:30
 
 
 import sys, os
@@ -10,8 +10,8 @@ abspath = os.path.dirname(__file__)
 sys.path.append(abspath)
 os.chdir(abspath)
 
-from module.mysqldb import DbHelper
-import module.settings as Settings
+# from module.mysqldb import DbHelper
+# import module.settings as Settings
 import datetime
 import decimal
 from copy import deepcopy
@@ -22,7 +22,7 @@ from tornado.web import RequestHandler, MissingArgumentError
 import web, uuid, re, time, random, cgi
 import urllib, urllib2, urlparse, cookielib, hashlib, socket
 import logging, httplib, json
-from module import env
+# from module import env
 from operator import itemgetter
 from itertools import islice, groupby
 from PIL import Image
@@ -36,8 +36,8 @@ if sys.getdefaultencoding() != default_encoding:
     reload(sys)
     sys.setdefaultencoding(default_encoding)
 
-if Settings.DEBUG_APP:
-    logging.basicConfig(filename = os.path.join(os.getcwd(), 'log.txt'), level = logging.DEBUG)
+# if Settings.DEBUG_APP:
+#     logging.basicConfig(filename = os.path.join(os.getcwd(), 'log.txt'), level = logging.DEBUG)
 
 # ====================
 def safe_int(s):
@@ -102,10 +102,10 @@ class TemplateRedering:
 
     def getcurrentuser(self):
         user_id = self.get_secure_cookie("QGYMAUTHIDBE")
-        user_password = self.get_secure_cookie("QGYMAUTHIDPWD")
-        if self.db.IsUserExistByIdBackend(user_id, user_password) == False:
-            self.setcurrentuser(None)
-            user_id = None
+        # user_password = self.get_secure_cookie("QGYMAUTHIDPWD")
+        # if self.db.IsUserExistByIdBackend(user_id, user_password) == False:
+        #     self.setcurrentuser(None)
+        #     user_id = None
         return user_id
 
     def setcurrentuser(self, userid, userpassword=None):
@@ -198,7 +198,7 @@ class BaseHandler(RequestHandler, TemplateRedering):
         return self.application.config
     @property
     def db(self):
-        return self.application.db
+        return getattr(self.application, 'db', None)
     
     def get_argument(self, *args, **kwargs):
         v = super(BaseHandler, self).get_argument(*args, **kwargs)
@@ -244,7 +244,7 @@ class BaseHandler(RequestHandler, TemplateRedering):
             "absurl": self.get_absurl,
             "mysqldb": self.db,
         })
-        onserver = (socket.gethostname() == Settings.SERVER_HOST_NAME)
+        # onserver = (socket.gethostname() == Settings.SERVER_HOST_NAME)
         old_template_name = template_name
         if self.is_mobile():
             if template_name.endswith(".html"):
@@ -277,26 +277,26 @@ class BaseHandler(RequestHandler, TemplateRedering):
         return urlparse.urljoin(
             "http://%s" % host,
             relative_path)
-    def handle_photos_upload(self, photo_dict, width=640, save_dir=Settings.UPLOAD_DIR):
-        im = Image.open(StringIO(photo_dict['body']))
-        img_uuid = uuid.uuid4().hex + '.' + im.format.lower()
-        date_str = str(datetime.datetime.today().date())
-        date_dir = os.path.join(
-            save_dir,
-            date_str,
-        )
-        if not os.path.isdir(date_dir):
-            os.makedirs(date_dir)
-        save_to_path = os.path.join(
-            date_dir,
-            img_uuid,
-        )
-        with open(save_to_path + '.tmp', 'wb') as out_f:
-            out_f.write(photo_dict['body'])
-        os.rename(save_to_path + '.tmp', save_to_path)
-        if os.path.exists(save_to_path):
-            return 0, date_str + '/' + img_uuid
-        return 1, None
+    # def handle_photos_upload(self, photo_dict, width=640, save_dir=Settings.UPLOAD_DIR):
+    #     im = Image.open(StringIO(photo_dict['body']))
+    #     img_uuid = uuid.uuid4().hex + '.' + im.format.lower()
+    #     date_str = str(datetime.datetime.today().date())
+    #     date_dir = os.path.join(
+    #         save_dir,
+    #         date_str,
+    #     )
+    #     if not os.path.isdir(date_dir):
+    #         os.makedirs(date_dir)
+    #     save_to_path = os.path.join(
+    #         date_dir,
+    #         img_uuid,
+    #     )
+    #     with open(save_to_path + '.tmp', 'wb') as out_f:
+    #         out_f.write(photo_dict['body'])
+    #     os.rename(save_to_path + '.tmp', save_to_path)
+    #     if os.path.exists(save_to_path):
+    #         return 0, date_str + '/' + img_uuid
+    #     return 1, None
 
     @property
     def valid_arguments(self):
@@ -309,16 +309,15 @@ def fetch_handlers(ctx, base_handler, url_prefix=None):
     }
     handlers = []
     for k, v in _handlers_array.items():
-        url_pattern = getattr(v, "url_pattern", None)
+        url_pattern = getattr(v, "url_pattern", [])
         url_name = getattr(v, "name", None)
         url_prefix_ = getattr(v, "url_prefix", None) or url_prefix
         # print url_prefix
-        if url_pattern is None:
-            continue
-        else:
+        for up in url_pattern:
+
             handlers.append(
                 (
-                    url_pattern if url_prefix_ is None else (url_prefix_ + url_pattern),
+                    up if url_prefix_ is None else (url_prefix_ + up),
                     v
                 )
             )
