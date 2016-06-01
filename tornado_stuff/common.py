@@ -2,7 +2,7 @@
 # @Author: edward
 # @Date:   2016-05-17 10:13:14
 # @Last Modified by:   edward
-# @Last Modified time: 2016-06-01 15:58:30
+# @Last Modified time: 2016-06-01 16:07:45
 
 
 import sys, os
@@ -310,6 +310,8 @@ def fetch_handlers(ctx, base_handler, url_prefix=None):
     handlers = []
     for k, v in _handlers_array.items():
         url_pattern = getattr(v, "url_pattern", [])
+        if not isinstance(url_pattern, (list, tuple)):
+            url_pattern = [url_pattern]
         url_name = getattr(v, "name", None)
         url_prefix_ = getattr(v, "url_prefix", None) or url_prefix
         # print url_prefix
