@@ -204,7 +204,7 @@ class BaseHandler(RequestHandler, TemplateRedering):
         v = super(BaseHandler, self).get_argument(*args, **kwargs)
         if isinstance(v, basestring) and len(v) == 0:
             raise MissingArgumentError(args[0])
-        return int(v) if v.isdigit() else v
+        return v
 
     def is_mobile(self):
         mobile = re.compile(r"iPod|iPad|iPhone|Android|Opera Mini|BlackBerry|webOS|UCWEB|Blazer|PSP")
