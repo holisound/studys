@@ -2,7 +2,7 @@
 # @Author: edward
 # @Date:   2016-05-17 10:13:14
 # @Last Modified by:   edward
-# @Last Modified time: 2016-06-01 16:07:45
+# @Last Modified time: 2016-06-07 12:44:25
 
 
 import sys, os
@@ -193,6 +193,10 @@ class BaseHandler(RequestHandler, TemplateRedering):
     '''
     # def write_error(self, status_code, **kwargs):
     #     return self.renderJinjaTemplate("error.html", errorcode=status_code, user=self.getcurrentuser(), db=DbHelper())
+    def get(self):
+        self.write('test get ' + getattr(self, "url_pattern", "unknown path"))
+    def post(self):
+        self.write('test post' + getattr(self, "url_pattern", "unknown path"))
     @property
     def config(self):
         return self.application.config
