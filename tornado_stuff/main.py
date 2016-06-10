@@ -3,8 +3,8 @@
 # @Author: edward
 # @Date:   2016-05-19 14:37:44
 # @Last Modified by:   edward
-# @Last Modified time: 2016-05-24 10:06:49
-import tornado
+# @Last Modified time: 2016-06-10 16:09:45
+import tornado.web
 from tornado.ioloop import IOLoop
 from tornado.httpserver import HTTPServer
 # ====================
@@ -12,15 +12,19 @@ import sys
 import os
 # ====================
 
-# import config
+import config
 # from app_handlers import handlers
 # from db import DataBase
-from module.mysqldb import DbHelper
-from module import settings as config
-from admin import handlers as admin_handlers
+# from module.mysqldb import DbHelper
+# from admin import handlers as admin_handlers
 # ====================
+
+
 def main():
 
+    # =====
+    handlers = []
+    # =====
     class Main(tornado.web.Application):
         def __init__(self, *args, **kwargs):
             super(Main, self).__init__(*args, **kwargs)
@@ -28,9 +32,8 @@ def main():
         @property
         def db(self):
             return DbHelper()
-            
     app = Main(
-        admin_handlers, 
+        handlers, 
         cookie_secret='config.COOKIE_SECRET',
         login_url='/login',
         static_path=os.path.join(os.path.dirname(__file__), 'static'),
