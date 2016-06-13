@@ -229,7 +229,7 @@ class BaseHandler(RequestHandler, TemplateRedering):
     
     def get_argument(self, *args, **kwargs):
         v = super(BaseHandler, self).get_argument(*args, **kwargs)
-        if isinstance(v, basestring) and len(v) == 0 and len(args) == 0:
+        if isinstance(v, basestring) and len(v.strip()) == 0 and len(args) == 0:
             raise MissingArgumentError(args[0])
         return v
 
@@ -336,7 +336,7 @@ class BaseHandler(RequestHandler, TemplateRedering):
             elif len(v) == 1:
                 tv = v[0]
             else:
-                tv = ','.join(v)
+                tv = v
             r[k] = tv
         return r
     def write_json(self, obj):
