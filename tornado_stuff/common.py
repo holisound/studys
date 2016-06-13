@@ -2,7 +2,7 @@
 # @Author: edward
 # @Date:   2016-05-17 10:13:14
 # @Last Modified by:   edward
-# @Last Modified time: 2016-06-13 16:32:54
+# @Last Modified time: 2016-06-13 22:05:33
 
 
 import sys, os
@@ -330,7 +330,7 @@ class BaseHandler(RequestHandler, TemplateRedering):
         r = {}
         for k, v in self.request.arguments.items():
             if k.startswith('_'): continue
-            v = [ i for i in v if len(i) > 0]
+            v = [ i for i in v if len(i.strip()) > 0]
             if len(v) == 0:
                 continue
             elif len(v) == 1:
