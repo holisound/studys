@@ -2,7 +2,7 @@
 # @Author: edward
 # @Date:   2016-05-17 10:13:14
 # @Last Modified by:   edward
-# @Last Modified time: 2016-06-13 15:54:46
+# @Last Modified time: 2016-06-13 16:03:37
 
 
 import sys, os
@@ -229,7 +229,7 @@ class BaseHandler(RequestHandler, TemplateRedering):
     
     def get_argument(self, *args, **kwargs):
         v = super(BaseHandler, self).get_argument(*args, **kwargs)
-        if isinstance(v, basestring) and len(v) == 0:
+        if isinstance(v, basestring) and len(v) == 0 and len(args) == 0:
             raise MissingArgumentError(args[0])
         return v
 
@@ -327,13 +327,23 @@ class BaseHandler(RequestHandler, TemplateRedering):
 
     @property
     def valid_arguments(self):
-        return {k: v[0] for k, v in self.request.arguments.items() \
-                    if not k.startswith('_') and len(v[0]) > 0}
+        r = {}
+        for k, v in self.request.arguments.items():
+            if k.startswith('_'): continue
+            v = [ i for i in v if len(i) > 0]
+            if len(v) == 0:
+                continue
+            elif len(v) == 1:
+                tv = v[0]
+            else:
+                tv = ','.join(v)
+            r[k] = tv
+        return r
     def write_json(self, obj):
         self.set_header('content-type', 'application/json')
         jsonstr = json.dumps(obj, cls=EnhancedJSONEncoder)
         self.write(jsonstr)
-        
+
 def fetch_handlers(ctx, base_handler, url_prefix=None):
     _handlers_array = {
         k:v for k,v  in ctx.items() if v in base_handler.__subclasses__()
