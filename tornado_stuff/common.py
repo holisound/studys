@@ -2,7 +2,7 @@
 # @Author: edward
 # @Date:   2016-05-17 10:13:14
 # @Last Modified by:   edward
-# @Last Modified time: 2016-06-13 16:03:37
+# @Last Modified time: 2016-06-13 16:32:54
 
 
 import sys, os
@@ -125,11 +125,11 @@ class TemplateRedering:
 
     def getcurrentuser(self):
         user_id = self.get_secure_cookie("QGYMAUTHIDBE")
-        # user_password = self.get_secure_cookie("QGYMAUTHIDPWD")
-        # if self.db.IsUserExistByIdBackend(user_id, user_password) == False:
-        #     self.setcurrentuser(None)
-        #     user_id = None
-        return user_id
+        user_password = self.get_secure_cookie("QGYMAUTHIDPWD")
+        if self.db.IsUserExistByIdBackend(user_id, user_password) == False:
+            self.setcurrentuser(None)
+            user_id = None
+        return user_id and int(user_id)
 
     def setcurrentuser(self, userid, userpassword=None):
         if userid is not None:
