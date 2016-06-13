@@ -2,7 +2,7 @@
 # @Author: edward
 # @Date:   2016-05-17 10:13:14
 # @Last Modified by:   edward
-# @Last Modified time: 2016-06-07 12:44:25
+# @Last Modified time: 2016-06-13 15:54:46
 
 
 import sys, os
@@ -90,7 +90,30 @@ def pick_out_of_dict(dictObj, keysets):
     return {k: v for k, v in dictObj.items() if k in keysets}
 
 ############################################################################################################################################################################################
-
+class EnhancedJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            ARGS = ('year', 'month', 'day', 'hour', 'minute',
+                     'second', 'microsecond')
+            return {'__type__': 'datetime.datetime',
+                    'args': [getattr(obj, a) for a in ARGS]}
+        elif isinstance(obj, datetime.date):
+            ARGS = ('year', 'month', 'day')
+            return {'__type__': 'datetime.date',
+                    'args': [getattr(obj, a) for a in ARGS]}
+        elif isinstance(obj, datetime.time):
+            ARGS = ('hour', 'minute', 'second', 'microsecond')
+            return {'__type__': 'datetime.time',
+                    'args': [getattr(obj, a) for a in ARGS]}
+        elif isinstance(obj, datetime.timedelta):
+            ARGS = ('days', 'seconds', 'microseconds')
+            return {'__type__': 'datetime.timedelta',
+                    'args': [getattr(obj, a) for a in ARGS]}
+        elif isinstance(obj, decimal.Decimal):
+            return {'__type__': 'decimal.Decimal',
+                    'args': [str(obj),]}
+        else:
+            return super().default(obj)
 class TemplateRedering:
     '''使用Jinja2生成模板
     '''
@@ -306,7 +329,11 @@ class BaseHandler(RequestHandler, TemplateRedering):
     def valid_arguments(self):
         return {k: v[0] for k, v in self.request.arguments.items() \
                     if not k.startswith('_') and len(v[0]) > 0}
-                    
+    def write_json(self, obj):
+        self.set_header('content-type', 'application/json')
+        jsonstr = json.dumps(obj, cls=EnhancedJSONEncoder)
+        self.write(jsonstr)
+        
 def fetch_handlers(ctx, base_handler, url_prefix=None):
     _handlers_array = {
         k:v for k,v  in ctx.items() if v in base_handler.__subclasses__()
