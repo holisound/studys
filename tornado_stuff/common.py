@@ -2,7 +2,7 @@
 # @Author: edward
 # @Date:   2016-05-17 10:13:14
 # @Last Modified by:   edward
-# @Last Modified time: 2016-06-13 22:05:33
+# @Last Modified time: 2016-06-14 10:11:59
 
 
 import sys, os
@@ -265,6 +265,7 @@ class BaseHandler(RequestHandler, TemplateRedering):
 
         context.update({
             'settings': self.settings,
+            'config': self.config,
             'request': self.request,
             'xsrf_token': self.xsrf_token,
             'xsrf_form_html': self.xsrf_form_html,
