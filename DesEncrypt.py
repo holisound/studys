@@ -2,7 +2,7 @@
 # @Author: edward
 # @Date:   2016-05-30 16:09:24
 # @Last Modified by:   edward
-# @Last Modified time: 2016-06-01 10:47:21
+# @Last Modified time: 2016-06-20 10:13:50
 import base64
 from Crypto.Cipher import DES
 from Crypto.Hash import MD5
@@ -18,11 +18,14 @@ class DesEncrypt(object):
         ("/", "[x]"),
         ("=", "[d]"),        
     ]
-    def __init__(self, key, *args, **kw):
+    def __init__(self, key=None, *args, **kw):
         super(DesEncrypt, self).__init__(*args, **kw)
         self.set_key(key)
 
     def set_key(self, key):
+        if key is None:
+            self._key = DES_PRIVATE_ENCRYPT_KEY[:8]
+            return 
         self._key = key[:8]
 
     @property
@@ -42,13 +45,19 @@ class DesEncrypt(object):
         return output_str
 
     def decrypt(self, message):
+        if message == '': return message
+        # paddings = (8 - len(message) % 8) * padding
         message = self._replace_value_by_key(message)
         message = base64.b64decode(message)
         message =  self.getDesCode(message)
-        return message
+        last_chr = message[-1]
+        pos = ord(last_chr)
+        return message[:-pos]
 
     def encrypt(self, plaintext):
-        plaintext = self.getEncCode(plaintext)
+        padindex = padlen = 8 - len(plaintext) % 8
+        paddings = chr(padindex) * padlen
+        plaintext = self.getEncCode(plaintext + paddings)
         plaintext = base64.b64encode(plaintext)
         plaintext = self._replace_key_by_value(plaintext)
         return plaintext
@@ -83,11 +92,14 @@ if __name__ == '__main__':
     raw password       frontend-encrypted           final hashed 
                     eX[j]4lwGjrCQ4ZgsTEp1PIg[d][d]
     "xiaoting1" -> "eX[j]4lwGjrCQ4ZgsTEp1PIg==" -> "f482128b3e62c13a743b62ca710c3042"
+    '13566017699' -> '7d847730be47eabda9070561255871f5' 
     '''
     public = DesEncrypt(DES_PUBLIC_ENCRYPT_KEY)
-    # public.encrypt('xiaoting1')
     private = DesEncrypt(DES_PRIVATE_ENCRYPT_KEY)
-    decrypted = public.decrypt("eX[j]4lwGjrCQ4ZgsTEp1PIg==")
-    encrypted = private.encrypt(decrypted)
-    print md5(encrypted)
+    for i in ('13566017699', 'xiaoting1'):
+        enc = public.encrypt(i)        
+        print enc
+        dec = public.decrypt(enc)
+        print repr(dec)
+        print md5(private.encrypt(dec))
 
