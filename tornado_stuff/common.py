@@ -2,7 +2,7 @@
 # @Author: edward
 # @Date:   2016-05-17 10:13:14
 # @Last Modified by:   edward
-# @Last Modified time: 2016-06-14 10:11:59
+# @Last Modified time: 2016-06-21 14:03:24
 
 
 import sys, os
@@ -340,9 +340,9 @@ class BaseHandler(RequestHandler, TemplateRedering):
                 tv = v
             r[k] = tv
         return r
-    def write_json(self, obj):
+    def write_json(self, obj, **kwargs):
         self.set_header('content-type', 'application/json')
-        jsonstr = json.dumps(obj, cls=EnhancedJSONEncoder)
+        jsonstr = json.dumps(obj, cls=EnhancedJSONEncoder, sort_keys=True, **kwargs)
         self.write(jsonstr)
 
 def fetch_handlers(ctx, base_handler, url_prefix=None):
