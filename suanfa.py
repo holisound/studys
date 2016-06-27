@@ -27,13 +27,21 @@ def compare_exec(fns=[], *args, **kwargs):
     return r
 
 
+def get_id_validate_number(id17):
+    weight = (7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2)
+    assert len(weight) == 17
+    validate = ('1','0','X','9','8','7','6','5','4','3','2')
+    remain = sum( int(i) * int(w) for i, w, in zip(id17, weight)) % 11
+    assert 0 <= remain <= 10
+    return validate[remain]
 
 
 
 if __name__ == '__main__':
-    ls = range(10**5)
-    compare_exec([
-        lambda : reduce(reduce_func, ls),
+    # ls = range(10**5)
+    # compare_exec([
+    #     lambda : reduce(reduce_func, ls),
         # lambda :[reduce(lambda x,y:x+y, ls[:i]) for i in range(1, len(ls))],
         # lambda :[sum(ls[:i]) for i in range(1, len(ls))]
-    ])
+    # ])
+    print get_id_validate_number('53010219200508011')
