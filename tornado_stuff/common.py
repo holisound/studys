@@ -2,7 +2,7 @@
 # @Author: edward
 # @Date:   2016-05-17 10:13:14
 # @Last Modified by:   edward
-# @Last Modified time: 2016-06-21 14:03:24
+# @Last Modified time: 2016-06-30 16:13:59
 
 
 import sys, os
@@ -334,7 +334,7 @@ class BaseHandler(RequestHandler, TemplateRedering):
             v = [ i for i in v if len(i.strip()) > 0]
             if len(v) == 0:
                 continue
-            elif len(v) == 1:
+            elif len(v) == 1 and '[]' not in k:
                 tv = v[0]
             else:
                 tv = v
