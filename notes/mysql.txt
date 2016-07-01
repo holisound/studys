@@ -63,3 +63,11 @@ mysql>use news;
 mysql>source 导入的文件名; 
 如我输入的命令行：
 mysql>source news.sql;
+
+DROP TABLE IF EXISTS article;
+CREATE TABLE IF NOT EXISTS article(
+`flag` int unsigned,
+`edit_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Auto-update time'
+);
+
+sql_mode=STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION
