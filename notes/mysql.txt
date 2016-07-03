@@ -9,9 +9,12 @@ character-set-server=utf8
 sudo service mysql restart
 
 安装mysql-python依赖库
+ubuntu:
 sudo apt-get install python-dev
 sudo apt-get install libmysqlclient-dev
 sudo updatedb
+centos7:
+sudo yum install python-devel
 更改root密码
 SET PASSWORD FOR 'root'@'localhost' = PASSWORD('password');
 
