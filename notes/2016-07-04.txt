@@ -2,3 +2,9 @@
 search 'syntax'
 sudo cat /var/log/audit/audit.log | grep nginx | grep denied | audit2allow -M mynginx
 sudo semodule -i mynginx.pp
+
+远程登陆不要密码，使用authorized_keys不生效的解决方法
+配置用户的公钥登陆时，配置完authorized_keys居然一直不生效，于是google之，发现原来是因为.ssh目录和下面文件的权限问题导致的，因为目录的权限已经超过了sshd的要求权限。
+如果希望ssh公钥生效需满足至少下面两个条件：
+1) .ssh目录的权限必须是700 
+2) .ssh/authorized_keys文件权限必须是600
