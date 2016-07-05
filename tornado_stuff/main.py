@@ -3,7 +3,7 @@
 # @Author: edward
 # @Date:   2016-05-19 14:37:44
 # @Last Modified by:   edward
-# @Last Modified time: 2016-06-10 16:09:45
+# @Last Modified time: 2016-07-05 14:45:54
 import tornado.web
 from tornado.ioloop import IOLoop
 from tornado.httpserver import HTTPServer
@@ -17,13 +17,18 @@ import config
 # from db import DataBase
 # from module.mysqldb import DbHelper
 # from admin import handlers as admin_handlers
+from test import handlers as test_handlers
 # ====================
 
 
 def main():
-
     # =====
+    global_scope = globals()
     handlers = []
+    for key in global_scope:
+        if key.endswith('_handlers'):
+            handlers.extend(global_scope[key])
+
     # =====
     class Main(tornado.web.Application):
         def __init__(self, *args, **kwargs):

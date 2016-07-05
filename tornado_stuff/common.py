@@ -2,7 +2,7 @@
 # @Author: edward
 # @Date:   2016-05-17 10:13:14
 # @Last Modified by:   edward
-# @Last Modified time: 2016-06-30 16:13:59
+# @Last Modified time: 2016-07-05 14:44:08
 
 
 import sys, os
@@ -19,7 +19,7 @@ from time import gmtime, strftime
 from datetime import timedelta
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 from tornado.web import RequestHandler, MissingArgumentError
-import web, uuid, re, time, random, cgi
+import uuid, re, time, random, cgi
 import urllib, urllib2, urlparse, cookielib, hashlib, socket
 import logging, httplib, json
 # from module import env
