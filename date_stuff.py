@@ -2,7 +2,7 @@
 # @Author: edward
 # @Date:   2016-04-20 10:01:58
 # @Last Modified by:   edward
-# @Last Modified time: 2016-04-20 13:36:21
+# @Last Modified time: 2016-07-11 20:26:17
 from datetime import (
     datetime as dt,
     timedelta)
@@ -70,7 +70,8 @@ class DateScope:
 
 def main():
     d = DateScope('2012年3月1日')
-    print filter(d.FILTER_LASTWEEK, ['2012-3-1', '2012-3-2'])
+    fn = d.filter_of_lastdays(7)
+    print filter(fn, ['2012-3-1', '2012-3-2'])
 if __name__ == '__main__':
     main()
 
