@@ -3,12 +3,12 @@
 # @Author: edward
 # @Date:   2016-05-19 14:37:44
 # @Last Modified by:   edward
-# @Last Modified time: 2016-07-05 14:45:54
+# @Last Modified time: 2016-07-19 09:20:54
 import tornado.web
 from tornado.ioloop import IOLoop
 from tornado.httpserver import HTTPServer
+from tornado.options import options, define
 # ====================
-import sys
 import os
 # ====================
 
@@ -22,6 +22,9 @@ from test import handlers as test_handlers
 
 
 def main():
+    define('port', default=8000, help="run on the port", type=int)
+    define('debug', default=False, help='run in debug mode', type=bool)
+    options.parse_command_line()
     # =====
     global_scope = globals()
     handlers = []
@@ -43,17 +46,11 @@ def main():
         login_url='/login',
         static_path=os.path.join(os.path.dirname(__file__), 'static'),
         xsrf_cookies=True,
-        debug=False if len(sys.argv) > 1 else True,
+        debug=options.debug,
         gzip=True,
         )
-
-    if len(sys.argv) > 1:
-        port = int(sys.argv[1].split('=')[1])
-    else:
-        port = 9999
-
     server = HTTPServer(app)
-    server.listen(port)
+    server.listen(options.port)
     print 'tornado launched!'
     IOLoop.current().start()
 if __name__ == "__main__":
