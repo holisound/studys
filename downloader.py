@@ -3,8 +3,7 @@
 # @Author: edward
 # @Date:   2016-08-16 08:34:20
 # @Last Modified by:   edward
-# @Last Modified time: 2016-08-16 14:06:33
-from my_algorithms.partition import Partition
+# @Last Modified time: 2016-08-16 14:31:36
 import requests
 from urlparse import urlparse
 from io import BytesIO
@@ -14,6 +13,30 @@ import os
 import sys
 
 
+class Partition(object):
+
+    def __init__(self, content_length, num):
+        self._content_length = content_length
+        self._num = num
+    def get_partitions(self):
+        return list(self._partition())
+    def _partition(self):
+        content_length = self._content_length
+        num = self._num
+        mod = content_length % num
+        avg = content_length / num
+        start, end = 0, avg
+        i = 1
+        while i <= num:
+            yield (start, end)
+            i += 1
+            start = end + 1
+            if i == num:
+                end = content_length
+            else:
+                end += avg
+                
+                
 class Master(object):
     def __init__(self, url, worker_num=3, proxy=None):
         self._url = url
