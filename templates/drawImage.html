@@ -6,7 +6,7 @@
 </head>
 <body>
   <draw:image  ng-repeat="x in [1,2,3]" url="'img/' + ($index + 1) + '.png'"></draw:image>
-  <script src="./angular/angular.js"></script>
+  <script src="../static/js/angular.min.js"></script>
   <script>
     angular.module('drawImageModule', [])
     .directive('drawImage', [function(){
