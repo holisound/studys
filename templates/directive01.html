@@ -5,9 +5,9 @@
         <meta name="viewport" content="width=device-width">
         <title>Directive01</title>
     </head>
-    <body>
+    <body ng-controller="twBtnCtrl">
 <!--     <div ng-include src="'index.html'" scope="" onload=""></div> -->
-    <twinbutton count="1" max="10" min="3"/>
+    <twinbutton count="counter" interval="interval"/>
     <script src="../static/js/angular.min.js"></script>
     <script>
     /**
@@ -16,32 +16,40 @@
     * Description
     */
     angular.module('Directive01', [])
-    .directive('twinbutton', [function(){
+    .controller('twBtnCtrl', ['$scope', function($scope){
+        $scope.counter = 5;
+        $scope.max = 10;
+        $scope.min = 3;
+        $scope.interval = 2;
+        $scope.$watch('counter', function(newValue, oldValue){
+            if (newValue > $scope.max){
+                $scope.counter = $scope.max;
+            } else if (newValue < $scope.min){
+                $scope.counter = $scope.min;
+            }
+        });
+
+    }])
+    .directive('twinbutton', function(){
         return {
             scope:{
                 count: "=",
-                max: "=",
-                min: "="
+                interval: '='
             },
             replace: true,
             restrict: 'E',
-            template: '<div><button ng-click="counter(1)">addbutton</button>' + 
-                      '<p ng-bind="count"></p>' +
-                      '<button ng-click="counter(-1)">reducebutton</button></div>',
+            template: `
+                <div><button ng-click="counter(interval)">addbutton</button>
+                <p ng-bind="count"></p>
+                <button ng-click="counter(-interval)">reducebutton</button></div>
+            `,
             link: function($scope, iElm, iAttrs, controller) {
                 $scope.counter = function(n){
                     $scope.count += n;
                 };
-                $scope.$watch('count', function(newValue, oldValue){
-                    if (newValue > $scope.max){
-                        $scope.count = $scope.max;
-                    } else if (newValue < $scope.min){
-                        $scope.count = $scope.min;
-                    }
-                });
             }   
         };
-    }]);
+    });
     </script>
     </body>
 </html>
