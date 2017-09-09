@@ -2,3 +2,4 @@
 *sublime*
 *.jpg
 build/
+node_modules/
