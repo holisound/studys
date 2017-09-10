@@ -1,7 +1,5 @@
 <div>
-    <div>    
-        <button ng-mouseup="func1()" class="button button-3d button-primary button-circle"><i class="fa fa-plus"></i></button>
-        <label class="label-count" for="">{{ count }}</label>
-        <button ng-mouseup="func2()" class="button button-3d button-primary button-circle"><i class="fa fa-minus"></i></button>
-    </div>
+    <button ng-mouseup="counter.do(counter.interval)" class="button button-3d button-primary button-circle"><i class="fa fa-plus"></i></button>
+    <label class="label-count" for="">{{ counter.value }}</label>
+    <button ng-mouseup="counter.do(-counter.interval)" class="button button-3d button-primary button-circle"><i class="fa fa-minus"></i></button>
 </div>
