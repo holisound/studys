@@ -2,7 +2,7 @@ angular.
   module('twinButton').
   component('twinbutton', {
     templateUrl: 'partials/twinButton.html',
-    controller: function ($scope) {
+    controller: ['$scope', function ($scope) {
         $scope.counter = {
             value: 1,
             max: 10,
@@ -18,4 +18,4 @@ angular.
             }
         }
     }
-  });
+  ]});
