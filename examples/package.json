@@ -1,6 +1,12 @@
 {
   "dependencies": {
     "angular": "^1.6.6",
-    "angular-ui-router": "^1.0.3"
+    "angular-ui-router": "^1.0.3",
+    "bootstrap": "^3.3.7",
+    "fontawesome": "^4.7.2"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-webserver": "^0.9.1"
   }
 }

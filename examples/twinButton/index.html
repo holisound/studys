@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="twinButton">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>TwinButton</title>
+        <link rel="stylesheet" href="../node_modules/font-awesome/css/font-awesome.min.css">
+        <link rel="stylesheet" href="http://www.bootcss.com/p/buttons/css/buttons.css">
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body ng-controller="twBtnCtrl">
+<!--     <div ng-include src="'index.html'" scope="" onload=""></div> -->
+    <twinbutton count="counter.value" func1="counter.do(counter.interval)" func2="counter.do(-counter.interval)"
+        />
+    <script src="../node_modules/angular/angular.min.js"></script>
+    <script>
+    /**
+    * twinButton Module
+    *
+    * Description
+    */
+    // module.js
+    angular.module('twinButton', []);
+    angular.module('twinButton')
+    .controller('twBtnCtrl', ['$scope', function($scope){
+        $scope.counter = {
+            value: 1,
+            max: 10,
+            min: 1,
+            interval: 1,
+            do: function(n) {
+                this.value += n
+                if (this.value > this.max) {
+                    this.value = this.max;
+                } else if (this.value < this.min) {
+                    this.value = this.min
+                }
+            }
+        }
+
+    }])
+    .directive('twinbutton', function(){
+        return {
+            scope:{
+                count: "<",
+                func1: '&',
+                func2: '&',
+            },
+            replace: true,
+            restrict: 'E',
+            templateUrl: 'partials/twinButton.html'
+        };
+    });
+    </script>
+    </body>
+</html>
