@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stacked Progressbar</title>
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../node_modules/angular-ui-bootstrap/dist/ui-bootstrap-csp.css">
+    <link rel="stylesheet" href="../node_modules/ui-select/dist/select.min.css">
+    <script src="../node_modules/angular/angular.min.js"></script>
+    <script src="../node_modules/angular-sanitize/angular-sanitize.js"></script>
+    <script src="../node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js"></script>
+    <script src="../node_modules/ui-select/dist/select.js"></script>
+    <style>
+        .list-group-item > label {
+            padding: 0 10px;
+        }
+    </style>
+</head>
+<body ng-app="testProgress">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <div ng-controller="ProgressDemoCtrl">
+                    <h3>Stacked 
+                        <div class="btn-group">                        
+                            <button type="button" class="btn btn-sm btn-success" ng-click="pushStacked()">Push</button>
+                            <button ng-disabled="stacked.length == 0" class="btn btn-sm btn-danger" ng-click="popStacked()">Pop</button>
+                            <button ng-disabled="stacked.length == 0" class="btn btn-sm btn-primary" ng-click="saveStacked()">Save</button>
+                        </div>
+                    </h3>
+                    <uib-progress><uib-bar ng-repeat="bar in stacked track by $index" value="bar.value" type="{{bar.type}}"><span ng-hide="bar.value < 5">{{bar.text}}</span></uib-bar>
+                    </uib-progress>
+                    <ul class="list-group">                    
+                        <li class="list-group-item" ng-repeat="bar in stacked">
+                            <label for="portion">Portion</label>
+                            <input ng-model="bar.value" type="number" name="portion" min="1" max="100">
+                            <label for="alert">Alert</label>
+                            <input type="text" ng-model="bar.text" name="alert">
+                            <label for="alert">Style</label>
+                            <select name="" id="" ng-model="bar.type">
+                                <option ng-value="type" ng-repeat="type in types track by $index">
+                                {{ type.split(' ')[0] }}</option>
+                            </select>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var app = angular.module('testProgress', ['ui.bootstrap','ngSanitize', 'ui.select']);
+        app.service('hexafy', function() {
+            this.myFunc = function (x) {
+                return x.toString(16);
+            }
+        });
+        app.service('dashboard', ['$http', function($http){
+            this.saveStacked = function(data) {
+                return $http({
+                    url: '/test',
+                    method: 'POST',
+                    data: data,
+                    headers: {
+                        "content-type": "application/json"
+                    }
+                })
+
+            }
+            
+        }])
+        app.controller('ProgressDemoCtrl', ['$scope', 'dashboard', function ($scope, dashboard) {
+          $scope.max = 200;
+          $scope.stackMaxLen = 10;
+          $scope.stacked = [];
+          $scope.types = ['default', 'success', 'info', 'warning', 'danger']
+            .map(function(e) {
+                return e + ' active progress-bar-striped'
+            })
+          $scope.pushStacked = function() {
+            var stackLen = $scope.stacked.length,
+                typeLen = $scope.types.length;
+            if (stackLen >= $scope.stackMaxLen) return; 
+            $scope.stacked.push({
+              value: 10,
+              type: $scope.types[stackLen % typeLen],
+              text: "text" + ($scope.stacked.length + 1),
+            });
+          };
+          $scope.popStacked = function(){
+            $scope.stacked.pop()
+          }
+          $scope.saveStacked = function(){
+            dashboard.saveStacked({data: $scope.stacked})
+          }
+        }]);
+
+    </script>
+</body>
+</html>
