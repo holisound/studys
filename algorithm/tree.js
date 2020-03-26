@@ -1,5 +1,7 @@
-const targetKeys = ['a', 'a-b', 'a-b-c', 'd', 'd-e-f', 'h-j-k', 'm', 'm-n', 'r-s-t', 'r-s-u']
-const map = {}
+/*
+Prefix & Tree
+*/
+const targetKeys = ['a', 'a-b', 'a-b-c', 'd', 'd-e-f', 'h-j-k', 'm', 'm-n', 'r-s-t', 'r-s-u', 'r-v']
 
 function count(p){
   let cnt = 0
@@ -10,47 +12,31 @@ function count(p){
   return cnt
 }
 
+targetKeys.sort((a,b) => count(a)-count(b))
+
+console.log(targetKeys)
+
+const keys = []
 for (let k of targetKeys) {
-  const [ root ] = k.split('-');
-  if (map[root]){
-    const [p] = map[root];
-    const ck = count(k), cp = count(p) 
-    if (ck < cp) {
-      map[root] = [k]
-    } else if (ck == cp){
-      map[root].push(k);
+  let flag = 0, s = ''
+  for (let c of k) {
+    s += c
+    if (keys.indexOf(s) !== -1) {
+      flag = 1
+      break;
     }
-  } else {
-    map[root] = [k]
+  }
+  if (!flag) {
+    keys.push(k)
   }
 }
-console.log(map)
-/*
-{
-  a: [ 'a' ],
-  d: [ 'd' ],
-  h: [ 'h-j-k' ],
-  m: [ 'm' ],
-  r: [ 'r-s-t', 'r-s-u' ]
-}
-*/
+console.log(keys)
 const res = {}
-for (let path of Object.values(map)){
-  for (let p of path){
-    let node = res
-    for (let step of p.split('-')) {
-      node[step] = node[step] || {}
-      node = node[step]
-    }
+for (let path of keys){
+  let node = res
+  for (let step of path.split('-')) {
+    node[step] = node[step] || {}
+    node = node[step]
   }
 }
 console.log(res)
-/*
-{
-  a: {},
-  d: {},
-  h: { j: { k: {} } },
-  m: {},
-  r: { s: { t: {}, u: {} } }
-}
-*/
