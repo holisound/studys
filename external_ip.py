@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #coding=utf-8
 
-import urllib
+import urllib.request
 import re
 import random
 
@@ -11,7 +11,7 @@ def get_external_ip():
     url = random.choice([
         'http://ip.cn',
     ])
-    resp = urllib.urlopen(url)
+    resp = urllib.request.urlopen(url)
 
     # print resp.read()
     html = resp.read()
@@ -19,5 +19,5 @@ def get_external_ip():
     if matches:
         return matches.group(0)
 
-if __name__ == '__main__':
-    print get_external_ip()
+if __name__ == "__main__":
+    print(get_external_ip())

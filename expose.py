@@ -33,9 +33,9 @@ def test():
     sample02 = u"我是一个pythoner"
     word_max_length = 10
     for i in expose(sample01, 1, expand=True):
-        print i
+        print(i)
     for i in expose(sample02, 2,2, expand=False):
-        print i
+        print(i)
 
 if __name__ == "__main__":
     test()
