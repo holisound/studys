@@ -6,7 +6,7 @@ RED_LOWER = np.array([156, 0, 0])
 
 
 def in_range(value):
-    return (value >= RED_LOWER).all() and (value <= RED_UPPER).all()
+    return value >= RED_LOWER, value <= RED_UPPER
 
 
 def main(src, dst):
@@ -29,7 +29,7 @@ def main(src, dst):
 
 
 def check_neighbors(mat, r, c, R, C):
-    if not in_range(mat[r][c]):
+    if not np.all(in_range(mat[r][c])):
         return False
     left_top = []
     right_bottom = []
@@ -42,8 +42,8 @@ def check_neighbors(mat, r, c, R, C):
             right_bottom.append((r - i, c))
         if c - i > -1:
             right_bottom.append((r, c - i))
-    is_left_top = all(in_range(mat[rx][cx]) for rx, cx in left_top)
-    is_right_bottom = all(in_range(mat[rx][cx]) for rx, cx in right_bottom)
+    is_left_top = np.all([in_range(mat[rx][cx]) for rx, cx in left_top])
+    is_right_bottom = np.all([in_range(mat[rx][cx]) for rx, cx in right_bottom])
     return is_left_top or is_right_bottom
 
 
