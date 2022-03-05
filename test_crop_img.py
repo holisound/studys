@@ -13,8 +13,8 @@ def main(src, dst):
     array = np.array(Image.open(src))
     R, C = len(array), len(array[0])
     r0 = r1 = c0 = c1 = -1
-    for r in range(R):
-        for c in range(C):
+    for r in range(0, R, 2):  # Check every two pixels
+        for c in range(0, C, 2):
             valid = check_neighbors(array, r, c, R, C)
             if not valid:
                 continue
@@ -31,18 +31,20 @@ def main(src, dst):
 def check_neighbors(mat, r, c, R, C):
     if not in_range(mat[r][c]):
         return False
-    top_left = True
-    bottom_right = True
+    left_top = []
+    right_bottom = []
     for i in range(1 << 4):
         if c + i < C:
-            top_left &= in_range(mat[r][c + i])
+            left_top.append((r, c + i))
         if r + i < R:
-            top_left &= in_range(mat[r + i][c])
+            left_top.append((r + i, c))
         if r - i > -1:
-            bottom_right &= in_range(mat[r - i][c])
+            right_bottom.append((r - i, c))
         if c - i > -1:
-            bottom_right &= in_range(mat[r][c - i])
-    return top_left or bottom_right
+            right_bottom.append((r, c - i))
+    is_left_top = all(in_range(mat[rx][cx]) for rx, cx in left_top)
+    is_right_bottom = all(in_range(mat[rx][cx]) for rx, cx in right_bottom)
+    return is_left_top or is_right_bottom
 
 
 if __name__ == '__main__':
