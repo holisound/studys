@@ -40,7 +40,7 @@ function initXMLHttpRequest() {
     }
 }
 
-(function () {
+function netease() {
     http.request = function (param) {
         console.log(param, "---request");
     };
@@ -53,7 +53,7 @@ function initXMLHttpRequest() {
                 a = iframeDoc.createElement('a');
             a.id = 'clickdownload';
             a.target = '_blank';
-            a.href = `http://localhost:8080/netease/music?data=${JSON.stringify(info)}`;
+            a.href = `http://localhost:8080/netease/music?data=${encodeURIComponent(JSON.stringify(info))}`;
             a.innerHTML = '点这里下载';
             div.appendChild(a);
             q1("#wgloadok").appendChild(div);
@@ -76,12 +76,12 @@ function initXMLHttpRequest() {
         var
             node_song = q1('.tit .f-ff2'),
             node_desc = q1('.tit .subtit'),
-            node_artist = q1('.des.s-fc4>span>a'),
+            node_artist = q1('.des.s-fc4>span'),
             node_albumn = q1('.des.s-fc4>a'),
             node_img = q1('.m-lycifo .u-cover img')
             ;
         var info = {
-            artist: node_artist ? node_artist.innerHTML : '',
+            artist: node_artist ? node_artist.getAttribute('title') : '',
             albumn: node_albumn ? node_albumn.innerHTML : '',
             song: node_song ? node_song.innerHTML : '',
             desc: node_desc ? node_desc.innerHTML : '',
@@ -97,4 +97,36 @@ function initXMLHttpRequest() {
     div.innerHTML = '网易音乐外挂加载成功.';
     div.style = 'color:red;font-size:15px;float:left;';
     q1(".cvrwrap").appendChild(div);
+}
+
+function kugou() {
+    if ($('#wgloadok').length>0) {
+        return
+    }
+    var info = {
+        desc: ''
+    ,   song: $('.active .musiclist-songname-txt').text() || ''
+    ,   imgUrl: $('.albumImg').find('img').attr('src') || ''
+    ,   musicUrl: $('#myAudio').attr('src') || ''
+    ,   albumn: $('.albumName').find('a').attr('title') || ''
+    ,   artist: $('.active .musiclist-artist').text() || ''
+    };
+    var link = $('<a id="wgloadok">点这里下载</a>');
+    link.attr({
+        style: 'color:red;font-size:15px;position:fixed;left:15%;',
+        target: '_blank',
+        href: `http://localhost:8080/netease/music?data=${encodeURIComponent(JSON.stringify(info))}`
+    });
+    $('.singerContent').append(link);
+}
+
+(function () {
+    var host = window.location.host;
+    if (host === 'music.163.com') {
+        netease();
+    } else if (host == 'www.kugou.com') {
+        kugou();
+    } else {
+        alert('加载失败T_T、');
+    }
 })();
