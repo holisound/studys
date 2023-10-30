@@ -1,0 +1,350 @@
+## Phrase
+- aku baru di sini=i'm new here
+- aku baru saja bangun tidur
+- aku besok sekolah jadi harus tidur
+- aku gabut=i am bored
+- apa ini/itu=what's this/that
+- apakah ini sebuah apel
+- apakah kamu sendiri?
+- baiklah, tidak masalah=alright, no problem
+- belum ngantuk=not sleepy
+- berapa harga=how much
+- berapa jam selisih andara indonesia dan china
+- berapa umurmu
+- daging ayam=chicken
+- dari mana kamu belajar pemrogaman dan coding
+- di mana mereka berada?
+- di mana=where
+- di sana=over there
+- di situ=there/over there
+- gk tahu=don't know
+- halo, apa kabar? saya dari shanghai
+- hari ini=today
+- hari minggu=sunday
+- hari sabtu libur sekolah
+- hari sabtu=saturday
+- jangan lupa=do not forget
+- kalau kamu=how about you
+- kamu mau tidak jadi pacarku?
+- kamu sedang apa?=what r u doing?
+- kamu tidak bekerja hari ini?
+- kau salah=you're wrong
+- kaus kaki=socks
+- lagi neg galau=再来一次
+- lu udah makan?
+- masih ingat aku ga?
+- merah muda=pink
+- nyam nyam=yum yum
+- pergi ke=go to
+- sama sama=you are welcome
+- sangat pintar=really smart
+- sarung tangan=glove
+- saya ada di sini=i am here
+- saya belajar bahasa indonesia
+- saya cinta kalian
+- sedang
+- selamat datang=welcome
+- siapa nama kamu?
+- silahkan lanjutkan belajarnya. semangat
+- sudah makann?
+- tentu saja=of course
+- untukmu sayangku=for you my dear-
+
+## Kata-kata
+> A
+- abu-abu=grey
+- ada=is/there's/am
+- ajarin=teach
+- akan=will,would
+- apakah=whether
+- asal=origin
+- atau=or
+- ayam=chicken
+> B
+- bagaimana=how?
+- banyak=a lot
+- baru=new
+- basah=wet
+- behagia=happy
+- bekal=lunchbox
+- bekerja=work
+- bekerja=working
+- benar=right,correct,true
+- benarkah=really?
+- bentar=wait a min
+- berat=heavy
+- berangkat=leave for
+- berasal=come from,originate
+- berbicara=talk,speak
+- berharap=hope,expect,wish
+- berbohong=tell a lie
+- berdiri=stand up
+- bergerak=move
+- berhasil=succeed
+- berhenti=stop
+- berjalan=walk
+- berkembang=progressing
+- berkumpul=gather
+- berkunjung=visit
+- berlaku=valid,apply,counts
+- berlibur=vacation
+- bermain=play
+- berpikir=think
+- bersaing=compete
+- bersama=with,be together with
+- bersih=clean
+- bertemu=meet
+- berubah=change
+- besar=big
+- besok=tomorrow
+- betul=correct
+- biasa=ordinary,normal,common
+- biru=blue
+- bisa=can
+- bisakah=can
+- bodoh=stupid
+- boleh=okay
+- buruk=bad
+> C
+- celana=pants
+- cerita=story
+- cinta=love
+> D
+- daging=meat
+- dapur=kitchen
+- dari...ke=from...to
+- dasi=tie,necktie
+- datang=come,arrive
+- dekat=nearby,close
+- delapan=eight
+- dengan=with/of/to
+- di=is/on/be at
+- dijual=for sale
+- dingin=cold
+- dompet=wallet
+- duduk=sit
+> E
+- empat=four
+- enam=six
+> F
+- favorit=favorite
+> G
+- garam=salt, 盐
+- gaun=dress
+- gedung=building
+- gelap=dark
+- gigit=bite
+- gitar=guitar
+- goreng=fried
+- gula=sugar
+> H
+- hangat=warm
+- harga=price
+- hari=day
+- harus=should,have to
+- hebat=great
+- hijau=green
+- horor=horror
+> I
+- ikan=fish
+- indah=beautiful
+- indomie=noodels
+- ingat=remember
+- inggris=english
+> J
+- jadi=so
+- jahat=evil
+- jam=clock
+- jatuh=fall
+- jauh=far
+- jelas=clear
+- jelek=ugly
+- juice=jus
+- jumlah=sum,amount
+> K
+- kacang=peanut
+- kali=times,multiplied
+- kantong=pocket
+- kapan=when?
+- karena=because
+- kau=kamu, informal
+- kaus=t-shirt
+- kaya=rich
+- kecap=source
+- kecil=little,small
+- kedua=second,both
+- keempat=fourth
+- kelima=fifth
+- keluar=come out(of),go out(of)
+- kembali=come back
+- kemeja=shirt
+- kenapa=why
+- keras=hard
+- keren=impressive
+- kering=dry
+- ketika=when,while
+- ketiga=third
+- kontol=dick
+- kotor=dirty
+- kuat=strong
+- kue=cake
+- kuning=yellow
+- kurang=minus,lack,less
+> L
+- lain=different,other,another
+- lama=long
+- lembut=soft
+- lebar=wide
+- lupa=forget
+- lusin=dozen
+> M
+- main=play
+- mandiri=independent
+- manis=sweet
+- mantel=coat
+- marga=last name
+- masih=still
+- masuk=enter
+- mata=eye
+- melempar=throw
+- melihat=see
+- memakai=wear
+- memanggil=call
+- membangun=build
+- membantu=help
+- membawa=bring
+- membayar=buy
+- membeli=bought
+- memberi=give
+- membuat=make
+- membuka=open
+- memesan=order
+- memilih=choose
+- menarik=pull,interesting
+- mencari=look for
+- mencoba=try
+- mendapat=receive
+- mendengar=hear
+- mendorong=push
+- menerima=receive
+- mengambil=take
+- mengapa=why
+- mengajar=teach
+- mengerti=understand
+- menjadi=become
+- menjaga=protect,guard
+- menjual=sell
+- menolak=refuse
+- menunggu=wait for
+- menutup=close(bag)
+- menurut=obey
+- merica=pepper, 胡椒粉
+- milik=belongs to
+- minta=ask for
+- mirip=resemble,look like,similar
+- miskin=poor
+- muda=young
+- mudah=easy
+- mulai=start,begin
+- mulut=mouth
+- muncul=show up
+> N
+- namun=however,but
+- nanti=later
+- ngentot=fuck
+- nol=zero
+- nomor=number
+> O
+- orangnya=people
+- oranye=orange
+> P
+- pacar=boyfriend
+- pak=sir
+- pakaian=clothes
+- panas=hot
+- panjang=long
+- pasar=market
+- payung=umbrella
+- pendek=short
+- pengen=like to
+- penuh=full,whole
+- permisi=excuse
+- pernah=once
+- persen=percent
+- pertama=first
+- pertanyaan=question
+- pulang=go home
+> R
+- ragu=uncertain
+- ramah=friendly
+- ratus=hundred
+- ratusan=hundreds
+- rekor=record
+- restoran=restaurant
+- rindu=miss
+- ribu=thousand
+- ribuan=thousands
+- rok=skirt
+- rumah=house
+- rumit=complicated
+- rusak=damaged,broken
+> S
+- sabuk=belt
+- sakit=sick
+- salah=wrong
+- salahkah=wrong?
+- salam=greetings
+- sambal=chilli sauce
+- sana=there
+- sarapan=breakfast
+- satu=one,an,first
+- sayang=dear
+- seblak=street food
+- sebentar=a moment
+- sebuah=an
+- sederhana=simple
+- sedih=sad
+- sedikit=bit
+- sehat=healthy
+- sejuta=million
+- sekolah=school
+- seleraku=my taste
+- selesai=finished
+- selusin=one dozen
+- sembilan=nine,ninth
+- semiliar=billion
+- sempurna=perfect
+- sepatu=shoes
+- seribu=thousand
+- setuju=agree
+- sini=here
+- stroberi=strawberry
+- suara=voice
+- sudah=already
+- sulit=difficult
+- syal=scraf
+> T
+- tahu=know
+- tambah=add,plus
+- tampan=handsome
+- tapi=but
+- tas=bag
+- telur=egg
+- terang=bright
+- terlalu=too
+- tidur=sleep
+- tinggal=live
+- tinggi=tall
+- toko=store
+- tolol=fool
+- topi=hat,cap
+- tua=old
+- tujuh=seven
+> U
+- ujian=tests
+- ungu=purple,violet
+- utama=main
+> W
+- warna=color
+> Y
+- yang=a,that,the
