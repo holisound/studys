@@ -75,6 +75,7 @@
 - berat=heavy
 - berangkat=leave for
 - berasal=come from,originate
+- berbahaya=dangerous
 - berbicara=talk,speak
 - berharap=hope,expect,wish
 - berbohong=tell a lie
@@ -94,8 +95,8 @@
 - bersama=with,be together with
 - bersih=clean
 - bertemu=meet
-- berubah=change
-- besar=big
+- berubah=changed
+- besar=big, besar dari=bigger than
 - besok=tomorrow
 - betul=correct
 - biasa=ordinary,normal,common
@@ -104,11 +105,13 @@
 - bisakah=can
 - bodoh=stupid
 - boleh=okay
+- buka=open
 - buruk=bad
 > C
 - celana=pants
 - cerita=story
 - cinta=love
+- cukup=enough
 > D
 - daging=meat
 - dapur=kitchen
@@ -122,6 +125,7 @@
 - dijual=for sale
 - dingin=cold
 - dompet=wallet
+- dulu=first
 - duduk=sit
 > E
 - empat=four
@@ -144,6 +148,7 @@
 - harus=should,have to
 - hebat=great
 - hijau=green
+- hilang=miss/disappear
 - horor=horror
 > I
 - ikan=fish
@@ -184,6 +189,7 @@
 - kering=dry
 - ketika=when,while
 - ketiga=third
+- khusus=special
 - kontol=dick
 - kotor=dirty
 - kuat=strong
@@ -193,7 +199,7 @@
 > L
 - lain=different,other,another
 - lama=long
-- lembut=soft
+- lembut=soft/gentle
 - lebar=wide
 - lupa=forget
 - lusin=dozen
@@ -202,6 +208,7 @@
 - mandiri=independent
 - manis=sweet
 - mantel=coat
+- manta=steadily
 - marga=last name
 - masih=still
 - masuk=enter
@@ -227,10 +234,12 @@
 - mendengar=hear
 - mendorong=push
 - menerima=receive
+- menggambar=draw
 - mengambil=take
 - mengapa=why
 - mengajar=teach
 - mengerti=understand
+- mengubah=change(ing)
 - menjadi=become
 - menjaga=protect,guard
 - menjual=sell
@@ -284,6 +293,7 @@
 - rindu=miss
 - ribu=thousand
 - ribuan=thousands
+- ringan=light
 - rok=skirt
 - rumah=house
 - rumit=complicated
@@ -314,9 +324,12 @@
 - sembilan=nine,ninth
 - semiliar=billion
 - sempurna=perfect
+- sempit=tight
 - sepatu=shoes
 - seribu=thousand
+- sesuai=suitable
 - setuju=agree
+- siap=ready
 - sini=here
 - stroberi=strawberry
 - suara=voice
@@ -333,6 +346,7 @@
 - terang=bright
 - terlalu=too
 - tidur=sleep
+- tiba-tiba=suddenly
 - tinggal=live
 - tinggi=tall
 - toko=store
@@ -340,10 +354,11 @@
 - topi=hat,cap
 - tua=old
 - tujuh=seven
+- tutup=close (books,stores)
 > U
 - ujian=tests
 - ungu=purple,violet
-- utama=main
+- utama=main/primary/major
 > W
 - warna=color
 > Y
