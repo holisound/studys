@@ -34,6 +34,7 @@
 - lu udah makan?
 - masih ingat aku ga?
 - merah muda=pink
+- nama panjang=full name
 - nyam nyam=yum yum
 - pergi ke=go to
 - sama sama=you are welcome
@@ -57,6 +58,7 @@
 - ajarin=teach
 - akan=will,would
 - apakah=whether
+- apapun=anything
 - asal=origin
 - atau=or
 - ayam=chicken
@@ -80,9 +82,11 @@
 - berharap=hope,expect,wish
 - berbohong=tell a lie
 - berdiri=stand up
+- berdua=both
 - bergerak=move
 - berhasil=succeed
 - berhenti=stop
+- beritahu=tell
 - berjalan=walk
 - berkembang=progressing
 - berkumpul=gather
@@ -103,6 +107,7 @@
 - biru=blue
 - bisa=can
 - bisakah=can
+- bobo=sleep
 - bodoh=stupid
 - boleh=okay
 - buka=open
@@ -143,6 +148,7 @@
 - gula=sugar
 > H
 - hangat=warm
+- hanya=only
 - harga=price
 - hari=day
 - harus=should,have to
@@ -164,6 +170,8 @@
 - jauh=far
 - jelas=clear
 - jelek=ugly
+- jika=if
+- jomblo=single
 - juice=jus
 - jumlah=sum,amount
 > K
@@ -223,6 +231,7 @@
 - membayar=buy
 - membeli=bought
 - memberi=give
+- memberitahu=tell
 - membuat=make
 - membuka=open
 - memesan=order
@@ -233,6 +242,7 @@
 - mendapat=receive
 - mendengar=hear
 - mendorong=push
+- menebak=guess
 - menerima=receive
 - menggambar=draw
 - mengambil=take
@@ -260,6 +270,7 @@
 > N
 - namun=however,but
 - nanti=later
+- negara=country
 - ngentot=fuck
 - nol=zero
 - nomor=number
@@ -289,6 +300,7 @@
 - ratus=hundred
 - ratusan=hundreds
 - rekor=record
+- resmi=official
 - restoran=restaurant
 - rindu=miss
 - ribu=thousand
@@ -317,6 +329,7 @@
 - sedikit=bit
 - sehat=healthy
 - sejuta=million
+- sekali=really
 - sekolah=school
 - seleraku=my taste
 - selesai=finished
