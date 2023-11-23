@@ -12,11 +12,14 @@
 - berapa jam selisih andara indonesia dan china
 - berapa umurmu
 - daging ayam=chicken
+- dalam=in
 - dari mana kamu belajar pemrogaman dan coding
+- di dalam kelas= in the classroom
 - di mana mereka berada?
 - di mana=where
 - di sana=over there
 - di situ=there/over there
+- Dompet suami juga terancam di Indonesia
 - gk tahu=don't know
 - halo, apa kabar? saya dari shanghai
 - hari ini=today
@@ -40,14 +43,19 @@
 - sama sama=you are welcome
 - sangat pintar=really smart
 - sarung tangan=glove
+- satu sama lain=each other
 - saya ada di sini=i am here
 - saya belajar bahasa indonesia
 - saya cinta kalian
 - sedang
 - selamat datang=welcome
+- senang=happy
+- sepertinya kamu orang indo ya?=Looks like you're Indonesian, right?
 - siapa nama kamu?
 - silahkan lanjutkan belajarnya. semangat
 - sudah makann?
+- tadi pagi=this morning
+- tahun depan=next year
 - tentu saja=of course
 - untukmu sayangku=for you my dear-
 
@@ -111,6 +119,7 @@
 - bodoh=stupid
 - boleh=okay
 - buka=open
+- bulan=month
 - buruk=bad
 > C
 - celana=pants
@@ -126,6 +135,7 @@
 - dekat=nearby,close
 - delapan=eight
 - dengan=with/of/to
+- depan=next
 - di=is/on/be at
 - dijual=for sale
 - dingin=cold
@@ -183,10 +193,12 @@
 - kau=kamu, informal
 - kaus=t-shirt
 - kaya=rich
+- keadaan=situation
 - kecap=source
 - kecil=little,small
 - kedua=second,both
 - keempat=fourth
+- kelas=class
 - kelima=fifth
 - keluar=come out(of),go out(of)
 - kembali=come back
@@ -205,14 +217,17 @@
 - kuning=yellow
 - kurang=minus,lack,less
 > L
+- lahir=born
 - lain=different,other,another
 - lama=long
 - lembut=soft/gentle
 - lebar=wide
+- lewat=through
 - lupa=forget
 - lusin=dozen
 > M
 - main=play
+- maksud=meaning
 - mandiri=independent
 - manis=sweet
 - mantel=coat
@@ -248,7 +263,10 @@
 - mengambil=take
 - mengapa=why
 - mengajar=teach
+- mengatakan=say
 - mengerti=understand
+- menghapus=delete/remove
+- mengirim=send(text message)
 - mengubah=change(ing)
 - menjadi=become
 - menjaga=protect,guard
@@ -288,6 +306,8 @@
 - pendek=short
 - pengen=like to
 - penuh=full,whole
+- perbedaan=difference
+- percaya=believe
 - permisi=excuse
 - pernah=once
 - persen=percent
@@ -311,6 +331,7 @@
 - rumit=complicated
 - rusak=damaged,broken
 > S
+- saat=moment
 - sabuk=belt
 - sakit=sick
 - salah=wrong
@@ -328,9 +349,12 @@
 - sedih=sad
 - sedikit=bit
 - sehat=healthy
+- sejak=since
 - sejuta=million
 - sekali=really
+- sekarang=now
 - sekolah=school
+- selalu=always
 - seleraku=my taste
 - selesai=finished
 - selusin=one dozen
@@ -339,25 +363,32 @@
 - sempurna=perfect
 - sempit=tight
 - sepatu=shoes
+- seperti=like
 - seribu=thousand
 - sesuai=suitable
 - setuju=agree
 - siap=ready
 - sini=here
 - stroberi=strawberry
+- suami=husband
 - suara=voice
 - sudah=already
 - sulit=difficult
 - syal=scraf
 > T
+- tadi=earlier/just now
 - tahu=know
+- tahun=year
 - tambah=add,plus
 - tampan=handsome
 - tapi=but
 - tas=bag
+- teliti=careful
 - telur=egg
+- terancam=threaten
 - terang=bright
 - terlalu=too
+- tetap=keep
 - tidur=sleep
 - tiba-tiba=suddenly
 - tinggal=live
