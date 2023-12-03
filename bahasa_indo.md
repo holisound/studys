@@ -7,6 +7,7 @@
 - apakah ini sebuah apel
 - apakah kamu sendiri?
 - baiklah, tidak masalah=alright, no problem
+- baru saja=just now
 - belum ngantuk=not sleepy
 - berapa harga=how much
 - berapa jam selisih andara indonesia dan china
@@ -49,6 +50,7 @@
 - saya cinta kalian
 - sedang
 - selamat datang=welcome
+- selamat ulang tahun=Happy Birthday
 - senang=happy
 - sepertinya kamu orang indo ya?=Looks like you're Indonesian, right?
 - siapa nama kamu?
@@ -86,6 +88,7 @@
 - berangkat=leave for
 - berasal=come from,originate
 - berbahaya=dangerous
+- berbeda=different
 - berbicara=talk,speak
 - berharap=hope,expect,wish
 - berbohong=tell a lie
@@ -157,6 +160,7 @@
 - goreng=fried
 - gula=sugar
 > H
+- hampir=almost
 - hangat=warm
 - hanya=only
 - harga=price
@@ -204,6 +208,7 @@
 - kembali=come back
 - kemeja=shirt
 - kenapa=why
+- kenyang=full(with food)
 - keras=hard
 - keren=impressive
 - kering=dry
@@ -306,6 +311,7 @@
 - pendek=short
 - pengen=like to
 - penuh=full,whole
+- berbaikan=repair/fix/improvement
 - perbedaan=difference
 - percaya=believe
 - permisi=excuse
